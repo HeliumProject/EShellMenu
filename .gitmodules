@@ -1,0 +1,3 @@
+[submodule "submodule/wxWidgets"]
+	path = submodule/wxWidgets
+	url = git://github.com/HeliumProject/wxWidgets.git
