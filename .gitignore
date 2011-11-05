@@ -1,0 +1,15 @@
+*.aps
+*.sdf
+*.opensdf
+*.suo
+*.ncb
+*.user
+*.tags
+*.session
+*.db
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+build/*
+built/*
+ipch/*
