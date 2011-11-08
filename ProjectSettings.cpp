@@ -434,7 +434,6 @@ bool ProjectSettings::LoadFile( const std::string& file, bool includeFile )
 
 	doc.Clear();
 
-#pragma message("We need to wait ProcessInculdeFiles for each shortcut.")
 	// We can't ProcessInculdeFiles here because part of the path may
 	// have been defined in the with EvnVars in the EnvironmentVariableAlias,
 	// so we can't ProcessValue on the include path or we will get the
