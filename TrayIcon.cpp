@@ -11,7 +11,6 @@
 #include "icons/install.xpm"
 #include "icons/launcher.xpm"
 #include "icons/launcher_busy.xpm"
-#include "icons/new_update.xpm"
 #include "icons/prompt.xpm"
 #include "icons/setup.xpm"
 #include "icons/sln.xpm"
@@ -650,27 +649,6 @@ void TrayIcon::CreateMenu()
 		wxITEM_NORMAL );
 	m_Menu->Prepend( projectMenuItem );
 	projectMenuItem->Enable( false );
-
-	// If there is a launcher update available, show it on the menu
-	if ( m_Application->IsUpdateAvailable() )
-	{
-		m_Menu->PrependSeparator();
-
-		std::string newVersion = m_Application->GetAvailableVersionString();
-		wxString itemTitle = "New Update Available!";
-		if ( !newVersion.empty() )
-		{
-			itemTitle += wxString( " [v" ) + wxString( newVersion.c_str() ) + wxString( "]" );
-		}
-		wxMenuItem* updateLauncherMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::UpdateLauncher, itemTitle, wxEmptyString, wxITEM_NORMAL );
-		wxIcon icon;
-		icon.CopyFromBitmap( wxBitmap( ( const char** )g_NewUpdateIconXpm ) );
-		updateLauncherMenuItem->SetBitmap( icon );
-		wxFont font = updateLauncherMenuItem->GetFont();
-		font.SetWeight( wxFONTWEIGHT_BOLD );
-		updateLauncherMenuItem->SetFont( font );
-		m_Menu->Prepend( updateLauncherMenuItem );
-	}
 }
 
 void TrayIcon::DetectAndSetIcon( DisplayShortcut& displayShortcut, wxMenuItem* shortcutMenuItem )

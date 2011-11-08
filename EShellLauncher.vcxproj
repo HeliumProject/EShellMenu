@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{78E67146-D146-4815-AD92-46922B327547}</ProjectGuid>
-    <RootNamespace>Launcher</RootNamespace>
+    <RootNamespace>EShellLauncher</RootNamespace>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>
@@ -137,7 +137,7 @@
     <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Launcher.rc" />
+    <ResourceCompile Include="EShellLauncher.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="submodule\TinyXML\tinyxmlSTL.vcxproj">

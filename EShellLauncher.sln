@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher.vcxproj", "{78E67146-D146-4815-AD92-46922B327547}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EShellLauncher", "EShellLauncher.vcxproj", "{78E67146-D146-4815-AD92-46922B327547}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyxmlSTL", "submodule\TinyXML\tinyxmlSTL.vcxproj", "{A3A84737-5017-4577-B8A2-79429A25B8B6}"
 EndProject

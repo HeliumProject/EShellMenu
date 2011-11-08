@@ -81,7 +81,7 @@ BEGIN
             VALUE "FileVersion", "2"", ""2"", ""0"", 0"
             VALUE "InternalName", "EShell Launcher"
             VALUE "LegalCopyright", "Copyright (C) Helium Project"
-            VALUE "OriginalFilename", "Launcher.exe"
+            VALUE "OriginalFilename", "EShellLauncher.exe"
             VALUE "ProductName", "EShell Launcher"
             VALUE "ProductVersion", "2"", ""2"", ""0"", 0"
         END
