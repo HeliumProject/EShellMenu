@@ -1,13 +1,13 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by Launcher.rc
-//
-#define LAUNCHER_VERSION_PATCH          0
 #define LAUNCHER_VERSION_COMPATIBLE     2
 #define LAUNCHER_VERSION_FEATURE        2
-#define LAUNCHER_ICON                   101
-#define FOLDER_ICON                     102
-#define PROMPT_ICON                     103
+#define LAUNCHER_VERSION_PATCH          0
+
+#define LAUNCHER_ICON					101
+#define LAUNCHER_BUSY_ICON				102
+#define FOLDER_ICON						103
+#define FOLDER_CLOSED_ICON				104
+#define OPTIONS_ICON					105
+#define REFRESH_ICON					106
 
 // Next default values for new objects
 // 

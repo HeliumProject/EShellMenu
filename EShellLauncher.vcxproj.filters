@@ -24,6 +24,6 @@
     <ClInclude Include="Exception.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Launcher.rc" />
+    <ResourceCompile Include="EShellLauncher.rc" />
   </ItemGroup>
 </Project>

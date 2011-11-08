@@ -50,8 +50,11 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 LAUNCHER_ICON           ICON                    "icons\\launcher.ico"
+LAUNCHER_BUSY_ICON      ICON                    "icons\\launcher_busy.ico"
 FOLDER_ICON             ICON                    "icons\\folder.ico"
-PROMPT_ICON             ICON                    "icons\\prompt.ico"
+FOLDER_CLOSED_ICON      ICON                    "icons\\folder_closed.ico"
+OPTIONS_ICON			ICON                    "icons\\options.ico"
+REFRESH_ICON			ICON                    "icons\\refresh.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

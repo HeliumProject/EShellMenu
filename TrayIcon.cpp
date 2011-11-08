@@ -6,15 +6,7 @@
 #include "DisplayShortcut.h"
 #include "Helper.h"
 #include "Version.h"
-
-#include "icons/folder.xpm"
-#include "icons/install.xpm"
-#include "icons/launcher.xpm"
-#include "icons/launcher_busy.xpm"
-#include "icons/prompt.xpm"
-#include "icons/setup.xpm"
-#include "icons/sln.xpm"
-#include "icons/throbber1.xpm"
+#include "resource.h"
 
 using namespace Launcher;
 
@@ -24,9 +16,9 @@ TrayIcon::TrayIcon( Application* application )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
-	wxIcon tempIcon;
-	tempIcon.CopyFromBitmap( wxBitmap( ( const char** )g_LauncherBusyIconXpm ) );  
-	SetIcon( tempIcon, "Initializing Launcher..." );
+	wxIcon icon;
+	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ) ) );
+	SetIcon( icon, "Initializing Launcher..." );
 
 	// Connect Events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
@@ -100,13 +92,11 @@ void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 	std::string aboutLauncher("");
 	aboutLauncher += 
 		"The EShell Launcher is a system tray applicaiton used to launch \n" \
-		"EShell's tools in the correct project environment. \n";
-
+		"EShell's tools in the correct process environment. \n";
 	aboutLauncher +=
 		"\nFeatures:\n" \
 		"  Shift+Click - add/remove a 'favorite' shortcut.\n" \
 		"  Ctrl+Click  - copy a shortcut to the clipboard.\n";
-
 	aboutLauncher += 
 		"\nThis version of the Launcher is compatible with EShell [v"ESHELL_VERSION"] \n" \
 		"and 32bit Perl [v"PERL_VERSION"].\n"; // "\n  Copyright 2009 EShell Games, Inc.\n";
@@ -205,9 +195,9 @@ void TrayIcon::BeginBusy()
 	Disconnect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
 
 	// Clear the current menu and change the icon to notify the user that things are happening
-	wxIcon tempIcon;
-	tempIcon.CopyFromBitmap( wxBitmap( ( const char** )g_LauncherBusyIconXpm ) );
-	SetIcon( tempIcon, wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
+	wxIcon icon;
+	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_BUSY_ICON ) ) );
+	SetIcon( icon, wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
 }
 
 void TrayIcon::EndBusy()
@@ -223,9 +213,9 @@ void TrayIcon::EndBusy()
 	Connect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
 
 	// Set the icon back
-	wxIcon tempIcon;
-	tempIcon.CopyFromBitmap( wxBitmap( ( const char** )g_LauncherIconXpm ) );
-	SetIcon( tempIcon, m_Application->m_Title.c_str() );
+	wxIcon icon;
+	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ) ) );
+	SetIcon( icon, m_Application->m_Title.c_str() );
 }
 
 #if 0
@@ -593,42 +583,30 @@ void TrayIcon::CreateMenu()
 	}
 
 	////////////////////////////////////////
-	// Create the Setup submenu  
-	wxMenu* setupMenu = new wxMenu();
+	// Refresh
+	wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Refresh, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
+#if 0
+	HICON hIcon = ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ) );
 
-	////////////////////////////////////////
-	// Refresh projects
 	wxIcon refreshIcon;
-	refreshIcon.CopyFromBitmap( wxBitmap( ( const char** )g_Throbber1IconXpm ) );
+	refreshIcon.SetHICON( hIcon );
+	
+	HBITMAP hBitmap;
+	ICONINFO iconinfo;
+	::GetIconInfo(hIcon, &iconinfo);
+	hBitmap = iconinfo.hbmColor;
 
-	wxMenuItem* refreshMenuItem;
-	refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Refresh, wxT( "Refresh Projects" ), wxEmptyString, wxITEM_NORMAL );
-	refreshMenuItem->SetBitmap( refreshIcon );
-	refreshMenuItem->SetText( wxT( "Refresh Projects" ) );
-	refreshMenuItem->Enable( true );
-	setupMenu->Append( refreshMenuItem );
-
-	setupMenu->AppendSeparator();
+	wxBitmap refreshBitmap;
+	refreshBitmap.SetHBITMAP( hBitmap );
+	
+	wxImage refreshImage = refreshBitmap.ConvertToImage();
+	refreshMenuItem->SetBitmap( refreshImage );
+#endif
+	m_Menu->Append( refreshMenuItem );
 
 	////////////////////////////////////////
-	// About...
-	wxMenuItem* aboutMenuItem;
-	aboutMenuItem = new wxMenuItem( setupMenu, LauncherEventIDs::Help, wxString("About ") + m_Application->m_Title.c_str() , wxEmptyString, wxITEM_NORMAL );
-	setupMenu->Append( aboutMenuItem );
-
-	wxIcon setupIcon;
-	setupIcon.CopyFromBitmap( wxBitmap( ( const char** )g_SetupIconXpm ) );
-
-	wxMenuItem* setupMenuItem = new wxMenuItem(
-		m_Menu,
-		wxID_ANY,
-		wxT( "Setup..." ),
-		wxT( "Setup..." ),
-		wxITEM_NORMAL,
-		setupMenu );
-	setupMenuItem->SetBitmap( setupIcon );
-	m_Menu->Append( setupMenuItem );
-
+	// Help
+	m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
 	m_Menu->AppendSeparator();
 
 	////////////////////////////////////////
@@ -661,26 +639,12 @@ void TrayIcon::DetectAndSetIcon( DisplayShortcut& displayShortcut, wxMenuItem* s
 	}
 	else
 	{
-		//TODO: try to get a good default icon
-		wxIcon icon;
-		if ( displayShortcut.m_Name.find( "sln" ) != std::string::npos )
-		{
-			icon.CopyFromBitmap( wxBitmap( ( const char** )g_SlnIconXpm ) );
-			shortcutMenuItem->SetBitmap( icon );
-		}
-		else if ( displayShortcut.m_Name.find( "ompt" ) != std::string::npos )
-		{
-			icon.CopyFromBitmap( wxBitmap( ( const char** )g_PromptIconXpm ) );
-			shortcutMenuItem->SetBitmap( icon );
-		}
+		// fetch icon from Windows Shell API
 	}
 }
 
 void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 {
-	wxIcon subMenuIcon;
-	subMenuIcon.CopyFromBitmap( wxBitmap( ( const char** )g_FolderIconXpm ) );
-
 	V_DisplayShortcut favoriteShortcuts;
 
 	M_DisplayShortcuts::iterator projItr = m_DisplayShortcuts.begin();
@@ -760,7 +724,11 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 				wxString( wxT( subMenuItr->first.c_str() ) ),
 				wxITEM_NORMAL,
 				subMenuItr->second );
-			subMenuItem->SetBitmap( subMenuIcon );
+
+			wxIcon icon;
+			icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( FOLDER_ICON ) ) );
+			subMenuItem->SetBitmap( wxBitmap( icon ) );
+
 			projectMenu->Prepend( subMenuItem );
 		}
 
