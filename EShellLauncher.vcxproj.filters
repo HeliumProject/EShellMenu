@@ -6,8 +6,8 @@
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="TrayIcon.cpp" />
-    <ClCompile Include="DisplayShortcut.cpp" />
     <ClCompile Include="ProjectSettings.cpp" />
+    <ClCompile Include="Shortcut.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -18,10 +18,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Preferences.h" />
     <ClInclude Include="TrayIcon.h" />
-    <ClInclude Include="DisplayBase.h" />
-    <ClInclude Include="DisplayShortcut.h" />
     <ClInclude Include="ProjectSettings.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Shortcut.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EShellLauncher.rc" />

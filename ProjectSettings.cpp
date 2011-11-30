@@ -270,7 +270,7 @@ void ProjectSettings::ParseEShell( TiXmlElement* elem, EShell& eshell, M_EnvVar&
 		// <Shortcut>
 		if ( eshellElemString.compare( "Shortcut" ) == 0 )
 		{
-			Shortcut shortcut;
+			ShortcutInfo shortcut;
 
 			for ( TiXmlElement* shortcutElem = eshellElem->FirstChildElement(); shortcutElem != NULL; shortcutElem = shortcutElem->NextSiblingElement() )
 			{

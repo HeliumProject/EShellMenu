@@ -4,9 +4,9 @@ namespace Launcher
 {
 	class Application;
 
-	class DisplayShortcut;
-	typedef std::vector< DisplayShortcut > V_DisplayShortcut;
-	typedef std::map< std::string, V_DisplayShortcut > M_DisplayShortcuts;
+	class Shortcut;
+	typedef std::vector< Shortcut > V_Shortcut;
+	typedef std::map< std::string, V_Shortcut > M_Shortcuts;
 
 	///////////////////////////////////////
 	// TrayIcon LauncherEventIDs
@@ -52,13 +52,13 @@ namespace Launcher
 		void Refresh( bool reloadProjects = true );
 
 		void CreateMenu();
-		void DetectAndSetIcon( DisplayShortcut& displayShortcut, wxMenuItem* shortcutMenuItem );
+		void DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem );
 		void CreateProjectsMenu( wxMenu* parentMenu );
 
 	private:
 		Application*  m_Application;
 
-		M_DisplayShortcuts  m_DisplayShortcuts;
+		M_Shortcuts  m_Shortcuts;
 
 		wxMenu*       m_Menu;
 		int           m_BusyCount;

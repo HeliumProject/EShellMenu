@@ -3,7 +3,7 @@
 
 #include "Application.h"
 #include "Config.h"
-#include "DisplayShortcut.h"
+#include "Shortcut.h"
 #include "Helper.h"
 #include "Version.h"
 #include "resource.h"
@@ -50,7 +50,7 @@ void TrayIcon::Initialize()
 
 void TrayIcon::Cleanup()
 {
-	m_DisplayShortcuts.clear();
+	m_Shortcuts.clear();
 
 	RemoveIcon();
 
@@ -131,28 +131,28 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
 	{
 		wxMenuItem* shortcutMenuItem = projectMenu->FindItem( evt.GetId() ); 
-		DisplayShortcut* displayShortcut = reinterpret_cast<DisplayShortcut*> ( shortcutMenuItem->GetRefData() );
+		Shortcut* shortcut = reinterpret_cast<Shortcut*> ( shortcutMenuItem->GetRefData() );
 
 		if ( wxIsCtrlDown() )
 		{
-			displayShortcut->CopyToClipboard();
+			shortcut->CopyToClipboard();
 		}
 		else if ( wxIsShiftDown() )
 		{
-			m_Application->AddFavorite( displayShortcut->m_Command );
+			m_Application->AddFavorite( shortcut->m_Command );
 
 			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Redraw );
 			AddPendingEvent( pending );
 		}
-		else if ( displayShortcut->m_Disable )
+		else if ( shortcut->m_Disable )
 		{
 			wxString invalidShortcut( "" );
 
-			if ( !displayShortcut->m_DisableReason.empty() )
+			if ( !shortcut->m_DisableReason.empty() )
 			{
 				invalidShortcut += "The Launcher was unable to create valid settings for this shortcut\n";
 				invalidShortcut += "for the following reason(s):\n";
-				invalidShortcut += displayShortcut->m_DisableReason + "\n";
+				invalidShortcut += shortcut->m_DisableReason + "\n";
 			}
 			else
 			{
@@ -177,7 +177,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 		{
 			BeginBusy();
 			{
-				displayShortcut->Execute();
+				shortcut->Execute();
 			}
 			EndBusy();
 		}
@@ -220,7 +220,7 @@ void TrayIcon::EndBusy()
 
 #if 0
 
-void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const Install& install, const Config& config, const std::string& buildConfig, const std::string& assetsBranch )
+void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Install& install, const Config& config, const std::string& buildConfig, const std::string& assetsBranch )
 {
 	////////////////////////////////////////
 	// Setup Aliased EnvVars
@@ -253,51 +253,51 @@ void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const
 
 
 	////////////////////////////////////////
-	// Create the DisplayShortcuts
-	V_Shortcut::const_iterator ssItr = config.m_EShell.m_Shortcuts.begin();
-	V_Shortcut::const_iterator ssEndItr = config.m_EShell.m_Shortcuts.end();
+	// Create the Shortcuts
+	V_ShortcutInfo::const_iterator ssItr = config.m_EShell.m_Shortcuts.begin();
+	V_ShortcutInfo::const_iterator ssEndItr = config.m_EShell.m_Shortcuts.end();
 	for ( ; ssItr != ssEndItr; ++ssItr )
 	{
-		const Shortcut& shortcut = (*ssItr);
+		const ShortcutInfo& shortcut = (*ssItr);
 
-		// create a DisplayShortcut
-		DisplayShortcut displayShortcut;
-		displayShortcut.m_Name = shortcut.m_Name;
-		ProjectSettings::ProcessValue( displayShortcut.m_Name, copyEnvVars );
+		// create a Shortcut
+		Shortcut shortcut;
+		shortcut.m_Name = shortcut.m_Name;
+		ProjectSettings::ProcessValue( shortcut.m_Name, copyEnvVars );
 
 		// ProjectName
-		displayShortcut.m_ProjectName = project.m_Name;
+		shortcut.m_ProjectName = project.m_Name;
 
 		// Icon
-		displayShortcut.m_Icon = shortcut.m_IconPath;
-		ProjectSettings::ProcessValue( displayShortcut.m_Icon, copyEnvVars );
+		shortcut.m_Icon = shortcut.m_IconPath;
+		ProjectSettings::ProcessValue( shortcut.m_Icon, copyEnvVars );
 
 		// Description
-		displayShortcut.m_Description = shortcut.m_Description;
-		ProjectSettings::ProcessValue( displayShortcut.m_Description, copyEnvVars );
+		shortcut.m_Description = shortcut.m_Description;
+		ProjectSettings::ProcessValue( shortcut.m_Description, copyEnvVars );
 
 		// StartIn
 		if ( copyEnvVars.find( "IG_PROJECT_ROOT" ) != copyEnvVars.end() )
 		{
-			displayShortcut.m_StartIn = copyEnvVars["IG_PROJECT_ROOT"].m_Value;
-			ProjectSettings::ProcessValue( displayShortcut.m_StartIn, copyEnvVars );
+			shortcut.m_StartIn = copyEnvVars["IG_PROJECT_ROOT"].m_Value;
+			ProjectSettings::ProcessValue( shortcut.m_StartIn, copyEnvVars );
 		}
 		else
 		{
-			displayShortcut.m_Disable = true;
-			displayShortcut.m_DisableReason = "The required variable \"IG_PROJECT_ROOT\" was not defined in the ProjectSettings file.";
+			shortcut.m_Disable = true;
+			shortcut.m_DisableReason = "The required variable \"IG_PROJECT_ROOT\" was not defined in the ProjectSettings file.";
 		}
 
 		// IG_ROOT
 		if ( copyEnvVars.find( "IG_ROOT" ) != copyEnvVars.end() )
 		{
-			displayShortcut.m_Root = copyEnvVars["IG_ROOT"].m_Value;
-			ProjectSettings::ProcessValue( displayShortcut.m_Root, copyEnvVars );
+			shortcut.m_Root = copyEnvVars["IG_ROOT"].m_Value;
+			ProjectSettings::ProcessValue( shortcut.m_Root, copyEnvVars );
 		}
 		else
 		{
-			displayShortcut.m_Disable = true;
-			displayShortcut.m_DisableReason = "The required variable \"IG_ROOT\" was not defined in the ProjectSettings file or environment.";
+			shortcut.m_Disable = true;
+			shortcut.m_DisableReason = "The required variable \"IG_ROOT\" was not defined in the ProjectSettings file or environment.";
 		}
 
 		// Get EShell path
@@ -309,120 +309,120 @@ void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const
 		}
 		else
 		{
-			displayShortcut.m_Disable = true;
-			displayShortcut.m_DisableReason = "The required variable \"ESHELL_PATH\" was not defined in the ProjectSettings file.";
+			shortcut.m_Disable = true;
+			shortcut.m_DisableReason = "The required variable \"ESHELL_PATH\" was not defined in the ProjectSettings file.";
 		}
 
 		if ( !FileExists( eshellPath ) )
 		{
-			displayShortcut.m_Disable = true;
-			displayShortcut.m_DisableReason = "EShell.pl did not exist in the expected location:\n  - \"" + eshellPath + "\"";
+			shortcut.m_Disable = true;
+			shortcut.m_DisableReason = "EShell.pl did not exist in the expected location:\n  - \"" + eshellPath + "\"";
 		}
 
 		// SettingsFile Path
 		std::string settingsFile = project.m_SettingsFile;
 
 		// Build the Command  
-		displayShortcut.m_Command = PERL_EXE" \"" + eshellPath + "\"";
-		displayShortcut.m_Command += " -settingsFile \"" + settingsFile + "\"";
-		displayShortcut.m_Command += " -config " + install.m_Config;
+		shortcut.m_Command = PERL_EXE" \"" + eshellPath + "\"";
+		shortcut.m_Command += " -settingsFile \"" + settingsFile + "\"";
+		shortcut.m_Command += " -config " + install.m_Config;
 
-		displayShortcut.m_Command += " -set \"IG_ROOT=";
-		displayShortcut.m_Command += displayShortcut.m_Root; 
-		displayShortcut.m_Command += "\"";
+		shortcut.m_Command += " -set \"IG_ROOT=";
+		shortcut.m_Command += shortcut.m_Root; 
+		shortcut.m_Command += "\"";
 
 		if ( !envVarAlias[EnvVarAliasNames::Assets].empty() )
 		{
-			displayShortcut.m_Command += " -";
-			displayShortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Assets ); 
-			displayShortcut.m_Command += " " + assets;
+			shortcut.m_Command += " -";
+			shortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Assets ); 
+			shortcut.m_Command += " " + assets;
 		}
 
 		if ( !envVarAlias[EnvVarAliasNames::Code].empty() )
 		{
-			displayShortcut.m_Command += " -";
-			displayShortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Code ); 
-			displayShortcut.m_Command += " " + code;
+			shortcut.m_Command += " -";
+			shortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Code ); 
+			shortcut.m_Command += " " + code;
 		}
 
 		if ( !envVarAlias[EnvVarAliasNames::Game].empty() && game != project.m_Name )
 		{
-			displayShortcut.m_Command += " -";
-			displayShortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Game ); 
-			displayShortcut.m_Command += " " + game;
+			shortcut.m_Command += " -";
+			shortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Game ); 
+			shortcut.m_Command += " " + game;
 		}
 
 		if ( !envVarAlias[EnvVarAliasNames::Build].empty() && !buildConfig.empty() )
 		{
-			displayShortcut.m_Command += " -";
-			displayShortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Build ); 
-			displayShortcut.m_Command += " " + buildConfig;
+			shortcut.m_Command += " -";
+			shortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Build ); 
+			shortcut.m_Command += " " + buildConfig;
 		}
 
 		if ( !envVarAlias[EnvVarAliasNames::Tools].empty() && !install.m_Tools.empty() )
 		{
-			displayShortcut.m_Command += " -";
-			displayShortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Tools ); 
-			displayShortcut.m_Command += " " + install.m_Tools;
+			shortcut.m_Command += " -";
+			shortcut.m_Command += Launcher::GetEnvVarAliasNameString( EnvVarAliasNames::Tools ); 
+			shortcut.m_Command += " " + install.m_Tools;
 		}
 
 		if ( !shortcut.m_Args.empty() )
 		{
-			displayShortcut.m_Command += " " + shortcut.m_Args;
+			shortcut.m_Command += " " + shortcut.m_Args;
 		}
 
-		ProjectSettings::ProcessValue( displayShortcut.m_Command, copyEnvVars );
+		ProjectSettings::ProcessValue( shortcut.m_Command, copyEnvVars );
 
 
 		// Create the Display Folder
-		displayShortcut.m_Folder = "";
+		shortcut.m_Folder = "";
 		if ( !game.empty() && game != project.m_Name )
 		{
-			displayShortcut.m_Folder = Capitalize( game, true );
+			shortcut.m_Folder = Capitalize( game, true );
 		}
 
 		if ( install.m_Config == Launcher::InstallConfigNames[InstallTypes::Code] )
 		{
-			displayShortcut.m_Folder += ( displayShortcut.m_Folder.empty() ) ? "" : " ";
-			displayShortcut.m_Folder += "Tools Builder";
+			shortcut.m_Folder += ( shortcut.m_Folder.empty() ) ? "" : " ";
+			shortcut.m_Folder += "Tools Builder";
 		}
 		else if ( ( install.m_InstallType == InstallTypes::Game ) || ( install.m_InstallType == InstallTypes::Release ) )
 		{
-			displayShortcut.m_Folder += ( displayShortcut.m_Folder.empty() ) ? "" : " ";
+			shortcut.m_Folder += ( shortcut.m_Folder.empty() ) ? "" : " ";
 
 			if ( !tools.empty() && tools != s_DefaultToolsRelease )
 			{
 				if ( !code.empty() && code != s_DefaultCodeBranch )
 				{
-					displayShortcut.m_Folder += Capitalize( tools ) + " Tools (" + code + ")";
+					shortcut.m_Folder += Capitalize( tools ) + " Tools (" + code + ")";
 				}
 				else
 				{
-					displayShortcut.m_Folder += Capitalize( tools ) + " Tools";
+					shortcut.m_Folder += Capitalize( tools ) + " Tools";
 				}
 			}
 			else if ( !code.empty() && code != s_DefaultCodeBranch )
 			{
-				displayShortcut.m_Folder += Capitalize( RemoveSlashes( code ) ) + " Tools";
+				shortcut.m_Folder += Capitalize( RemoveSlashes( code ) ) + " Tools";
 			}
 		}
 
 		// Special folder names for non-devel and non-game assets branch
 		if ( !assets.empty() && game == project.m_Name && assets != s_DefaultAssetBranch )
 		{
-			if ( displayShortcut.m_Folder.empty() )
+			if ( shortcut.m_Folder.empty() )
 			{
-				displayShortcut.m_Folder += Capitalize( assets, true ) + " Assets";
+				shortcut.m_Folder += Capitalize( assets, true ) + " Assets";
 			}
 			else
 			{
-				displayShortcut.m_Folder += " (" + Capitalize( assets, true ) + " Assets)";
+				shortcut.m_Folder += " (" + Capitalize( assets, true ) + " Assets)";
 			}
 		}
 
 		// Create the FavoriteName
-		displayShortcut.m_FavoriteName = ""; //displayShortcut.m_Name;
-		displayShortcut.m_FavoriteName = Capitalize( displayShortcut.m_ProjectName, true ) + " - " + displayShortcut.m_Name;
+		shortcut.m_FavoriteName = ""; //shortcut.m_Name;
+		shortcut.m_FavoriteName = Capitalize( shortcut.m_ProjectName, true ) + " - " + shortcut.m_Name;
 
 		bool hasSpecialString = false;
 		if ( ( install.m_InstallType == InstallTypes::Game ) || ( install.m_InstallType == InstallTypes::Release ) )
@@ -431,42 +431,42 @@ void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const
 			{
 				if ( !code.empty() && code != s_DefaultCodeBranch )
 				{
-					displayShortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
-					displayShortcut.m_FavoriteName += Capitalize( tools ) + " Tools [" + code + "]";
+					shortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
+					shortcut.m_FavoriteName += Capitalize( tools ) + " Tools [" + code + "]";
 					hasSpecialString = true;
 				}
 				else
 				{
-					displayShortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
-					displayShortcut.m_FavoriteName += Capitalize( tools ) + " Tools";
+					shortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
+					shortcut.m_FavoriteName += Capitalize( tools ) + " Tools";
 					hasSpecialString = true;
 				}
 			}
 			else if ( !code.empty() && code != s_DefaultCodeBranch )
 			{
-				displayShortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
-				displayShortcut.m_FavoriteName += Capitalize( RemoveSlashes( code ) ) + " Tools";
+				shortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
+				shortcut.m_FavoriteName += Capitalize( RemoveSlashes( code ) ) + " Tools";
 				hasSpecialString = true;
 			}
 		}
 
 		if ( !assets.empty() && game == project.m_Name && assets != s_DefaultAssetBranch )
 		{
-			displayShortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
-			displayShortcut.m_FavoriteName += Capitalize( assets, true ) + " Assets";
+			shortcut.m_FavoriteName += hasSpecialString ? "/" : " (";
+			shortcut.m_FavoriteName += Capitalize( assets, true ) + " Assets";
 			hasSpecialString = true;
 		}
 
 		if ( hasSpecialString )
 		{
-			displayShortcut.m_FavoriteName += ")";
+			shortcut.m_FavoriteName += ")";
 		}
 
-		shortcuts.push_back( displayShortcut );
+		shortcuts.push_back( shortcut );
 	}
 }
 
-void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const Install& install, const Config& config, const std::string& buildConfig )
+void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Install& install, const Config& config, const std::string& buildConfig )
 {
 	// if there's more than one asset branch, iterate over all of them
 	if ( !install.m_Game.empty() && install.m_Game == project.m_Name && !project.m_Assets.empty() )
@@ -484,7 +484,7 @@ void CreateShortcut( const Project& project, V_DisplayShortcut& shortcuts, const
 	}
 }
 
-void CreateShortcuts( const M_Projects& projects, M_DisplayShortcuts& displayShortcuts )
+void CreateShortcuts( const M_Projects& projects, M_Shortcuts& displayShortcuts )
 {
 	V_string buildConfigs;
 	buildConfigs.push_back( "debug" );
@@ -498,10 +498,10 @@ void CreateShortcuts( const M_Projects& projects, M_DisplayShortcuts& displaySho
 		const Project& project = projItr->second;
 
 		// Make the shortcuts
-		Nocturnal::Insert<M_DisplayShortcuts>::Result insertedShortcuts = displayShortcuts.insert( M_DisplayShortcuts::value_type( projName, V_DisplayShortcut() ) );
+		Nocturnal::Insert<M_Shortcuts>::Result insertedShortcuts = displayShortcuts.insert( M_Shortcuts::value_type( projName, V_Shortcut() ) );
 		if ( insertedShortcuts.second )
 		{
-			V_DisplayShortcut& shortcuts = insertedShortcuts.first->second;
+			V_Shortcut& shortcuts = insertedShortcuts.first->second;
 
 			V_Install allInstall;
 			allInstall.insert( allInstall.end(), project.m_ReleaseInstalls.begin(), project.m_ReleaseInstalls.end() );
@@ -556,9 +556,9 @@ void TrayIcon::Refresh( bool reloadProjects )
 			}
 			else
 			{
-				m_DisplayShortcuts.clear();
+				m_Shortcuts.clear();
 #if 0
-				CreateShortcuts( m_Application->m_Projects, m_DisplayShortcuts );
+				CreateShortcuts( m_Application->m_Projects, m_Shortcuts );
 #endif
 			}
 		}
@@ -576,7 +576,7 @@ void TrayIcon::CreateMenu()
 
 	////////////////////////////////////////
 	// add Project SubMenus and separater
-	if ( !m_DisplayShortcuts.empty() )
+	if ( !m_Shortcuts.empty() )
 	{
 		CreateProjectsMenu( m_Menu );
 		m_Menu->AppendSeparator();
@@ -619,12 +619,12 @@ void TrayIcon::CreateMenu()
 	projectMenuItem->Enable( false );
 }
 
-void TrayIcon::DetectAndSetIcon( DisplayShortcut& displayShortcut, wxMenuItem* shortcutMenuItem )
+void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem )
 {
-	if ( !displayShortcut.m_Icon.empty() && FileExists( displayShortcut.m_Icon ) )
+	if ( !shortcut.m_Icon.empty() && FileExists( shortcut.m_Icon ) )
 	{
 		wxBitmap icon;
-		icon.LoadFile( displayShortcut.m_Icon, wxBITMAP_TYPE_PNG );
+		icon.LoadFile( shortcut.m_Icon, wxBITMAP_TYPE_PNG );
 		shortcutMenuItem->SetBitmap( icon );
 	}
 	else
@@ -635,14 +635,14 @@ void TrayIcon::DetectAndSetIcon( DisplayShortcut& displayShortcut, wxMenuItem* s
 
 void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 {
-	V_DisplayShortcut favoriteShortcuts;
+	V_Shortcut favoriteShortcuts;
 
-	M_DisplayShortcuts::iterator projItr = m_DisplayShortcuts.begin();
-	M_DisplayShortcuts::iterator projEnd = m_DisplayShortcuts.end();
+	M_Shortcuts::iterator projItr = m_Shortcuts.begin();
+	M_Shortcuts::iterator projEnd = m_Shortcuts.end();
 	for ( ; projItr != projEnd; ++projItr )
 	{
 		const std::string& projName = projItr->first;
-		V_DisplayShortcut& shortcuts = projItr->second;
+		V_Shortcut& shortcuts = projItr->second;
 
 		if ( shortcuts.empty() )
 			continue;
@@ -652,41 +652,41 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 		typedef std::map< std::string, wxMenu* > M_SubMenues;
 		M_SubMenues subMenues;
 
-		V_DisplayShortcut::iterator shortcutItr = shortcuts.begin();
-		V_DisplayShortcut::iterator shortcutEnd = shortcuts.end();
+		V_Shortcut::iterator shortcutItr = shortcuts.begin();
+		V_Shortcut::iterator shortcutEnd = shortcuts.end();
 		for ( ; shortcutItr != shortcutEnd; ++shortcutItr )
 		{
-			DisplayShortcut& displayShortcut = (*shortcutItr);
+			Shortcut& shortcut = (*shortcutItr);
 
 			wxMenuItem* shortcutMenuItem;
 			shortcutMenuItem = new wxMenuItem(
 				projectMenu,
 				wxID_ANY,
-				wxString( wxT( displayShortcut.m_Name.c_str() ) ),
-				wxString( wxT( displayShortcut.m_Description.c_str() ) ),
+				wxString( wxT( shortcut.m_Name.c_str() ) ),
+				wxString( wxT( shortcut.m_Description.c_str() ) ),
 				wxITEM_NORMAL );
 
-			if ( displayShortcut.m_Disable )
+			if ( shortcut.m_Disable )
 			{
 				shortcutMenuItem->Enable( false );
 
 				wxString name( "INVALID: " );
-				name += displayShortcut.m_Name.c_str();
+				name += shortcut.m_Name.c_str();
 				shortcutMenuItem->SetText( name );
 			}
 
-			DetectAndSetIcon( displayShortcut, shortcutMenuItem );
+			DetectAndSetIcon( shortcut, shortcutMenuItem );
 
-			shortcutMenuItem->SetRefData( new DisplayShortcut( displayShortcut ) );
+			shortcutMenuItem->SetRefData( new Shortcut( shortcut ) );
 
-			if ( displayShortcut.m_Folder.empty() )
+			if ( shortcut.m_Folder.empty() )
 			{
 				projectMenu->Append( shortcutMenuItem );
 			}
 			else
 			{
 				wxMenu* menuToInsert = new wxMenu();
-				std::pair< M_SubMenues::iterator, bool > insertedSubMenu = subMenues.insert( M_SubMenues::value_type( displayShortcut.m_Folder, menuToInsert ) );
+				std::pair< M_SubMenues::iterator, bool > insertedSubMenu = subMenues.insert( M_SubMenues::value_type( shortcut.m_Folder, menuToInsert ) );
 				insertedSubMenu.first->second->Append( shortcutMenuItem );
 				if ( !insertedSubMenu.second )
 				{
@@ -697,9 +697,9 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 
 			Connect( shortcutMenuItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuShortcut ), NULL, this );
 
-			if ( m_Application->FindFavorite( displayShortcut.m_Command ) )
+			if ( m_Application->FindFavorite( shortcut.m_Command ) )
 			{
-				favoriteShortcuts.push_back( displayShortcut );
+				favoriteShortcuts.push_back( shortcut );
 			}
 		}
 
@@ -729,23 +729,23 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 	{
 		parentMenu->PrependSeparator();
 
-		V_DisplayShortcut::iterator favItr = favoriteShortcuts.begin();
-		V_DisplayShortcut::iterator favEnd = favoriteShortcuts.end();
+		V_Shortcut::iterator favItr = favoriteShortcuts.begin();
+		V_Shortcut::iterator favEnd = favoriteShortcuts.end();
 		for( ; favItr != favEnd; ++favItr )
 		{
-			DisplayShortcut& displayShortcut = (*favItr);
+			Shortcut& shortcut = (*favItr);
 
 			wxMenuItem* favoritesMenuItem = new wxMenuItem(
 				parentMenu,
 				wxID_ANY,
-				wxString( wxT( displayShortcut.m_FavoriteName.c_str() ) ),
-				wxString( wxT( displayShortcut.m_Description.c_str() ) ),
+				wxString( wxT( shortcut.m_FavoriteName.c_str() ) ),
+				wxString( wxT( shortcut.m_Description.c_str() ) ),
 				wxITEM_NORMAL
 				);
 
-			DetectAndSetIcon( displayShortcut, favoritesMenuItem );
+			DetectAndSetIcon( shortcut, favoritesMenuItem );
 
-			favoritesMenuItem->SetRefData( new DisplayShortcut( displayShortcut ) );
+			favoritesMenuItem->SetRefData( new Shortcut( shortcut ) );
 
 			parentMenu->Prepend( favoritesMenuItem );
 

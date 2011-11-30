@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DisplayShortcut.h"
+#include "Shortcut.h"
 
 #include "Config.h"
 #include "Helper.h"
@@ -7,15 +7,13 @@
 
 using namespace Launcher;
 
-DisplayShortcut::DisplayShortcut()
-	: DisplayBase()
-	, m_Disable( false )
+Shortcut::Shortcut()
+	: m_Disable( false )
 	, m_DisableReason("")
 {
 }
 
-DisplayShortcut::DisplayShortcut( const DisplayShortcut& rhs )
-	: DisplayBase()
+Shortcut::Shortcut( const Shortcut& rhs )
 {
 	m_Name = rhs.m_Name;
 	m_FavoriteName = rhs.m_FavoriteName;
@@ -30,30 +28,24 @@ DisplayShortcut::DisplayShortcut( const DisplayShortcut& rhs )
 	m_DisableReason = rhs.m_DisableReason;
 }
 
-DisplayShortcut::~DisplayShortcut()
+Shortcut::~Shortcut()
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////
-bool DisplayShortcut::Execute()
+bool Shortcut::Execute()
 {
 	if ( !Launcher::ExecuteCommand( m_Command, m_StartIn ) ) 
 	{
 		std::string error = "Unable to create eshell, with command:\n  " + m_Command;
-		wxMessageDialog dialog(
-			NULL,
-			wxT( error.c_str() ),
-			wxT("Error"), wxOK | wxICON_INFORMATION );
+		wxMessageDialog dialog( NULL, wxT( error.c_str() ), wxT("Error"), wxOK | wxICON_INFORMATION );
 		dialog.ShowModal();
-
 		return false;
 	}
 
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-bool DisplayShortcut::CopyToClipboard()
+bool Shortcut::CopyToClipboard()
 {
 	bool result = false;
 

@@ -15,7 +15,6 @@ class TiXmlElement;
 
 namespace Launcher
 {
-
 	///////////////////////////////////////////////////////////////////////////////
 	//<EnvironmentVariableAlias aliasName="code" envVarName="IG_CODE_BRANCH_NAME" />
 	///////////////////////////////////////////////////////////////////////////////
@@ -61,19 +60,19 @@ namespace Launcher
 	typedef std::vector<std::pair< std::string, bool >> M_IncludeFiles;
 
 	///////////////////////////////////////////////////////////////////////////////
-	struct Shortcut
+	struct ShortcutInfo
 	{
 		std::string m_Name;             // Display name: FXT, prompt, etc...
 		std::string m_Args;             // Args to pass to eshell
 		std::string m_Description;      // Mouse over description
 		std::string m_IconPath;         // Path to the .png file
 	};
-	typedef std::vector< Shortcut > V_Shortcut; // Shortcuts
+	typedef std::vector< ShortcutInfo > V_ShortcutInfo; // Shortcuts
 
 	///////////////////////////////////////////////////////////////////////////////
 	struct EShell
 	{
-		V_Shortcut m_Shortcuts;
+		V_ShortcutInfo m_Shortcuts;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
