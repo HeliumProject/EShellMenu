@@ -25,7 +25,7 @@ namespace Launcher
 
 		}
 
-		std::string m_VariableName;
+		std::string m_Name;
 		std::string m_Value;
 		bool m_IsPath;
 		bool m_IsOverride;
@@ -68,11 +68,11 @@ namespace Launcher
 		std::string m_Name;
 		std::string m_Parent;
 		std::string m_Description;
-		bool        m_Hidden;		// used to hide from displayed configs
+		bool m_Hidden;		// used to hide from displayed configs
 
-		M_EnvVar		m_EnvVar;
-		V_ShortcutInfo	m_Shortcuts;
-		V_IncludeFiles	m_IncludeFiles;
+		M_EnvVar m_EnvVar;
+		V_ShortcutInfo m_Shortcuts;
+		V_IncludeFiles m_IncludeFiles;
 	};
 	typedef std::vector< Config > V_Config;
 	typedef std::map< std::string, Config > M_Config;

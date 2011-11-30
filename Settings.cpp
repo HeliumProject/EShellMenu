@@ -71,10 +71,10 @@ void Settings::ProcessValue( std::string& value, const M_EnvVar& envVars )
 
 std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, S_string& currentlyProcessing )
 {
-	std::pair< std::set< std::string >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_VariableName );
+	std::pair< std::set< std::string >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_Name );
 	if ( !inserted.second )
 	{
-		throw Exception( "Cyclical environment variable reference found for: %s", envVar.m_VariableName.c_str() );
+		throw Exception( "Cyclical environment variable reference found for: %s", envVar.m_Name.c_str() );
 	}
 
 	// we are now processing this EnvVar
@@ -90,14 +90,14 @@ std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVa
 
 		std::string varName ( resultTokens[1].first, resultTokens[1].second );
 		std::string varValue;
-		if ( varName == envVar.m_VariableName 
+		if ( varName == envVar.m_Name 
 			&& Launcher::GetEnvVar( varName, varValue ) )
 		{
 			// do nothing
 		}
 		else if ( currentlyProcessing.find( varName ) != currentlyProcessing.end() )
 		{
-			throw Exception( "Cyclical environment variable reference found for: %s and %s", envVar.m_VariableName.c_str(), varName.c_str() );
+			throw Exception( "Cyclical environment variable reference found for: %s and %s", envVar.m_Name.c_str(), varName.c_str() );
 		}
 		else
 		{
@@ -117,7 +117,7 @@ std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVa
 		processedValue = std::regex_replace( processedValue, replaceToken, varValue );
 	}
 
-	currentlyProcessing.erase( envVar.m_VariableName );
+	currentlyProcessing.erase( envVar.m_Name );
 
 	return processedValue;
 }
@@ -143,7 +143,7 @@ void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeF
 	}
 
 	// Update/Fillout the EnvVar
-	envVar.m_VariableName = varName;
+	envVar.m_Name = varName;
 	envVar.m_IsOverride = overrideAttrib;
 
 	// Type
@@ -166,7 +166,7 @@ void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeF
 	if ( !envVar.m_IsOverride )
 	{
 		std::string varValue("");
-		if ( Launcher::GetEnvVar( envVar.m_VariableName, varValue ) )
+		if ( Launcher::GetEnvVar( envVar.m_Name, varValue ) )
 		{
 			Launcher::ConsolePrint( "EnvVar %s's override is '0'; using machine value \"%s\" (rather than settings file value \"%s\").\n", varName.c_str(), varValue.c_str(), envVar.m_Value.c_str() );
 			envVar.m_Value = varValue;

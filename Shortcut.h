@@ -8,10 +8,9 @@ namespace Launcher
 	/// Class Shortcut
 	//
 	// What does the command look like:
-	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\resistance\config\Settings.xml" -config production -exec Luna
-	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\rcf2\config\Settings.xml" -config production -run Maya
-	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\rcf2\config\Settings.xml" -config tools_builder -build "release" -code "devel" 
-	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "x:\core\config\Settings.xml" -config tools_builder -assets "rcf2" -game "rcf2" -build "develop" -code "projects/batfist" 
+	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config production -exec Luna
+	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config production -run Maya
+	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config tools_builder -build "release" -code "devel" 
 	//
 	///////////////////////////////////////////////////////////////////////////////
 	class Shortcut;
@@ -42,15 +41,4 @@ namespace Launcher
 		bool        m_Disable;           // true if we think the shortcut will not load
 		std::string m_DisableReason;     // the reason this might fail
 	};
-
-
-	///////////////////////////////////////////////////////////////////////////////
-	struct SortShortcuts
-	{
-		bool operator()( const Shortcut& lhs, const Shortcut& rhs ) const
-		{
-			return lhs.m_Name < rhs.m_Name;
-		}
-	};
-
 }

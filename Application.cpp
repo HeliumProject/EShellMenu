@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "Application.h"
 
-#include "resource.h"
-
 #include "Config.h"
+#include "Helper.h"
 #include "Preferences.h"
 #include "Settings.h"
-#include "Helper.h"
 #include "Version.h"
 
 #include <regex>
@@ -27,7 +25,7 @@ Application::Application()
 	, m_Test ( false )
 {
 	// Figure out the current version
-	uint32_t versionHi = ( LAUNCHER_VERSION_COMPATIBLE << 16 ) | LAUNCHER_VERSION_FEATURE;
+	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
 	uint32_t versionLo = ( LAUNCHER_VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
 
