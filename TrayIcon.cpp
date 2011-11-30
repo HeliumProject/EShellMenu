@@ -160,7 +160,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 				invalidShortcut += "for one or more of the following reasons:\n";
 				invalidShortcut += " - EShell.pl did not exist in the expected location.\n";
 				invalidShortcut += " - One of the required settings (ESHELL_PATH, or IG_PROJECT_ROOT)\n";
-				invalidShortcut += "   is not defined in the ProjectSettings file.\n";
+				invalidShortcut += "   is not defined in the Settings file.\n";
 			} 
 			invalidShortcut += "\n\nYou can copy the shortcut to your clipboard by holding Ctrl and clicking on the shortcut.\n";
 			invalidShortcut += "This may give you additional useful information.\n";
@@ -227,29 +227,29 @@ void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Instal
 	M_EnvVarAlias envVarAlias = project.m_ProjectSettings.m_EnvVarAlias; 
 	M_EnvVar copyEnvVars = config.m_EnvVar;
 
-	ProjectSettings::SetEnvVar( envVarAlias[EnvVarAliasNames::Assets], assetsBranch, copyEnvVars, true );
-	ProjectSettings::SetEnvVar( envVarAlias[EnvVarAliasNames::Build], buildConfig, copyEnvVars, true );
-	ProjectSettings::SetEnvVar( envVarAlias[EnvVarAliasNames::Code], install.m_Code, copyEnvVars, true );
-	ProjectSettings::SetEnvVar( envVarAlias[EnvVarAliasNames::Game], install.m_Game, copyEnvVars, true );
-	ProjectSettings::SetEnvVar( envVarAlias[EnvVarAliasNames::Tools], install.m_Tools, copyEnvVars, true );
+	Settings::SetEnvVar( envVarAlias[EnvVarAliasNames::Assets], assetsBranch, copyEnvVars, true );
+	Settings::SetEnvVar( envVarAlias[EnvVarAliasNames::Build], buildConfig, copyEnvVars, true );
+	Settings::SetEnvVar( envVarAlias[EnvVarAliasNames::Code], install.m_Code, copyEnvVars, true );
+	Settings::SetEnvVar( envVarAlias[EnvVarAliasNames::Game], install.m_Game, copyEnvVars, true );
+	Settings::SetEnvVar( envVarAlias[EnvVarAliasNames::Tools], install.m_Tools, copyEnvVars, true );
 
 
 	////////////////////////////////////////
 	// Get and Process the Aliased EnvVars Values
 	std::string assets;
-	ProjectSettings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Assets], copyEnvVars, assets, s_DefaultAssetBranch );
+	Settings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Assets], copyEnvVars, assets, s_DefaultAssetBranch );
 
 	std::string build;
-	ProjectSettings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Build], copyEnvVars, build, s_DefaultBuildConfig );
+	Settings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Build], copyEnvVars, build, s_DefaultBuildConfig );
 
 	std::string code;
-	ProjectSettings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Code], copyEnvVars, code, s_DefaultCodeBranch );
+	Settings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Code], copyEnvVars, code, s_DefaultCodeBranch );
 
 	std::string game;
-	ProjectSettings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Game], copyEnvVars, game, s_DefaultGame );
+	Settings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Game], copyEnvVars, game, s_DefaultGame );
 
 	std::string tools;
-	ProjectSettings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Tools], copyEnvVars, tools, s_DefaultToolsRelease );
+	Settings::GetEnvVarAliasValue( envVarAlias[EnvVarAliasNames::Tools], copyEnvVars, tools, s_DefaultToolsRelease );
 
 
 	////////////////////////////////////////
@@ -263,41 +263,41 @@ void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Instal
 		// create a Shortcut
 		Shortcut shortcut;
 		shortcut.m_Name = shortcut.m_Name;
-		ProjectSettings::ProcessValue( shortcut.m_Name, copyEnvVars );
+		Settings::ProcessValue( shortcut.m_Name, copyEnvVars );
 
 		// ProjectName
 		shortcut.m_ProjectName = project.m_Name;
 
 		// Icon
 		shortcut.m_Icon = shortcut.m_IconPath;
-		ProjectSettings::ProcessValue( shortcut.m_Icon, copyEnvVars );
+		Settings::ProcessValue( shortcut.m_Icon, copyEnvVars );
 
 		// Description
 		shortcut.m_Description = shortcut.m_Description;
-		ProjectSettings::ProcessValue( shortcut.m_Description, copyEnvVars );
+		Settings::ProcessValue( shortcut.m_Description, copyEnvVars );
 
 		// StartIn
 		if ( copyEnvVars.find( "IG_PROJECT_ROOT" ) != copyEnvVars.end() )
 		{
 			shortcut.m_StartIn = copyEnvVars["IG_PROJECT_ROOT"].m_Value;
-			ProjectSettings::ProcessValue( shortcut.m_StartIn, copyEnvVars );
+			Settings::ProcessValue( shortcut.m_StartIn, copyEnvVars );
 		}
 		else
 		{
 			shortcut.m_Disable = true;
-			shortcut.m_DisableReason = "The required variable \"IG_PROJECT_ROOT\" was not defined in the ProjectSettings file.";
+			shortcut.m_DisableReason = "The required variable \"IG_PROJECT_ROOT\" was not defined in the Settings file.";
 		}
 
 		// IG_ROOT
 		if ( copyEnvVars.find( "IG_ROOT" ) != copyEnvVars.end() )
 		{
 			shortcut.m_Root = copyEnvVars["IG_ROOT"].m_Value;
-			ProjectSettings::ProcessValue( shortcut.m_Root, copyEnvVars );
+			Settings::ProcessValue( shortcut.m_Root, copyEnvVars );
 		}
 		else
 		{
 			shortcut.m_Disable = true;
-			shortcut.m_DisableReason = "The required variable \"IG_ROOT\" was not defined in the ProjectSettings file or environment.";
+			shortcut.m_DisableReason = "The required variable \"IG_ROOT\" was not defined in the Settings file or environment.";
 		}
 
 		// Get EShell path
@@ -305,12 +305,12 @@ void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Instal
 		if ( copyEnvVars.find( "ESHELL_PATH" ) != copyEnvVars.end() )
 		{
 			eshellPath = copyEnvVars["ESHELL_PATH"].m_Value;
-			ProjectSettings::ProcessValue( eshellPath, copyEnvVars );
+			Settings::ProcessValue( eshellPath, copyEnvVars );
 		}
 		else
 		{
 			shortcut.m_Disable = true;
-			shortcut.m_DisableReason = "The required variable \"ESHELL_PATH\" was not defined in the ProjectSettings file.";
+			shortcut.m_DisableReason = "The required variable \"ESHELL_PATH\" was not defined in the Settings file.";
 		}
 
 		if ( !FileExists( eshellPath ) )
@@ -371,7 +371,7 @@ void CreateShortcut( const Project& project, V_Shortcut& shortcuts, const Instal
 			shortcut.m_Command += " " + shortcut.m_Args;
 		}
 
-		ProjectSettings::ProcessValue( shortcut.m_Command, copyEnvVars );
+		Settings::ProcessValue( shortcut.m_Command, copyEnvVars );
 
 
 		// Create the Display Folder

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ProjectSettings.h"
+#include "Settings.h"
 
 #include "Exception.h"
 #include "Helper.h"
@@ -8,69 +8,15 @@
 
 using namespace Launcher;
 
-///////////////////////////////////////////////////////////////////////////////
-/// EnvVarAliasNames
-///////////////////////////////////////////////////////////////////////////////
-static const char* s_EnvVarAliasNames[EnvVarAliasNames::Count] = 
-{
-	"assets",
-	"build",
-	"code",
-	"game",
-	"tools",
-
-	"UNKNOWN"
-};
-
-const char* Launcher::GetEnvVarAliasNameString( EnvVarAliasName name )
-{
-	return s_EnvVarAliasNames[name];
-}
-
-EnvVarAliasName Launcher::GetEnvVarAliasNameEnum( const char* name )
-{
-	if ( name[0] == 'a' )
-	{
-		return EnvVarAliasNames::Assets;
-	}
-	else if ( name[0] == 'b' )
-	{
-		return EnvVarAliasNames::Build;
-	}
-	else if ( name[0] == 'c' )
-	{
-		return EnvVarAliasNames::Code;
-	}
-	else if ( name[0] == 'g' )
-	{
-		return EnvVarAliasNames::Game;
-	}
-	else if ( name[0] == 't' )
-	{
-		return EnvVarAliasNames::Tools;
-	}
-
-	return EnvVarAliasNames::Unknown;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class ProjectSettings
-///////////////////////////////////////////////////////////////////////////////
-ProjectSettings::ProjectSettings()
-{
-	for ( int index = 0; index < EnvVarAliasNames::Count; ++index )
-	{
-		m_EnvVarAlias[(EnvVarAliasName)index] = std::string("");
-	}
-}
-
-ProjectSettings::~ProjectSettings()
+Settings::Settings()
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Setup Aliased EnvVars
-void ProjectSettings::SetEnvVar( const std::string& envVarName, const std::string& envVarValue, M_EnvVar& envVars, bool isPath )
+Settings::~Settings()
+{
+}
+
+void Settings::SetEnvVar( const std::string& envVarName, const std::string& envVarValue, M_EnvVar& envVars, bool isPath )
 {
 	if ( !envVarName.empty() && !envVarValue.empty() )
 	{
@@ -79,9 +25,7 @@ void ProjectSettings::SetEnvVar( const std::string& envVarName, const std::strin
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Get the EShell EnvironmentVariableAlias options
-void ProjectSettings::GetEnvVarAliasValue( const std::string& envVarName, const M_EnvVar& envVars, std::string& aliasVar, const char* defaultValue )
+void Settings::GetEnvVarAliasValue( const std::string& envVarName, const M_EnvVar& envVars, std::string& aliasVar, const char* defaultValue )
 {
 	if ( !envVarName.empty() )
 	{
@@ -90,7 +34,7 @@ void ProjectSettings::GetEnvVarAliasValue( const std::string& envVarName, const 
 		{
 			aliasVar = foundEnvVar->second.m_Value;
 
-			ProjectSettings::ProcessValue( aliasVar, envVars );
+			Settings::ProcessValue( aliasVar, envVars );
 		}
 		else if ( defaultValue )
 		{
@@ -99,8 +43,7 @@ void ProjectSettings::GetEnvVarAliasValue( const std::string& envVarName, const 
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-void ProjectSettings::ProcessValue( std::string& value, const M_EnvVar& envVars )
+void Settings::ProcessValue( std::string& value, const M_EnvVar& envVars )
 {
 	const std::regex grepTokens( "%(.*?)%", std::regex::icase  );
 
@@ -126,8 +69,7 @@ void ProjectSettings::ProcessValue( std::string& value, const M_EnvVar& envVars 
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-std::string ProjectSettings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, S_string& currentlyProcessing )
+std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, S_string& currentlyProcessing )
 {
 	std::pair< std::set< std::string >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_VariableName );
 	if ( !inserted.second )
@@ -180,11 +122,8 @@ std::string ProjectSettings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar
 	return processedValue;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
 //<EnvVar variableName="P4PORT" value="perforce.insomniacgames.com:60606" override="0" />
-//
-void ProjectSettings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeFile )
+void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeFile )
 {
 	std::string varName = elem->Attribute( "variableName" );
 	//toUpper( varName );
@@ -205,7 +144,7 @@ void ProjectSettings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool i
 
 	// Update/Fillout the EnvVar
 	envVar.m_VariableName = varName;
-	envVar.m_Override = overrideAttrib;
+	envVar.m_IsOverride = overrideAttrib;
 
 	// Type
 	envVar.m_IsPath = false;
@@ -224,7 +163,7 @@ void ProjectSettings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool i
 	}
 
 	// if we're not overriding, make sure the variable is not already defined
-	if ( !envVar.m_Override )
+	if ( !envVar.m_IsOverride )
 	{
 		std::string varValue("");
 		if ( Launcher::GetEnvVar( envVar.m_VariableName, varValue ) )
@@ -236,32 +175,14 @@ void ProjectSettings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool i
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//<EnvironmentVariableAlias aliasName="code" envVarName="IG_CODE_BRANCH_NAME" />
-//
-void ProjectSettings::ParseEnvVarAlias( TiXmlElement* elem, M_EnvVarAlias& envVarAliases )
-{
-	std::string aliasName = elem->Attribute( "aliasName" );
-
-	if ( elem->Attribute( "envVarName" ) )
-	{
-		std::string envVarName = elem->Attribute( "envVarName" );
-		EnvVarAliasName aliasNameEnum = GetEnvVarAliasNameEnum( aliasName.c_str() );
-		envVarAliases[aliasNameEnum] = envVarName;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//<EShell>
-//  <Shortcut>
-//    <Name>Luna</Name>
-//    <Args>-exec Luna</Args>
-//    <Description>Luna</Description>
-//    <Icon location="%IG_PROJECT_BIN%\Luna.exe" number="0" />
-//    <IconPath>%IG_PROJECT_DATA%\luna\themes\default\moon_16.png</IconPath>
-//  </Shortcut>
-//
-void ProjectSettings::ParseEShell( TiXmlElement* elem, EShell& eshell, M_EnvVar& envVars )
+//<Shortcut>
+//  <Name>Luna</Name>
+//  <Args>-exec Luna</Args>
+//  <Description>Luna</Description>
+//  <Icon location="%IG_PROJECT_BIN%\Luna.exe" number="0" />
+//  <IconPath>%IG_PROJECT_DATA%\luna\themes\default\moon_16.png</IconPath>
+//</Shortcut>
+void Settings::ParseShortcuts( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
 {
 	for ( TiXmlElement* eshellElem = elem->FirstChildElement(); eshellElem != NULL; eshellElem = eshellElem->NextSiblingElement() )
 	{
@@ -294,45 +215,36 @@ void ProjectSettings::ParseEShell( TiXmlElement* elem, EShell& eshell, M_EnvVar&
 				}
 			}
 
-			eshell.m_Shortcuts.push_back( shortcut );
+			shortcuts.push_back( shortcut );
 		}
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
 //<Include>%IG_PROJECT_CODE%\config\SDKSubscription.xml</Include>
-//
-void ProjectSettings::ParseInclude( TiXmlElement* elem, M_IncludeFiles& includes )
+void Settings::ParseInclude( TiXmlElement* elem, V_IncludeFiles& includes )
 {
-	std::string includePath;
-	bool optional = false;
+	IncludeFile includeFile;
+
 	if ( elem->GetText() )
 	{
-		includePath = elem->GetText();
+		includeFile.m_Path = elem->GetText();
 	}
 	else if ( elem->Attribute( "path" ) )
 	{
-		includePath = elem->Attribute( "path" );
-	}
-	else
-	{
-		//error
+		includeFile.m_Path = elem->Attribute( "path" );
 	}
 
 	int intValue;
 	if ( ( elem->Attribute( "optional", &intValue ) != NULL ) && ( intValue == 1 ) )
 	{
-		optional = true;
+		includeFile.m_Optional = true;
 	}
 
-	includes.push_back( std::make_pair( includePath, optional ) );
+	includes.push_back( includeFile );
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
 //<Config name="gameplay" parent="production" description="SP and MP Gameplay programmers">
-//
-void ProjectSettings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar )
+void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar )
 {
 	int intValue;
 	if ( ( elem->Attribute( "hidden", &intValue ) != NULL ) && ( intValue == 1 ) )
@@ -375,10 +287,10 @@ void ProjectSettings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvV
 		{
 			ParseEnvVar( configElem, config.m_EnvVar );
 		}
-		//<EShell>
-		else if ( configElemString.compare( "EShell" ) == 0 )
+		//<Shortcut>
+		else if ( configElemString.compare( "Shortcut" ) == 0 )
 		{
-			ParseEShell( configElem, config.m_EShell, config.m_EnvVar );
+			ParseShortcuts( configElem, config.m_Shortcuts, config.m_EnvVar );
 		}
 		//<Include>
 		else if ( configElemString.compare( "Include" ) == 0 )
@@ -390,8 +302,7 @@ void ProjectSettings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvV
 	configs.insert( M_Config::value_type( config.m_Name, config ) );
 }
 
-///////////////////////////////////////////////////////////////////////////////
-bool ProjectSettings::LoadFile( const std::string& file, bool includeFile )
+bool Settings::LoadFile( const std::string& file, bool includeFile )
 {
 	//open the config file
 	TiXmlDocument doc;
@@ -401,19 +312,14 @@ bool ProjectSettings::LoadFile( const std::string& file, bool includeFile )
 		return false;
 	}
 
-	// <ProjectSettings>
+	// <Settings>
 	TiXmlElement* projectSettings = doc.FirstChildElement();
-	if ( projectSettings && std::string (projectSettings->Value()) == "ProjectSettings" )
+	if ( projectSettings && std::string (projectSettings->Value()) == "Settings" )
 	{
 		for ( TiXmlElement* elem = projectSettings->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement() )
 		{
 			std::string elemString =  elem->Value();
 
-			//<EnvironmentVariableAlias>
-			if ( elemString.compare( "EnvironmentVariableAlias" ) == 0 )
-			{
-				ParseEnvVarAlias( elem, m_EnvVarAlias );
-			}
 			//<EnvVar>
 			if ( elemString.compare( "EnvVar" ) == 0 )
 			{
@@ -438,22 +344,20 @@ bool ProjectSettings::LoadFile( const std::string& file, bool includeFile )
 	// have been defined in the with EvnVars in the EnvironmentVariableAlias,
 	// so we can't ProcessValue on the include path or we will get the
 	// defaults values."
+	V_IncludeFiles::iterator includeFileItr = m_IncludeFiles.begin();
+	V_IncludeFiles::iterator includeFileEnd = m_IncludeFiles.end();
+	for ( ; includeFileItr != includeFileEnd; ++includeFileItr )
+	{
+		std::string includeFile = includeFileItr->m_Path;
 
-	// M_IncludeFiles::iterator includeFileItr = m_IncludeFiles.begin();
-	// M_IncludeFiles::iterator includeFileEnd = m_IncludeFiles.end();
-	// for ( ; includeFileItr != includeFileEnd; ++includeFileItr )
-	// {
-	//   std::string includeFile = *includeFileItr;
-	//
-	//   // This would be bad because it's going to use all the default values for env vars that have aliases
-	//   ProcessValue( includeFile, m_EnvVar ); 
-	//   FileSystem::Win32Name( includeFile );
-	//
-	//   if ( FileSystem::Exits( includeFile ) && !LoadFile( includeFile, true ) )
-	//   {
-	//     return false;
-	//   }
-	// }
+		// This would be bad because it's going to use all the default values for env vars that have aliases
+		ProcessValue( includeFile, m_EnvVar ); 
+
+		if ( FileExists( includeFile ) && !LoadFile( includeFile, true ) )
+		{
+			return false;
+		}
+	}
 
 	return true;
 }

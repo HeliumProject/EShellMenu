@@ -3,7 +3,7 @@
 
 #include "Config.h"
 #include "Helper.h"
-#include "ProjectSettings.h"
+#include "Settings.h"
 
 using namespace Launcher;
 

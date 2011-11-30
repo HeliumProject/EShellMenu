@@ -9,7 +9,7 @@ namespace Launcher
   static std::string s_TestLauncherInstallDir     = "\\\\locutus\\toolshed\\installs\\Tools Launcher\\Test\\";
   static std::string s_DefaultLauncherInstallFile = "LauncherSetup.exe";
 
-  #define SETTINGS_FILENAME         "ProjectSettings.xml"
+  #define SETTINGS_FILENAME         "Settings.xml"
   #define CODE_SETTINGS_FILENAME    "CodeSettings.xml"
   #define GAME_SETTINGS_FILENAME    "GameSettings.xml"
   #define RELEASE_SETTINGS_FILENAME "ReleaseSettings.xml"

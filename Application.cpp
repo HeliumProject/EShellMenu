@@ -5,7 +5,7 @@
 
 #include "Config.h"
 #include "Preferences.h"
-#include "ProjectSettings.h"
+#include "Settings.h"
 #include "Helper.h"
 #include "Version.h"
 
@@ -81,7 +81,7 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 	SetVendorName( "EShell Games" );
 	parser.SetLogo( wxT( "Tools Launcher (c) 2009 - EShell Games\n" ) );
 
-	parser.AddOption( "settingsFileName", "SettingsFileName", "Example: ProjectSettingsTest.xml, or ProjectSettings.xml" );
+	parser.AddOption( "settingsFileName", "SettingsFileName", "Example: ProjectSettingsTest.xml, or Settings.xml" );
 	parser.AddSwitch( "test", "Test", "Used for testing." );
 	parser.AddOption( "verbose" );
 }

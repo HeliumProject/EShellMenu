@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "Preferences.h"
-#include "ProjectSettings.h"
+#include "Settings.h"
 #include "Helper.h"
 
 using namespace Launcher;
