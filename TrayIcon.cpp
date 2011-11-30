@@ -585,23 +585,13 @@ void TrayIcon::CreateMenu()
 	////////////////////////////////////////
 	// Refresh
 	wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Refresh, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
-#if 0
-	HICON hIcon = ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ) );
-
-	wxIcon refreshIcon;
-	refreshIcon.SetHICON( hIcon );
-	
-	HBITMAP hBitmap;
-	ICONINFO iconinfo;
-	::GetIconInfo(hIcon, &iconinfo);
-	hBitmap = iconinfo.hbmColor;
-
-	wxBitmap refreshBitmap;
-	refreshBitmap.SetHBITMAP( hBitmap );
-	
-	wxImage refreshImage = refreshBitmap.ConvertToImage();
-	refreshMenuItem->SetBitmap( refreshImage );
-#endif
+	{
+		HICON hIcon = (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR );
+		wxIcon refreshIcon;
+		refreshIcon.SetHICON( hIcon );
+		refreshIcon.SetSize( 16, 16 );
+		refreshMenuItem->SetBitmap( refreshIcon );
+	}
 	m_Menu->Append( refreshMenuItem );
 
 	////////////////////////////////////////
