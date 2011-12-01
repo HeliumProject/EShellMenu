@@ -7,84 +7,87 @@
 #include <string>
 #include <exception>
 
-//
-// Constants
-//
-
-const size_t ERROR_STRING_BUF_SIZE = 768; 
-
-//
-// Basic Exception
-//  Try to only throw in "error" cases. Examples:
-//   * A file format API trying to open a file that doesn't exist (the client api should check if it exists if it was graceful execution)
-//   * A disc drive or resource is out of space and cannot be written to
-//   * A network port is taken and cannot be bound
-//
-
-class Exception
+namespace Launcher
 {
-protected:
-    mutable std::string m_Message;
+	//
+	// Constants
+	//
 
-protected:
-    Exception()
-    {
+	const size_t ERROR_STRING_BUF_SIZE = 768; 
 
-    }
+	//
+	// Basic Exception
+	//  Try to only throw in "error" cases. Examples:
+	//   * A file format API trying to open a file that doesn't exist (the client api should check if it exists if it was graceful execution)
+	//   * A disc drive or resource is out of space and cannot be written to
+	//   * A network port is taken and cannot be bound
+	//
 
-public:
-    Exception( const char *msgFormat, ... )
-    {
-        va_list msgArgs;
-        va_start( msgArgs, msgFormat );
-        SetMessage( msgFormat, msgArgs );
-        va_end( msgArgs );
-    }
+	class Exception
+	{
+	protected:
+		mutable std::string m_Message;
 
-    //
-    // These accessors are thow that re-throw blocks can amend the exception message
-    //
+	protected:
+		Exception()
+		{
 
-    std::string& Get()
-    {
-        return m_Message;
-    }
+		}
 
-    const std::string& Get() const
-    {
-        return m_Message;
-    }
+	public:
+		Exception( const char *msgFormat, ... )
+		{
+			va_list msgArgs;
+			va_start( msgArgs, msgFormat );
+			SetMessage( msgFormat, msgArgs );
+			va_end( msgArgs );
+		}
 
-    void Set(const std::string& message)
-    {
-        m_Message = message;
-    }
+		//
+		// These accessors are thow that re-throw blocks can amend the exception message
+		//
 
-    //
-    // This allow operation with std::exception case statements
-    //
+		std::string& Get()
+		{
+			return m_Message;
+		}
 
-    virtual const char* What() const
-    {
-        return m_Message.c_str();
-    }
+		const std::string& Get() const
+		{
+			return m_Message;
+		}
 
-protected:
-    void SetMessage( const char* msgFormat, ... )
-    {
-        va_list msgArgs;
-        va_start( msgArgs, msgFormat );
-        SetMessage( msgFormat, msgArgs );
-        va_end( msgArgs );
-    }
+		void Set(const std::string& message)
+		{
+			m_Message = message;
+		}
 
-    void SetMessage( const char* msgFormat, va_list msgArgs )
-    {
-        char msgBuffer[ERROR_STRING_BUF_SIZE];
+		//
+		// This allow operation with std::exception case statements
+		//
 
-        _vsnprintf( msgBuffer, sizeof(msgBuffer) / sizeof( char ), msgFormat, msgArgs );
-        msgBuffer[sizeof(msgBuffer) / sizeof(msgBuffer[0]) - 1] = 0; 
+		virtual const char* What() const
+		{
+			return m_Message.c_str();
+		}
 
-        m_Message = msgBuffer;
-    }
-};
+	protected:
+		void SetMessage( const char* msgFormat, ... )
+		{
+			va_list msgArgs;
+			va_start( msgArgs, msgFormat );
+			SetMessage( msgFormat, msgArgs );
+			va_end( msgArgs );
+		}
+
+		void SetMessage( const char* msgFormat, va_list msgArgs )
+		{
+			char msgBuffer[ERROR_STRING_BUF_SIZE];
+
+			_vsnprintf( msgBuffer, sizeof(msgBuffer) / sizeof( char ), msgFormat, msgArgs );
+			msgBuffer[sizeof(msgBuffer) / sizeof(msgBuffer[0]) - 1] = 0; 
+
+			m_Message = msgBuffer;
+		}
+	};
+}
