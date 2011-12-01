@@ -18,4 +18,8 @@ namespace Launcher
 	void ConsolePrint(const char *fmt,...);
 
 	bool GetEnvVar( const std::string& envVarName, std::string& envVarValue );
+
+	std::string GetUserFile( const std::string& basename, const std::string& ext );
+	void LoadTextFile( const std::string& file, std::set< std::string >& contents );
+	bool SaveTextFile( const std::string& file, const std::set< std::string >& contents );
 }

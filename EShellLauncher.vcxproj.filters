@@ -4,7 +4,6 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Helper.cpp" />
-    <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="TrayIcon.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="Settings.cpp" />
@@ -16,7 +15,6 @@
     <ClInclude Include="Version.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Preferences.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Shortcut.h" />

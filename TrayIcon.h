@@ -1,12 +1,11 @@
 #pragma once
 
+#include "Settings.h"
+#include "Shortcut.h"
+
 namespace Launcher
 {
 	class Application;
-
-	class Shortcut;
-	typedef std::vector< Shortcut > V_Shortcut;
-	typedef std::map< std::string, V_Shortcut > M_Shortcuts;
 
 	namespace LauncherEventIDs
 	{
@@ -44,7 +43,7 @@ namespace Launcher
 		void OnMenuShortcut( wxCommandEvent& evt );
 
 	private:
-		void Refresh( bool reloadProjects = true );
+		void Refresh( bool reload );
 
 		void CreateMenu();
 		void DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem );
@@ -52,7 +51,8 @@ namespace Launcher
 
 	private:
 		Application* m_Application;
-		M_Shortcuts m_Shortcuts;
+		V_Settings m_Settings;
+		M_Shortcut m_Shortcuts;
 		wxMenu* m_Menu;
 		int m_BusyCount;
 		bool m_IsMenuShowing;

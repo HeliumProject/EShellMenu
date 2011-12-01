@@ -1,12 +1,11 @@
 #pragma once
 
+#include "Settings.h"
 #include "TrayIcon.h"
 
 #include <set>
 #include <string>
 #include <stdint.h>
-
-typedef std::set<std::string> S_string;
 
 namespace Launcher
 {
@@ -17,10 +16,11 @@ namespace Launcher
 		Application();
 		virtual ~Application();
 
-		bool LoadSettings();
+		void LoadState();
 
+		void AddProject( const std::string& project );
 		void AddFavorite( const std::string& command );
-		bool FindFavorite( const std::string& command );
+		bool IsFavorite( const std::string& command );
 
 		bool IsUpdateAvailable() const { return m_NetworkVersion > m_CurrentVersion; }
 		std::string GetAvailableVersionString() const;
@@ -39,14 +39,12 @@ namespace Launcher
 
 	private:
 		HANDLE m_MutexHandle;
-		std::string m_SettingsFileName;
 		std::string m_Title;
 		std::string m_MutexName;
 
 		TrayIcon* m_TrayIcon;
-
-		S_string m_ProjectNames;
-		S_string m_Favorites;
+		std::set< std::string > m_Projects;
+		std::set< std::string > m_Favorites;
 
 		std::string m_LauncherInstallPath;
 		uint64_t m_CurrentVersion;

@@ -69,7 +69,7 @@ void Settings::ProcessValue( std::string& value, const M_EnvVar& envVars )
 	}
 }
 
-std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, S_string& currentlyProcessing )
+std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing )
 {
 	std::pair< std::set< std::string >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_Name );
 	if ( !inserted.second )
@@ -304,6 +304,11 @@ void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& glo
 
 bool Settings::LoadFile( const std::string& file, bool includeFile )
 {
+	m_File = file;
+
+#pragma TODO("Load the project name from the settings")
+	m_Project = m_File;
+
 	//open the config file
 	TiXmlDocument doc;
 	if (!doc.LoadFile( file.c_str() ))

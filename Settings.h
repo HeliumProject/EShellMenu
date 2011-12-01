@@ -5,12 +5,6 @@
 #include <string>
 #include <vector>
 
-typedef std::set<std::string> S_string;
-typedef std::vector<std::string> V_string;
-
-//
-// Forwards
-//
 class TiXmlElement;
 
 namespace Launcher
@@ -95,11 +89,15 @@ namespace Launcher
 		static void ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar );
 		static void ParseShortcuts( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
 
-		static std::string ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, S_string& currentlyProcessing = S_string() );
+		static std::string ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing = std::set< std::string >() );
 
 	public:
+		std::string m_Project;
+		std::string m_File;
 		M_EnvVar m_EnvVar;
 		M_Config m_Configs;
 		V_IncludeFiles m_IncludeFiles;
 	};
+
+	typedef std::vector< Settings > V_Settings;
 }

@@ -209,3 +209,59 @@ bool Launcher::GetEnvVar( const std::string& envVarName, std::string& envVarValu
 
 	return false;
 }
+
+std::string Launcher::GetUserFile( const std::string& basename, const std::string& ext )
+{
+	wxStandardPaths sp;
+
+	wxFileName name = sp.GetUserConfigDir();
+	name.AppendDir( ".eshell" );
+	name.SetName( basename );
+	name.SetExt( ext );
+
+	return std::string( name.GetFullPath().c_str() );
+}
+
+void Launcher::LoadTextFile( const std::string& file, std::set< std::string >& contents )
+{
+	std::ifstream in( file.c_str() );
+
+	if ( !in.good() )
+	{
+		return;
+	}
+
+	std::string line;
+	while( getline( in, line ) )
+	{
+		contents.insert( line );
+	}
+
+	in.close();
+}
+
+bool Launcher::SaveTextFile( const std::string& file, const std::set< std::string >& contents )
+{
+	if ( !MakePath( file, true ) )
+	{
+		return false;
+	}
+
+	std::ofstream out( file.c_str() );
+
+	if ( !out.good() )
+	{
+		return false;
+	}
+
+	std::set< std::string >::const_iterator itr = contents.begin();
+	std::set< std::string >::const_iterator end = contents.end();
+	for( ; itr != end; ++itr )
+	{
+		out << (*itr) << "\n";
+	}
+
+	out.close();
+
+	return true;
+}

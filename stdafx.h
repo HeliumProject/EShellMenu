@@ -40,4 +40,11 @@
 #include <wx/statline.h>
 #include <wx/taskbar.h>
 #include <wx/toplevel.h>
+#include <wx/stdpaths.h>
+#include <wx/filename.h>
+
 #include <tinyxml/tinyxml.h>
+
+#define TO_STRING(x) #x
+#define TODO_STRING(x) TO_STRING(x)
+#define TODO(msg) message (__FILE__ "(" TODO_STRING(__LINE__) ") : TODO: " msg)

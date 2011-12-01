@@ -3,7 +3,6 @@
 
 #include "Config.h"
 #include "Helper.h"
-#include "Preferences.h"
 #include "Settings.h"
 #include "Version.h"
 
@@ -15,7 +14,6 @@ Application::Application()
 	: m_MutexHandle( NULL )
 	, m_Title( "EShell Launcher [v"LAUNCHER_VERSION_STRING"]" )
 	, m_TrayIcon( NULL )
-	, m_SettingsFileName( SETTINGS_FILENAME )
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
 	, m_UpdateLauncherNow( false )
@@ -43,28 +41,28 @@ Application::~Application()
 	Disconnect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
 }
 
-void Application::AddFavorite( const std::string& command )
+void Application::AddProject( const std::string& project )
 {
-	if ( m_Favorites.find( command ) != m_Favorites.end() )
-	{
-		m_Favorites.erase( command );
-	}
-	else
-	{
-		m_Favorites.insert( command );
-	}
+	m_Projects.insert( project );
 
-	Preferences::SaveFavorites( m_Favorites );
+	SaveTextFile( Launcher::GetUserFile( "projects", ".txt" ), m_Projects );
 }
 
-bool Application::FindFavorite( const std::string& command )
+void Application::AddFavorite( const std::string& command )
+{
+	m_Favorites.insert( command );
+
+	SaveTextFile( Launcher::GetUserFile( "favorites", ".txt" ), m_Favorites );
+}
+
+bool Application::IsFavorite( const std::string& command )
 {
 	return m_Favorites.find( command ) != m_Favorites.end();
 }
 
 std::string Application::GetAvailableVersionString() const
 {
-	return Launcher::GetFileVersionString( m_LauncherInstallPath );
+	return GetFileVersionString( m_LauncherInstallPath );
 }
 
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
@@ -79,12 +77,6 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
-	wxString settingsFileName;
-	if ( parser.Found( "settingsFileName", &settingsFileName ) )
-	{
-		m_SettingsFileName = settingsFileName.c_str();
-	}
-
 	return __super::OnCmdLineParsed( parser );
 }
 
@@ -253,19 +245,13 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 	}
 }
 
-bool Application::LoadSettings()
+void Application::LoadState()
 {
-#if 0
-	if ( !m_ProjectSettings.LoadFile( settingsFile ) )
-	{
-		return false;
-	}
-#endif
+	m_Projects.clear();
+	LoadTextFile( Launcher::GetUserFile( "projects", ".txt" ), m_Projects );
 
 	m_Favorites.clear();
-	Preferences::LoadFavorites( m_Favorites );
-
-	return true;
+	LoadTextFile( Launcher::GetUserFile( "favorites", ".txt" ), m_Favorites );
 }
 
 #ifdef _DEBUG
