@@ -2,7 +2,6 @@
 #include "TrayIcon.h"
 
 #include "Application.h"
-#include "Config.h"
 #include "Shortcut.h"
 #include "Helper.h"
 #include "Version.h"
@@ -17,7 +16,7 @@ TrayIcon::TrayIcon( Application* application )
 	, m_IsMenuShowing( false )
 {
 	wxIcon icon;
-	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ) ) );
+	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
 	SetIcon( icon, "Initializing Launcher..." );
 
 	// Connect Events
@@ -92,9 +91,6 @@ void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 		"\nFeatures:\n" \
 		"  Shift+Click - add/remove a 'favorite' shortcut.\n" \
 		"  Ctrl+Click  - copy a shortcut to the clipboard.\n";
-	aboutLauncher += 
-		"\nThis version of the Launcher is compatible with EShell [v"ESHELL_VERSION"] \n" \
-		"and 32bit Perl [v"PERL_VERSION"].\n"; // "\n  Copyright 2009 EShell Games, Inc.\n";
 
 	wxMessageDialog dialog(
 		NULL,
@@ -191,7 +187,7 @@ void TrayIcon::BeginBusy()
 
 	// Clear the current menu and change the icon to notify the user that things are happening
 	wxIcon icon;
-	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_BUSY_ICON ) ) );
+	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_BUSY_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
 	SetIcon( icon, wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
 }
 
@@ -209,7 +205,7 @@ void TrayIcon::EndBusy()
 
 	// Set the icon back
 	wxIcon icon;
-	icon.SetHICON( ::LoadIcon( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ) ) );
+	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
 	SetIcon( icon, m_Application->m_Title.c_str() );
 }
 
@@ -259,7 +255,7 @@ void CreateShortcuts( const Settings& settings, const Config& config, M_Shortcut
 		std::string settingsFile = settings.m_File;
 
 		// Build the Command  
-		shortcut->m_Command = PERL_EXE" \"" + eshellPath + "\"";
+		shortcut->m_Command = "perl.exe \"" + eshellPath + "\"";
 		shortcut->m_Command += " -settingsFile \"" + settingsFile + "\"";
 		shortcut->m_Command += " -config " + config.m_Name;
 
@@ -330,9 +326,8 @@ void TrayIcon::CreateMenu()
 	// Refresh
 	wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Refresh, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
 	{
-		HICON hIcon = (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR );
 		wxIcon refreshIcon;
-		refreshIcon.SetHICON( hIcon );
+		refreshIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
 		refreshIcon.SetSize( 16, 16 );
 		refreshMenuItem->SetBitmap( refreshIcon );
 	}

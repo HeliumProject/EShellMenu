@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Application.h"
 
-#include "Config.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "Version.h"
@@ -10,15 +9,19 @@
 
 using namespace Launcher;
 
+static const std::string g_DefaultLauncherInstallDir  = "\\\\eshell\\installs\\launcher\\";
+static const std::string g_DefaultLauncherInstallFile = "LauncherSetup.exe";
+static const int g_UpdateCheckIntervalInSeconds = 30 * 60;
+
 Application::Application()
 	: m_MutexHandle( NULL )
-	, m_Title( "EShell Launcher [v"LAUNCHER_VERSION_STRING"]" )
+	, m_Title( "EShell Launcher v"LAUNCHER_VERSION_STRING )
 	, m_TrayIcon( NULL )
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
 	, m_UpdateLauncherNow( false )
 	, m_CheckForUpdatesTimer( this )
-	, m_LauncherInstallPath( s_DefaultLauncherInstallDir + s_DefaultLauncherInstallFile )
+	, m_LauncherInstallPath( g_DefaultLauncherInstallDir + g_DefaultLauncherInstallFile )
 {
 	// Figure out the current version
 	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
@@ -134,7 +137,7 @@ bool Application::OnInit()
 
 	m_TrayIcon = new TrayIcon( this );
 
-	m_CheckForUpdatesTimer.Start( s_CheckUpdatesEvery, wxTIMER_ONE_SHOT );
+	m_CheckForUpdatesTimer.Start( g_UpdateCheckIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
 
 	return true;
 }
@@ -209,7 +212,7 @@ void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
 				wxString itemTitle = "New Update Available";
 				if ( !newVersion.empty() )
 				{
-				  itemTitle += wxString( " [v" ) + wxString( newVersion.c_str() ) + wxString( "]" );
+				  itemTitle += wxString( " v" ) + wxString( newVersion.c_str() );
 				}
 				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
 
@@ -218,7 +221,7 @@ void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
 			}
 			m_TrayIcon->EndBusy();
 
-			m_CheckForUpdatesTimer.Start( s_CheckUpdatesEvery * 1000, wxTIMER_ONE_SHOT );
+			m_CheckForUpdatesTimer.Start( g_UpdateCheckIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
 		}
 	}
 }

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Shortcut.h"
 
-#include "Config.h"
 #include "Helper.h"
 #include "Settings.h"
 

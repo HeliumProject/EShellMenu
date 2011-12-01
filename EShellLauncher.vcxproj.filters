@@ -13,7 +13,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Version.h" />
-    <ClInclude Include="Config.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="Exception.h" />
