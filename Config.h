@@ -2,11 +2,7 @@
 
 namespace Launcher
 {
-  #define SETUP_ROOT "\\\\locutus.insomniacgames.com\\R-Drive\\Install\\"
-  static const char* s_SignalsFolder = SETUP_ROOT"Signals\\";
-
   static std::string s_DefaultLauncherInstallDir  = "\\\\locutus\\toolshed\\installs\\Tools Launcher\\";
-  static std::string s_TestLauncherInstallDir     = "\\\\locutus\\toolshed\\installs\\Tools Launcher\\Test\\";
   static std::string s_DefaultLauncherInstallFile = "LauncherSetup.exe";
 
   #define SETTINGS_FILENAME         "Settings.xml"

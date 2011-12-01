@@ -8,8 +8,6 @@ namespace Launcher
 	typedef std::vector< Shortcut > V_Shortcut;
 	typedef std::map< std::string, V_Shortcut > M_Shortcuts;
 
-	///////////////////////////////////////
-	// TrayIcon LauncherEventIDs
 	namespace LauncherEventIDs
 	{
 		enum LauncherEventID
@@ -20,13 +18,10 @@ namespace Launcher
 			Help,
 			Redraw,
 			Refresh,
-			UpdateLauncher,
+			Update,
 		};
 	}
 
-	///////////////////////////////////////////////////////////////////////////////
-	/// Class TrayIcon
-	///////////////////////////////////////////////////////////////////////////////
 	class TrayIcon : public wxTaskBarIcon
 	{
 	public:
@@ -56,12 +51,10 @@ namespace Launcher
 		void CreateProjectsMenu( wxMenu* parentMenu );
 
 	private:
-		Application*  m_Application;
-
-		M_Shortcuts  m_Shortcuts;
-
-		wxMenu*       m_Menu;
-		int           m_BusyCount;
-		bool          m_IsMenuShowing;
+		Application* m_Application;
+		M_Shortcuts m_Shortcuts;
+		wxMenu* m_Menu;
+		int m_BusyCount;
+		bool m_IsMenuShowing;
 	};
 }

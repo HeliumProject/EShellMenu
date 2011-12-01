@@ -105,8 +105,6 @@ bool Launcher::ExecuteCommand( const std::string& command, const std::string& st
 	return success;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
 std::string Launcher::Capitalize( const std::string& str, const bool isGameName )
 {
 	const std::regex matchGameNamePattern( "^.*[0-9]+.*$", std::regex::icase );
@@ -130,16 +128,12 @@ std::string Launcher::Capitalize( const std::string& str, const bool isGameName 
 	return newStr;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 std::string Launcher::RemoveSlashes( const std::string& str, const std::string& replace )
 {
 	const std::regex slash("[\\\\/]+"); 
 	return std::regex_replace( str, slash, replace );
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////
 // Returns true if the version of the specified file could be found and passes back the 
 // version number.  The version number is a 64-bit number that is made up of four parts:
 // Compatible/Feature/Patch/Build.  This app does not use the build number so it will
@@ -171,7 +165,6 @@ bool Launcher::GetFileVersion( const std::string& path, uint64_t& version )
 	return succeeded;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 std::string Launcher::GetFileVersionString( const std::string& path )
 {
 	std::stringstream versionStr;
@@ -189,7 +182,6 @@ std::string Launcher::GetFileVersionString( const std::string& path )
 	return versionStr.str();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void Launcher::ConsolePrint(const char *fmt,...) 
 {
 	va_list args;
@@ -205,7 +197,6 @@ void Launcher::ConsolePrint(const char *fmt,...)
 	va_end(args);      
 }
 
-///////////////////////////////////////////////////////////////////////////////
 bool Launcher::GetEnvVar( const std::string& envVarName, std::string& envVarValue )
 {
 	char *envVarSetting = getenv( envVarName.c_str() );

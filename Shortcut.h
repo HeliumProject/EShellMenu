@@ -4,15 +4,12 @@
 
 namespace Launcher
 {
-	///////////////////////////////////////////////////////////////////////////////
-	/// Class Shortcut
 	//
 	// What does the command look like:
 	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config production -exec Luna
 	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config production -run Maya
 	//   "C:\Program Files (x86)\eshell\eshell.pl" -settingsFile "X:\Settings.xml" -config tools_builder -build "release" -code "devel" 
 	//
-	///////////////////////////////////////////////////////////////////////////////
 	class Shortcut;
 	typedef std::vector< Shortcut > V_Shortcut;
 	typedef std::map< std::string, V_Shortcut > M_Shortcuts;

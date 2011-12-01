@@ -58,7 +58,6 @@ void TrayIcon::Cleanup()
 	m_Menu = NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void TrayIcon::OnTrayIconClick( wxTaskBarIconEvent& evt ) 
 { 
 	if ( m_Menu )
@@ -71,7 +70,6 @@ void TrayIcon::OnTrayIconClick( wxTaskBarIconEvent& evt )
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 {
 	std::string uninstallProject = "Are you sure you would like to exit the Launcher?";
@@ -84,9 +82,6 @@ void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Displays the Help dialog
-//
 void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 {
 	std::string aboutLauncher("");

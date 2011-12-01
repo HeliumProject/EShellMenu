@@ -11,7 +11,6 @@
 
 using namespace Launcher;
 
-///////////////////////////////////////////////////////////////////////////////
 Application::Application()
 	: m_MutexHandle( NULL )
 	, m_Title( "EShell Launcher [v"LAUNCHER_VERSION_STRING"]" )
@@ -22,7 +21,6 @@ Application::Application()
 	, m_UpdateLauncherNow( false )
 	, m_CheckForUpdatesTimer( this )
 	, m_LauncherInstallPath( s_DefaultLauncherInstallDir + s_DefaultLauncherInstallFile )
-	, m_Test ( false )
 {
 	// Figure out the current version
 	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
@@ -36,17 +34,15 @@ Application::Application()
 #endif
 
 	Connect( wxEVT_TIMER, wxTimerEventHandler( Application::OnCheckForUpdatesTimer ), NULL, this );
-	Connect( LauncherEventIDs::UpdateLauncher, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdateLauncher ), NULL, this ); 
+	Connect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this ); 
 }
 
-///////////////////////////////////////////////////////////////////////////////
 Application::~Application()
 {
 	Disconnect( wxEVT_TIMER, wxTimerEventHandler( Application::OnCheckForUpdatesTimer ), NULL, this );
-	Disconnect( LauncherEventIDs::UpdateLauncher, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdateLauncher ), NULL, this );
+	Disconnect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void Application::AddFavorite( const std::string& command )
 {
 	if ( m_Favorites.find( command ) != m_Favorites.end() )
@@ -61,19 +57,16 @@ void Application::AddFavorite( const std::string& command )
 	Preferences::SaveFavorites( m_Favorites );
 }
 
-///////////////////////////////////////////////////////////////////////////////
 bool Application::FindFavorite( const std::string& command )
 {
 	return m_Favorites.find( command ) != m_Favorites.end();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 std::string Application::GetAvailableVersionString() const
 {
 	return Launcher::GetFileVersionString( m_LauncherInstallPath );
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
 {
 	SetVendorName( "EShell Games" );
@@ -84,7 +77,6 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 	parser.AddOption( "verbose" );
 }
 
-///////////////////////////////////////////////////////////////////////////////
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
 	wxString settingsFileName;
@@ -93,23 +85,9 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 		m_SettingsFileName = settingsFileName.c_str();
 	}
 
-	m_Test = parser.Found( "test" );
-	if ( m_Test )
-	{
-		m_LauncherInstallPath = ( s_TestLauncherInstallDir + s_DefaultLauncherInstallFile );
-		m_MutexName = "EShellToolsLauncher_TEST";
-		m_Title = "TEST: " + m_Title;
-	}
-
 	return __super::OnCmdLineParsed( parser );
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Called before OnRun(), this is a good place to do initialization -- if
-// anything fails, return false from here to prevent the program from
-// continuing. The command line is normally parsed here, call the base
-// class OnInit() to do it.
-//
 bool Application::OnInit()
 {    
 	if ( !__super::OnInit() )
@@ -151,48 +129,24 @@ bool Application::OnInit()
 	}
 	while ( tryAgain );
 
-	//---------------------------------------
-	// TODO find PERL_EXE (perl.exe) in the user's path and Check the installed version of perl with PERL_VERSION
-	//bool foundPerl = true;
-	//if ( !foundPerl )
-	//{
-	//}
-
-	//---------------------------------------
-	// ImageHandlers:
-	//    wxWidgets normally doesn't link in image handlers for all types of images,
-	//    in order to be a bit more efficient.  Consequently, you have to initialize
-	//    and add image handlers.  You can see how it is done for each type in the
-	//    demo in MyApp.OnInit.  Or you can call wxInitAllImageHandlers() to do them
-	//    all.  However, there is a limitation to doing them all.  TGA files may be
-	//    handled by the wxCURHandler instead of the wxTGAHandler, simply because that
-	//    handler appears in the list before TGA when you init them all at once.
-	//wxImage::AddHandler( new wxJPEGHandler );
-	//wxImage::AddHandler( new wxPNGHandler );
 	wxInitAllImageHandlers();
 
 	wxImageHandler* curHandler = wxImage::FindHandler( wxBITMAP_TYPE_CUR );
 	if ( curHandler )
 	{
-		// Force the cursor handler to the end of the list so that it doesn't try to
-		// open TGA files.
+		// Force the cursor handler to the end of the list so that it doesn't try to open TGA files.
 		wxImage::RemoveHandler( curHandler->GetName() );
 		curHandler = NULL;
 		wxImage::AddHandler( new wxCURHandler );
 	}
 
-
-	//---------------------------------------
-	// make the task bar icon
 	m_TrayIcon = new TrayIcon( this );
-
 
 	m_CheckForUpdatesTimer.Start( s_CheckUpdatesEvery, wxTIMER_ONE_SHOT );
 
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 int Application::OnRun()
 {
 	try
@@ -217,7 +171,6 @@ int Application::OnRun()
 	return 1;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 int Application::OnExit()
 {
 	// clean up the TrayIcon
@@ -234,19 +187,12 @@ int Application::OnExit()
 	if ( m_UpdateLauncherNow && FileExists( m_LauncherInstallPath ) )
 	{
 		std::string command = "\"" + m_LauncherInstallPath + "\" /SILENT";
-		if ( m_Test )
-		{
-			// install the version currently running
-			command = "\"" + s_DefaultLauncherInstallDir + LAUNCHER_VERSION_STRING"\\" +  s_DefaultLauncherInstallFile + "\" /SILENT"; //" /MERGETASKS=\"runastest\"";
-		}
-
 		Launcher::ExecuteCommand( command, "", false, false );
 	}
 
 	return __super::OnExit( );
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
 {
 	if( evt.GetId() == m_CheckForUpdatesTimer.GetId() )
@@ -267,13 +213,13 @@ void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
 			// only refresh if the network version has changed
 			if ( IsUpdateAvailable() && previousNetworkVersion != m_NetworkVersion )
 			{
-				//std::string newVersion = Launcher::GetFileVersionString( m_LauncherInstallPath );
-				//wxString itemTitle = "New Update Available";
-				//if ( !newVersion.empty() )
-				//{
-				//  itemTitle += wxString( " [v" ) + wxString( newVersion.c_str() ) + wxString( "]" );
-				//}
-				//m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
+				std::string newVersion = Launcher::GetFileVersionString( m_LauncherInstallPath );
+				wxString itemTitle = "New Update Available";
+				if ( !newVersion.empty() )
+				{
+				  itemTitle += wxString( " [v" ) + wxString( newVersion.c_str() ) + wxString( "]" );
+				}
+				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
 
 				wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Redraw );
 				m_TrayIcon->AddPendingEvent( pending );
@@ -285,10 +231,7 @@ void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Checks to see if there is a new version of the Launcher and prompts to install
-// it.
-void Application::OnMenuUpdateLauncher( wxCommandEvent& evt )
+void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
 	m_UpdateLauncherNow = false;
 	if ( IsUpdateAvailable() )
@@ -310,7 +253,6 @@ void Application::OnMenuUpdateLauncher( wxCommandEvent& evt )
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
 bool Application::LoadSettings()
 {
 #if 0
@@ -326,9 +268,6 @@ bool Application::LoadSettings()
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Main entry point for the application.
-//
 #ifdef _DEBUG
 long& g_BreakOnAlloc (_crtBreakAlloc);
 #endif
