@@ -1,6 +1,10 @@
 #pragma once
 
-#include "resource.h"
+// don't forget about resource.h too!
+
+#define LAUNCHER_VERSION_MAJOR			3
+#define LAUNCHER_VERSION_MINOR			0
+#define LAUNCHER_VERSION_PATCH			0
 
 #define LAUNCHER_VERSION_STRINGIFY(compatible, feature, patch) #compatible"."#feature"."#patch
 #define LAUNCHER_VERSION_TOSTRING(compatible, feature, patch) LAUNCHER_VERSION_STRINGIFY(compatible,feature,patch)

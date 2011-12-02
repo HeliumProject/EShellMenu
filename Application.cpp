@@ -94,6 +94,9 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
 		name.AppendDir( "perl" );
+		name.AppendDir( "perl" );
+		name.AppendDir( "bin" );
+		name.SetName( "perl.exe" );
 		m_PerlExePath = name.GetPath();
 	}
 
@@ -123,30 +126,12 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 		return false;
 	}
 
-	wxFileName perlBin ( m_PerlExePath.c_str(), "" );
-
-	wxFileName siteBin ( perlBin.GetPath() );
-	siteBin.RemoveLastDir(); // pop /bin
-	siteBin.AppendDir( "site" );
-	siteBin.AppendDir( "bin" );
-
-	wxFileName cBin ( perlBin.GetPath() );
+	wxFileName cBin ( m_PerlExePath.c_str() );
 	cBin.RemoveLastDir(); // pop /bin
 	cBin.RemoveLastDir(); // pop /perl
 	cBin.AppendDir( "c" );
 	cBin.AppendDir( "bin" );
-
-	char currentPath[8192];
-	::GetEnvironmentVariable("PATH", currentPath, sizeof(currentPath) );
-
-	std::string newPath = currentPath;
-	newPath += ";";
-	newPath += perlBin.GetPath();
-	newPath += ";";
-	newPath += siteBin.GetPath();
-	newPath += ";";
-	newPath += cBin.GetPath();
-	::SetEnvironmentVariable( "PATH", newPath.c_str() );
+	::SetCurrentDirectory( cBin.GetPath() );
 
 	return __super::OnCmdLineParsed( parser );
 }
