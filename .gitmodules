@@ -4,3 +4,9 @@
 [submodule "submodule/TinyXML"]
 	path = submodule/TinyXML
 	url = git://github.com/HeliumProject/TinyXML.git
+[submodule "submodule/perl"]
+	path = submodule/perl
+	url = git://github.com/HeliumProject/perl.git
+[submodule "submodule/EShell"]
+	path = submodule/EShell
+	url = git://github.com/HeliumProject/EShell.git

@@ -48,14 +48,14 @@ void Application::AddProject( const std::string& project )
 {
 	m_Projects.insert( project );
 
-	SaveTextFile( Launcher::GetUserFile( "projects", ".txt" ), m_Projects );
+	SaveTextFile( Launcher::GetUserFile( "projects", "txt" ), m_Projects );
 }
 
 void Application::AddFavorite( const std::string& command )
 {
 	m_Favorites.insert( command );
 
-	SaveTextFile( Launcher::GetUserFile( "favorites", ".txt" ), m_Favorites );
+	SaveTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
 }
 
 bool Application::IsFavorite( const std::string& command )
@@ -73,13 +73,81 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 	SetVendorName( "EShell Games" );
 	parser.SetLogo( wxT( "Tools Launcher (c) 2009 - EShell Games\n" ) );
 
-	parser.AddOption( "settingsFileName", "SettingsFileName", "Example: ProjectSettingsTest.xml, or Settings.xml" );
-	parser.AddSwitch( "test", "Test", "Used for testing." );
-	parser.AddOption( "verbose" );
+	parser.AddOption( "perl", "PerlLocation", "The location of the perl distribution (containing /bin)" );
+	parser.AddOption( "eshell", "EShellLocation", "The location of the directory containing eshell.pl" );
+
+	return __super::OnInitCmdLine( parser );
 }
 
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
+	wxString perl;
+	if ( parser.Found( "perl", &perl ) )
+	{
+		wxFileName name ( perl, "" );
+		name.AppendDir( "bin" );
+		name.SetName( "perl.exe" );
+		m_PerlExePath = name.GetFullPath();
+	}
+	else
+	{
+		wxStandardPaths sp;
+		wxFileName name ( sp.GetExecutablePath() );
+		name.AppendDir( "perl" );
+		m_PerlExePath = name.GetPath();
+	}
+
+	wxString eshell;
+	if ( parser.Found( "eshell", &eshell ) )
+	{
+		wxFileName name ( eshell, "" );
+		name.SetName( "eshell.pl" );
+		m_EShellPlPath = name.GetFullPath();
+	}
+	else
+	{
+		wxStandardPaths sp;
+		wxFileName name ( sp.GetExecutablePath() );
+		m_EShellPlPath = name.GetPath();
+	}
+
+	if ( !FileExists( m_PerlExePath ) )
+	{
+		wxMessageBox( std::string( "Perl doesn't exist at the expected location:\n" ) + m_PerlExePath, "Error", wxOK | wxICON_ERROR );
+		return false;
+	}
+
+	if ( !FileExists( m_EShellPlPath ) )
+	{
+		wxMessageBox( std::string( "EShell.pl doesn't exist at the expected location:\n" ) + m_EShellPlPath, "Error", wxOK | wxICON_ERROR );
+		return false;
+	}
+
+	wxFileName perlBin ( m_PerlExePath.c_str(), "" );
+
+	wxFileName siteBin ( perlBin.GetPath() );
+	siteBin.RemoveLastDir(); // pop /bin
+	siteBin.AppendDir( "site" );
+	siteBin.AppendDir( "bin" );
+
+	wxFileName cBin ( perlBin.GetPath() );
+	cBin.RemoveLastDir(); // pop /bin
+	cBin.RemoveLastDir(); // pop /perl
+	cBin.AppendDir( "c" );
+	cBin.AppendDir( "bin" );
+
+	char currentPath[8192];
+	::GetEnvironmentVariable("PATH", currentPath, sizeof(currentPath) );
+
+	std::string newPath = currentPath;
+	newPath += ";";
+	newPath += perlBin.GetPath();
+	newPath += ";";
+	newPath += siteBin.GetPath();
+	newPath += ";";
+	newPath += cBin.GetPath();
+	::SetEnvironmentVariable( "PATH", newPath.c_str() );
+
 	return __super::OnCmdLineParsed( parser );
 }
 
@@ -251,10 +319,10 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 void Application::LoadState()
 {
 	m_Projects.clear();
-	LoadTextFile( Launcher::GetUserFile( "projects", ".txt" ), m_Projects );
+	LoadTextFile( Launcher::GetUserFile( "projects", "txt" ), m_Projects );
 
 	m_Favorites.clear();
-	LoadTextFile( Launcher::GetUserFile( "favorites", ".txt" ), m_Favorites );
+	LoadTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
 }
 
 #ifdef _DEBUG

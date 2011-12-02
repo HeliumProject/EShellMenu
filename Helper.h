@@ -6,7 +6,6 @@ namespace Launcher
 {
 	bool FileExists( const std::string& fileName );
 	bool DirectoryExists( const std::string& fileName );
-	bool MakePath( const std::string& fileName, bool stripFile = false );
 	bool ExecuteCommand( const std::string& command, const std::string& startIn = std::string(""), bool showWindow = true, bool block = false );
 
 	std::string Capitalize( const std::string& str, const bool isGameName = false );

@@ -44,23 +44,6 @@ bool Launcher::DirectoryExists(const std::string& fileName)
 	}
 }
 
-bool Launcher::MakePath( const std::string& fileName, bool stripFile )
-{
-	std::string path = fileName;
-
-	if ( stripFile )
-	{
-		size_t pos = std::string::npos;
-		pos = path.find_last_of( "\\/" );
-		path = path.substr( 0, pos-1 );
-	}
-
-	assert( false ); // need a loop here to mkpath
-	_mkdir( path.c_str() );
-
-	return DirectoryExists( path );
-}
-
 bool Launcher::ExecuteCommand( const std::string& command, const std::string& startIn, bool showWindow, bool block )
 {
 	STARTUPINFO si;
@@ -212,11 +195,8 @@ bool Launcher::GetEnvVar( const std::string& envVarName, std::string& envVarValu
 
 std::string Launcher::GetUserFile( const std::string& basename, const std::string& ext )
 {
-	wxStandardPaths sp;
-
-	wxFileName name = sp.GetUserConfigDir();
+	wxFileName name ( wxFileName::GetHomeDir(), basename );
 	name.AppendDir( ".eshell" );
-	name.SetName( basename );
 	name.SetExt( ext );
 
 	return std::string( name.GetFullPath().c_str() );
@@ -242,10 +222,8 @@ void Launcher::LoadTextFile( const std::string& file, std::set< std::string >& c
 
 bool Launcher::SaveTextFile( const std::string& file, const std::set< std::string >& contents )
 {
-	if ( !MakePath( file, true ) )
-	{
-		return false;
-	}
+	wxFileName name ( file.c_str() );
+	name.Mkdir( wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL );
 
 	std::ofstream out( file.c_str() );
 

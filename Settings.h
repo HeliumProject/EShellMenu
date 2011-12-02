@@ -44,6 +44,7 @@ namespace Launcher
 	{
 	public:
 		std::string m_Name;             // Display name: "prompt", etc...
+		std::string m_Folder;			// Folder to put it in (under the project menu)
 		std::string m_Args;             // Args to pass to eshell
 		std::string m_Description;      // Mouse over description
 		std::string m_IconPath;         // Path to the .png file
@@ -87,7 +88,7 @@ namespace Launcher
 		static void ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeFile = false );
 		static void ParseInclude( TiXmlElement* elem, V_IncludeFiles& includes );
 		static void ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar );
-		static void ParseShortcuts( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
+		static void ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
 
 		static std::string ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing = std::set< std::string >() );
 

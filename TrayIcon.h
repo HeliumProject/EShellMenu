@@ -11,13 +11,14 @@ namespace Launcher
 	{
 		enum LauncherEventID
 		{
-			START_ID = wxID_HIGHEST + 1,
-
-			Exit,
+			First = wxID_HIGHEST + 1,
+			Exit = First,
 			Help,
 			Redraw,
 			Refresh,
 			Update,
+			Add,
+			Last = Add,
 		};
 	}
 
@@ -41,18 +42,17 @@ namespace Launcher
 		void OnMenuRedraw( wxCommandEvent& evt );
 		void OnMenuRefresh( wxCommandEvent& evt );
 		void OnMenuShortcut( wxCommandEvent& evt );
+		void OnMenuAdd( wxCommandEvent& evt );
 
 	private:
 		void Refresh( bool reload );
-
-		void CreateMenu();
 		void DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem );
 		void CreateProjectsMenu( wxMenu* parentMenu );
 
 	private:
 		Application* m_Application;
 		V_Settings m_Settings;
-		M_Shortcut m_Shortcuts;
+		M_Shortcut m_ProjectShortcuts;
 		wxMenu* m_Menu;
 		int m_BusyCount;
 		bool m_IsMenuShowing;

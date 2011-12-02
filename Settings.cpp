@@ -182,42 +182,42 @@ void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeF
 //  <Icon location="%IG_PROJECT_BIN%\Luna.exe" number="0" />
 //  <IconPath>%IG_PROJECT_DATA%\luna\themes\default\moon_16.png</IconPath>
 //</Shortcut>
-void Settings::ParseShortcuts( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
+void Settings::ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
 {
-	for ( TiXmlElement* eshellElem = elem->FirstChildElement(); eshellElem != NULL; eshellElem = eshellElem->NextSiblingElement() )
+	ShortcutInfo shortcut;
+
+	for ( TiXmlElement* shortcutElem = elem->FirstChildElement(); shortcutElem != NULL; shortcutElem = shortcutElem->NextSiblingElement() )
 	{
-		std::string eshellElemString = eshellElem->Value();
+		std::string shortcutElemString = shortcutElem->Value();
 
-		// <Shortcut>
-		if ( eshellElemString.compare( "Shortcut" ) == 0 )
+		if ( shortcutElemString.compare( "Name" ) == 0 )
 		{
-			ShortcutInfo shortcut;
-
-			for ( TiXmlElement* shortcutElem = eshellElem->FirstChildElement(); shortcutElem != NULL; shortcutElem = shortcutElem->NextSiblingElement() )
-			{
-				std::string shortcutElemString = shortcutElem->Value();
-
-				if ( shortcutElemString.compare( "Name" ) == 0 )
-				{
-					shortcut.m_Name = shortcutElem->GetText();
-				}
-				else if ( shortcutElemString.compare( "Args" ) == 0 )
-				{
-					shortcut.m_Args = shortcutElem->GetText();
-				}
-				else if ( shortcutElemString.compare( "Description" ) == 0 )
-				{
-					shortcut.m_Description = shortcutElem->GetText();
-				}
-				else if ( shortcutElemString.compare( "Icon" ) == 0 && shortcutElem->GetText() )
-				{
-					shortcut.m_IconPath = shortcutElem->GetText();
-				}
-			}
-
-			shortcuts.push_back( shortcut );
+			shortcut.m_Name = shortcutElem->GetText();
+		}
+		else if ( shortcutElemString.compare( "Folder" ) == 0 )
+		{
+			shortcut.m_Folder = shortcutElem->GetText();
+		}
+		else if ( shortcutElemString.compare( "Target" ) == 0 )
+		{
+			shortcut.m_Args = std::string ( "-run \"" ) + shortcutElem->GetText() + "\"";
+			shortcut.m_IconPath = shortcutElem->GetText();
+		}
+		else if ( shortcutElemString.compare( "Args" ) == 0 )
+		{
+			shortcut.m_Args = shortcutElem->GetText();
+		}
+		else if ( shortcutElemString.compare( "Description" ) == 0 )
+		{
+			shortcut.m_Description = shortcutElem->GetText();
+		}
+		else if ( shortcutElemString.compare( "Icon" ) == 0 && shortcutElem->GetText() )
+		{
+			shortcut.m_IconPath = shortcutElem->GetText();
 		}
 	}
+
+	shortcuts.push_back( shortcut );
 }
 
 //<Include>%IG_PROJECT_CODE%\config\SDKSubscription.xml</Include>
@@ -290,7 +290,7 @@ void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& glo
 		//<Shortcut>
 		else if ( configElemString.compare( "Shortcut" ) == 0 )
 		{
-			ParseShortcuts( configElem, config.m_Shortcuts, config.m_EnvVar );
+			ParseShortcut( configElem, config.m_Shortcuts, config.m_EnvVar );
 		}
 		//<Include>
 		else if ( configElemString.compare( "Include" ) == 0 )
@@ -313,7 +313,6 @@ bool Settings::LoadFile( const std::string& file, bool includeFile )
 	TiXmlDocument doc;
 	if (!doc.LoadFile( file.c_str() ))
 	{
-		//Console::Warning("Unable to load projecy settings file %s\n", file.c_str());
 		return false;
 	}
 
