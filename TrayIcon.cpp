@@ -268,7 +268,6 @@ void CreateShortcuts( const std::string& perlPath, const std::string& eshellPath
 		// Create the FavoriteName
 		shortcut->m_FavoriteName = settings.m_Project + " - " + shortcutInfo.m_Name;
 
-		shortcut.get()->IncRef();
 		shortcuts[ settings.m_Project ].push_back( shortcut );
 	}
 }
@@ -323,6 +322,7 @@ void TrayIcon::Refresh( bool reload )
 				if ( (*itr)->GetId() < LauncherEventIDs::First || (*itr)->GetId() > LauncherEventIDs::Last )
 				{
 					m_Menu->Remove( *itr );
+					delete *itr;
 				}
 			}
 			m_Menu->PrependSeparator();
