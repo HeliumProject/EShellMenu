@@ -22,8 +22,10 @@ namespace Launcher
 		void AddFavorite( const std::string& command );
 		bool IsFavorite( const std::string& command );
 
-		bool IsUpdateAvailable() const { return m_NetworkVersion > m_CurrentVersion; }
-		std::string GetAvailableVersionString() const;
+		bool IsUpdateAvailable() const
+		{
+			return m_NetworkVersion > m_CurrentVersion;
+		}
 
 		friend class Launcher::TrayIcon;
 
@@ -34,7 +36,7 @@ namespace Launcher
 		virtual int OnRun();
 		virtual int OnExit();
 
-		void OnCheckForUpdatesTimer( wxTimerEvent& evt );
+		void OnUpdateTimer( wxTimerEvent& evt );
 		void OnMenuUpdate( wxCommandEvent& evt );
 
 	private:
@@ -52,6 +54,6 @@ namespace Launcher
 		uint64_t m_CurrentVersion;
 		uint64_t m_NetworkVersion;
 		bool m_UpdateLauncherNow;
-		wxTimer m_CheckForUpdatesTimer;
+		wxTimer m_UpdateTimer;
 	};
 }

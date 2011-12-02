@@ -12,7 +12,7 @@ namespace Launcher
 	std::string RemoveSlashes( const std::string& str, const std::string& replace = std::string(" ") );
 
 	bool GetFileVersion( const std::string& path, uint64_t& version );
-	std::string GetFileVersionString( const std::string& path );
+	std::string GetFileVersionString( uint64_t version );
 
 	void ConsolePrint(const char *fmt,...);
 

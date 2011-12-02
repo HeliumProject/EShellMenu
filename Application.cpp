@@ -9,9 +9,9 @@
 
 using namespace Launcher;
 
-static const std::string g_DefaultLauncherInstallDir  = "\\\\eshell\\installs\\launcher\\";
-static const std::string g_DefaultLauncherInstallFile = "LauncherSetup.exe";
-static const int g_UpdateCheckIntervalInSeconds = 30 * 60;
+static const std::string g_DefaultLauncherInstallDir  = "\\\\eshell\\eshell\\launcher\\";
+static const std::string g_DefaultLauncherInstallFile = "EShellLauncherSetup.exe";
+static const int g_UpdateIntervalInSeconds = 60; //30 * 60;
 
 Application::Application()
 	: m_MutexHandle( NULL )
@@ -20,7 +20,7 @@ Application::Application()
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
 	, m_UpdateLauncherNow( false )
-	, m_CheckForUpdatesTimer( this )
+	, m_UpdateTimer( this )
 	, m_LauncherInstallPath( g_DefaultLauncherInstallDir + g_DefaultLauncherInstallFile )
 {
 	// Figure out the current version
@@ -34,13 +34,13 @@ Application::Application()
 	m_MutexName = "EShellLauncher";
 #endif
 
-	Connect( wxEVT_TIMER, wxTimerEventHandler( Application::OnCheckForUpdatesTimer ), NULL, this );
+	Connect( wxEVT_TIMER, wxTimerEventHandler( Application::OnUpdateTimer ), NULL, this );
 	Connect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this ); 
 }
 
 Application::~Application()
 {
-	Disconnect( wxEVT_TIMER, wxTimerEventHandler( Application::OnCheckForUpdatesTimer ), NULL, this );
+	Disconnect( wxEVT_TIMER, wxTimerEventHandler( Application::OnUpdateTimer ), NULL, this );
 	Disconnect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
 }
 
@@ -61,11 +61,6 @@ void Application::AddFavorite( const std::string& command )
 bool Application::IsFavorite( const std::string& command )
 {
 	return m_Favorites.find( command ) != m_Favorites.end();
-}
-
-std::string Application::GetAvailableVersionString() const
-{
-	return GetFileVersionString( m_LauncherInstallPath );
 }
 
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
@@ -195,7 +190,7 @@ bool Application::OnInit()
 
 	m_TrayIcon = new TrayIcon( this );
 
-	m_CheckForUpdatesTimer.Start( g_UpdateCheckIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+	m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
 
 	return true;
 }
@@ -246,40 +241,44 @@ int Application::OnExit()
 	return __super::OnExit( );
 }
 
-void Application::OnCheckForUpdatesTimer( wxTimerEvent& evt )
+void Application::OnUpdateTimer( wxTimerEvent& evt )
 {
-	if( evt.GetId() == m_CheckForUpdatesTimer.GetId() )
+	if( evt.GetId() == m_UpdateTimer.GetId() )
 	{
 		if ( m_TrayIcon->IsMenuShowing() )
 		{
 			// the menu was open, start the timer but make it sooner than usual
-			m_CheckForUpdatesTimer.Start( 10 * 1000, wxTIMER_ONE_SHOT );
+			m_UpdateTimer.Start( 10 * 1000, wxTIMER_ONE_SHOT );
 		}
 		else
 		{
 			m_TrayIcon->BeginBusy();
 
 			uint64_t previousNetworkVersion = m_NetworkVersion;
-
 			Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
 
 			// only refresh if the network version has changed
 			if ( IsUpdateAvailable() && previousNetworkVersion != m_NetworkVersion )
 			{
-				std::string newVersion = Launcher::GetFileVersionString( m_LauncherInstallPath );
+				std::string newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
 				wxString itemTitle = "New Update Available";
 				if ( !newVersion.empty() )
 				{
-				  itemTitle += wxString( " v" ) + wxString( newVersion.c_str() );
+					itemTitle += wxString( " v" ) + wxString( newVersion.c_str() );
 				}
 				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
 
 				wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Redraw );
 				m_TrayIcon->AddPendingEvent( pending );
 			}
+			else
+			{
+				m_TrayIcon->Refresh( true );
+			}
+
 			m_TrayIcon->EndBusy();
 
-			m_CheckForUpdatesTimer.Start( g_UpdateCheckIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+			m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
 		}
 	}
 }
@@ -292,7 +291,6 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 		const char* title = "Update Launcher?";
 		const char* msg = "There is an update available for the Launcher.  Would you like to exit the Launcher and update now?";
 		m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
-
 		if ( m_UpdateLauncherNow )
 		{
 			// Shut down the launcher.  Doing this delayed is not actually

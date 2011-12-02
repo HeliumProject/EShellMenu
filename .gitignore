@@ -11,5 +11,5 @@
 *.LOCAL.*
 *.REMOTE.*
 build/*
-built/*
+install/*
 ipch/*

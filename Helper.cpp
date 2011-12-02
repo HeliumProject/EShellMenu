@@ -148,20 +148,16 @@ bool Launcher::GetFileVersion( const std::string& path, uint64_t& version )
 	return succeeded;
 }
 
-std::string Launcher::GetFileVersionString( const std::string& path )
+std::string Launcher::GetFileVersionString( uint64_t version )
 {
 	std::stringstream versionStr;
 
 	// Version number is 4 parts, but we are going to skip the build number.
-	uint64_t version = 0;
-	if ( GetFileVersion( path, version ) )
-	{
-		versionStr 
-			<< ( uint16_t )( version >> ( 16 * 3 ) ) << "." 
-			<< ( uint16_t )( version >> ( 16 * 2 ) ) << "." 
-			<< ( uint16_t )( version >> ( 16 * 1 ) );
+	versionStr
+		<< ( uint16_t )( version >> ( 16 * 3 ) ) << "." 
+		<< ( uint16_t )( version >> ( 16 * 2 ) ) << "." 
+		<< ( uint16_t )( version >> ( 16 * 1 ) );
 
-	}
 	return versionStr.str();
 }
 

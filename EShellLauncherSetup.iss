@@ -54,7 +54,7 @@ DefaultGroupName={#_AppName}
 OutputDir=.\
 OutputBaseFilename=EShellLauncherSetup
 PrivilegesRequired=admin
-SetupIconFile=..\icons\launcher.ico
+SetupIconFile=icons\launcher.ico
 SolidCompression=yes
 Uninstallable=yes
 UsePreviousAppDir=yes
@@ -78,9 +78,9 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "..\build\{#_BuildConfig}\EShellLauncher.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\submodule\perl\*"; DestDir: "{app}\perl"; Flags: recursesubdirs
+Source: "build\{#_BuildConfig}\EShellLauncher.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
+Source: "submodule\perl\*"; DestDir: "{app}\perl"; Flags: recursesubdirs
 
 [Icons]
 Name: "{commonstartup}\{#_AppName}"; Filename: "{app}\EShellLauncher.exe"; Comment: {#_VersionInfoComments}; Tasks: windowsstartupicon

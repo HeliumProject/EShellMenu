@@ -75,11 +75,7 @@ void TrayIcon::OnTrayIconClick( wxTaskBarIconEvent& evt )
 
 void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 {
-	std::string uninstallProject = "Are you sure you would like to exit the Launcher?";
-	if ( m_Application->m_UpdateLauncherNow 
-		|| ( wxMessageBox( wxT( uninstallProject.c_str() ),
-		wxT( "Exit EShell Launcher?" ),
-		wxYES_NO | wxCENTER | wxICON_QUESTION ) == wxYES ) )
+	if ( m_Application->m_UpdateLauncherNow || wxYES == wxMessageBox( wxT( "Are you sure you would like to exit the Launcher?" ), wxT( "Exit EShell Launcher?" ), wxYES_NO | wxCENTER | wxICON_QUESTION ) )
 	{
 		wxExit();
 	}
@@ -290,10 +286,12 @@ void TrayIcon::Refresh( bool reload )
 				{
 					m_Settings.resize( m_Settings.size() - 1 );
 				}
-
-				for ( M_Config::const_iterator itr = m_Settings.back().m_Configs.begin(), end = m_Settings.back().m_Configs.end(); itr != end; ++itr )
+				else
 				{
-					CreateShortcuts( m_Application->m_PerlExePath, m_Application->m_EShellPlPath, m_Settings.back(), itr->second, m_ProjectShortcuts );
+					for ( M_Config::const_iterator itr = m_Settings.back().m_Configs.begin(), end = m_Settings.back().m_Configs.end(); itr != end; ++itr )
+					{
+						CreateShortcuts( m_Application->m_PerlExePath, m_Application->m_EShellPlPath, m_Settings.back(), itr->second, m_ProjectShortcuts );
+					}
 				}
 			}
 		}

@@ -10,3 +10,6 @@
 [submodule "submodule/EShell"]
 	path = submodule/EShell
 	url = git://github.com/HeliumProject/EShell.git
+[submodule "submodule/InnoSetup"]
+	path = submodule/InnoSetup
+	url = git://github.com/HeliumProject/InnoSetup.git

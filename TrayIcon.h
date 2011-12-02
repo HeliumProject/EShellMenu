@@ -34,6 +34,7 @@ namespace Launcher
 		bool IsMenuShowing() const { return m_IsMenuShowing; }
 		void BeginBusy();
 		void EndBusy();
+		void Refresh( bool reload );
 
 	protected:
 		void OnTrayIconClick( wxTaskBarIconEvent& evt );
@@ -45,7 +46,6 @@ namespace Launcher
 		void OnMenuAdd( wxCommandEvent& evt );
 
 	private:
-		void Refresh( bool reload );
 		void DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem );
 		void CreateProjectsMenu( wxMenu* parentMenu );
 
