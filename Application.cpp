@@ -86,7 +86,8 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	{
 		wxFileName name ( perl, "" );
 		name.AppendDir( "bin" );
-		name.SetName( "perl.exe" );
+		name.SetName( "perl" );
+		name.SetExt( "exe" );
 		m_PerlExePath = name.GetFullPath();
 	}
 	else
@@ -96,7 +97,8 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 		name.AppendDir( "perl" );
 		name.AppendDir( "perl" );
 		name.AppendDir( "bin" );
-		name.SetName( "perl.exe" );
+		name.SetName( "perl" );
+		name.SetExt( "exe" );
 		m_PerlExePath = name.GetFullPath();
 	}
 
@@ -104,14 +106,16 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	if ( parser.Found( "eshell", &eshell ) )
 	{
 		wxFileName name ( eshell, "" );
-		name.SetName( "eshell.pl" );
+		name.SetName( "eshell" );
+		name.SetExt( "pl" );
 		m_EShellPlPath = name.GetFullPath();
 	}
 	else
 	{
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
-		name.SetName( "eshell.pl" );
+		name.SetName( "eshell" );
+		name.SetExt( "pl" );
 		m_EShellPlPath = name.GetFullPath();
 	}
 
