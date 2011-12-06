@@ -14,8 +14,8 @@ namespace Launcher
 			First = wxID_HIGHEST + 1,
 			Exit = First,
 			Help,
-			Redraw,
 			Refresh,
+			Reload,
 			Update,
 			Add,
 			Last = Add,
@@ -31,7 +31,11 @@ namespace Launcher
 		void Initialize();    
 		void Cleanup();
 
-		bool IsMenuShowing() const { return m_IsMenuShowing; }
+		bool IsMenuShowing() const
+		{
+			return m_IsMenuShowing;
+		}
+
 		void BeginBusy();
 		void EndBusy();
 		void Refresh( bool reload );
@@ -40,8 +44,8 @@ namespace Launcher
 		void OnTrayIconClick( wxTaskBarIconEvent& evt );
 		void OnMenuExit( wxCommandEvent& evt );
 		void OnMenuHelp( wxCommandEvent& evt );
-		void OnMenuRedraw( wxCommandEvent& evt );
 		void OnMenuRefresh( wxCommandEvent& evt );
+		void OnMenuReload( wxCommandEvent& evt );
 		void OnMenuShortcut( wxCommandEvent& evt );
 		void OnMenuAdd( wxCommandEvent& evt );
 
@@ -54,6 +58,7 @@ namespace Launcher
 		V_Settings m_Settings;
 		M_Shortcut m_ProjectShortcuts;
 		wxMenu* m_Menu;
+		wxMenuItem* m_UpdateMenuItem;
 		int m_BusyCount;
 		bool m_IsMenuShowing;
 	};

@@ -15,7 +15,7 @@ my $g_ISCCFilePath        = File::Spec->catfile( 'submodule', 'InnoSetup', 'ISCC
 my $g_ISSFilePath         = 'EShellLauncherSetup.iss';
 my $g_OutputBaseFilename  = 'EShellLauncherSetup';
 my $g_OutputDir           = 'install';
-my $g_VersionFilePath     = 'Version.h';
+my $g_VersionFilePath     = 'resource.h';
 my $g_ChangelistFilePath  = 'changelist.txt';
 my $g_VersionTxtFilePath  = File::Spec->catfile( $g_OutputDir, 'version.txt' );
 my $g_OutputFilePath      = File::Spec->catfile( $g_OutputDir, "$g_OutputBaseFilename.exe" );
@@ -104,15 +104,15 @@ if ( $g_Publish )
 
   print( "\n o Publishing to $g_PublishVerFolder...\n" );
 
-  my $g_PublishFilePath = "$g_PublishVerFolder\\$g_OutputBaseFilename.exe"; 
+  my $g_PublishFilePath = File::Spec->catfile( $g_PublishVerFolder, "$g_OutputBaseFilename.exe" ); 
   system ( "del /Q /F \"$g_PublishFilePath\"" ) if ( -e $g_PublishFilePath  );
   copy( $g_OutputFilePath, $g_PublishFilePath );
 
-  my $g_PublishChangelistFilePath = "$g_PublishVerFolder\\changelist.txt";
+  my $g_PublishChangelistFilePath = File::Spec->catfile( $g_PublishVerFolder, "changelist.txt" );
   system ( "del /Q /F \"$g_PublishChangelistFilePath\"" ) if ( -e $g_PublishChangelistFilePath  );
   copy( $g_ChangelistFilePath, $g_PublishChangelistFilePath );
   
-  my $g_PublishVersionFilePath = "$g_PublishVerFolder\\version.txt";
+  my $g_PublishVersionFilePath = File::Spec->catfile( $g_PublishVerFolder, "version.txt" );
   system ( "del /Q /F \"$g_PublishVersionFilePath\"" ) if ( -e $g_PublishVersionFilePath  );
   copy( $g_VersionTxtFilePath, $g_PublishVersionFilePath );
 }

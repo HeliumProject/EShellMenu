@@ -11,7 +11,11 @@ using namespace Launcher;
 
 static const std::string g_DefaultLauncherInstallDir  = "\\\\eshell\\eshell\\launcher\\";
 static const std::string g_DefaultLauncherInstallFile = "EShellLauncherSetup.exe";
-static const int g_UpdateIntervalInSeconds = 60; //30 * 60;
+#ifdef _DEBUG
+static const int g_UpdateIntervalInSeconds = 60 * 1;
+#else
+static const int g_UpdateIntervalInSeconds = 60 * 1;
+#endif
 
 Application::Application()
 	: m_MutexHandle( NULL )
@@ -27,6 +31,8 @@ Application::Application()
 	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
 	uint32_t versionLo = ( LAUNCHER_VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
+
+	Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
 
 #ifdef _DEBUG
 	m_MutexName = "EShellLauncher_DEBUG";
@@ -254,11 +260,10 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 		{
 			m_TrayIcon->BeginBusy();
 
-			uint64_t previousNetworkVersion = m_NetworkVersion;
 			Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
 
 			// only refresh if the network version has changed
-			if ( IsUpdateAvailable() && previousNetworkVersion != m_NetworkVersion )
+			if ( IsUpdateAvailable() )
 			{
 				std::string newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
 				wxString itemTitle = "New Update Available";
@@ -268,8 +273,7 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 				}
 				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
 
-				wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Redraw );
-				m_TrayIcon->AddPendingEvent( pending );
+				m_TrayIcon->Refresh( false );
 			}
 			else
 			{
@@ -286,21 +290,13 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
 	m_UpdateLauncherNow = false;
-	if ( IsUpdateAvailable() )
+
+	const char* title = "Update Launcher?";
+	const char* msg = "There is an update available for the Launcher.  Would you like to exit the Launcher and update now?";
+	m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
+	if ( m_UpdateLauncherNow )
 	{
-		const char* title = "Update Launcher?";
-		const char* msg = "There is an update available for the Launcher.  Would you like to exit the Launcher and update now?";
-		m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
-		if ( m_UpdateLauncherNow )
-		{
-			// Shut down the launcher.  Doing this delayed is not actually
-			// necessary, but it's still a good idea not to shutdown within
-			// a callback.  Of course, all we are doing is shutting down from
-			// another callback, but that's because the launcher doesn't have
-			// a top level window frame.
-			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Exit );
-			m_TrayIcon->AddPendingEvent( pending );
-		}
+		m_TrayIcon->AddPendingEvent( wxCommandEvent ( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Exit ) );
 	}
 }
 

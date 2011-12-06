@@ -79,6 +79,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "build\{#_BuildConfig}\EShellLauncher.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\{#_BuildConfig}\EShellLauncher.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\perl\*"; DestDir: "{app}\perl"; Flags: recursesubdirs
 

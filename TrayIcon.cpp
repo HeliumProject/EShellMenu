@@ -14,6 +14,7 @@ using namespace Launcher;
 TrayIcon::TrayIcon( Application* application ) 
 	: m_Application( application ) 
 	, m_Menu( NULL )
+	, m_UpdateMenuItem( NULL )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
@@ -26,8 +27,8 @@ TrayIcon::TrayIcon( Application* application )
 	Connect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Connect( LauncherEventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
 	Connect( LauncherEventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
-	Connect( LauncherEventIDs::Redraw, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRedraw ), NULL, this );
 	Connect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Connect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 	Connect( LauncherEventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
 }
 
@@ -38,8 +39,8 @@ TrayIcon::~TrayIcon()
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Disconnect( LauncherEventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
 	Disconnect( LauncherEventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
-	Disconnect( LauncherEventIDs::Redraw, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRedraw ), NULL, this );
 	Disconnect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Disconnect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 	Disconnect( LauncherEventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
 
 	// Dynamically added
@@ -95,20 +96,20 @@ void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 	wxMessageDialog dialog(
 		NULL,
 		wxT( aboutLauncher.c_str() ),
-		wxT( " About EShell Launcher" ),
+		wxT( "About EShell Launcher" ),
 		wxOK | wxICON_INFORMATION );
 
 	dialog.ShowModal();
 }
 
-void TrayIcon::OnMenuRefresh( wxCommandEvent& evt )
+void TrayIcon::OnMenuReload( wxCommandEvent& evt )
 {
 	wxBusyCursor wait;
 
 	Refresh( true );
 }
 
-void TrayIcon::OnMenuRedraw( wxCommandEvent& evt )
+void TrayIcon::OnMenuRefresh( wxCommandEvent& evt )
 {
 	wxBusyCursor wait;
 
@@ -132,7 +133,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 		{
 			m_Application->AddFavorite( shortcut->m_Command );
 
-			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Redraw );
+			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Refresh );
 			AddPendingEvent( pending );
 		}
 		else if ( shortcut->m_Disable )
@@ -191,7 +192,7 @@ void TrayIcon::BeginBusy()
 	// Disconnect events
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Disconnect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Disconnect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Clear the current menu and change the icon to notify the user that things are happening
 	wxIcon icon;
@@ -209,7 +210,7 @@ void TrayIcon::EndBusy()
 	// Re-connect events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Connect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Connect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Connect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Set the icon back
 	wxIcon icon;
@@ -300,7 +301,7 @@ void TrayIcon::Refresh( bool reload )
 		{
 			m_Menu = new wxMenu();
 			m_Menu->AppendSeparator();
-			wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Refresh, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
+			wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Reload, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
 			{
 				wxIcon refreshIcon;
 				refreshIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
@@ -308,9 +309,13 @@ void TrayIcon::Refresh( bool reload )
 				refreshMenuItem->SetBitmap( refreshIcon );
 			}
 			m_Menu->Append( refreshMenuItem );
+
+			m_UpdateMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Update, wxT( "Update" ), wxEmptyString, wxITEM_NORMAL );
+			m_Menu->Append( m_UpdateMenuItem );
+
 			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
 			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Exit, wxString( wxT("Exit") ) , wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Exit, wxString( wxT("Exit EShell Launcher v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
 		}
 		else
 		{
@@ -329,6 +334,16 @@ void TrayIcon::Refresh( bool reload )
 		if ( !m_ProjectShortcuts.empty() )
 		{
 			CreateProjectsMenu( m_Menu );
+		}
+
+		bool update = m_Application->IsUpdateAvailable();
+		m_UpdateMenuItem->Enable( update );
+		if ( update )
+		{
+			wxIcon updateIcon;
+			updateIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( UPDATE_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
+			updateIcon.SetSize( 16, 16 );
+			m_UpdateMenuItem->SetBitmap( updateIcon );
 		}
 	}
 	EndBusy();

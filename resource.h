@@ -1,6 +1,6 @@
-#define LAUNCHER_VERSION_MAJOR			3
-#define LAUNCHER_VERSION_MINOR			0
-#define LAUNCHER_VERSION_PATCH			0
+#define LAUNCHER_VERSION_MAJOR			2
+#define LAUNCHER_VERSION_MINOR			9
+#define LAUNCHER_VERSION_PATCH			1
 
 #define LAUNCHER_ICON					101
 #define LAUNCHER_BUSY_ICON				102
@@ -8,6 +8,7 @@
 #define FOLDER_CLOSED_ICON				104
 #define OPTIONS_ICON					105
 #define REFRESH_ICON					106
+#define UPDATE_ICON						107
 
 // Next default values for new objects
 // 
