@@ -30,7 +30,6 @@ namespace Launcher
 		std::string m_Description;      // Mouse over description
 		std::string m_Folder;           // Optional name of sub menu
 		std::string m_Command;          // Command complete with Arguments
-		std::string m_StartIn;          // Dir to start command from
 
 		bool        m_Disable;          // true if we think the shortcut will not load
 		std::string m_DisableReason;    // the reason this might fail

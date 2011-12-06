@@ -44,7 +44,7 @@ bool Launcher::DirectoryExists(const std::string& fileName)
 	}
 }
 
-bool Launcher::ExecuteCommand( const std::string& command, const std::string& startIn, bool showWindow, bool block )
+bool Launcher::ExecuteCommand( const std::string& command, bool showWindow, bool block )
 {
 	STARTUPINFO si;
 	memset( &si, 0, sizeof( si ) );
@@ -62,7 +62,7 @@ bool Launcher::ExecuteCommand( const std::string& command, const std::string& st
 		FALSE,                                                // Set handle inheritance to FALSE
 		showWindow ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW,   // Creation flags
 		NULL,                                                 // Use parent's environment block
-		startIn.empty() ? NULL : (LPTSTR) startIn.c_str(),    // Use parent's starting directory
+		NULL,                                                 // Use parent's starting directory
 		&si,                                                  // Pointer to STARTUPINFO structure
 		&pi ) )                                               // Pointer to PROCESS_INFORMATION structure
 	{

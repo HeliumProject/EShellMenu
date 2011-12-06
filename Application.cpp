@@ -255,7 +255,7 @@ int Application::OnExit()
 	if ( m_UpdateLauncherNow && FileExists( m_LauncherInstallPath ) )
 	{
 		std::string command = "\"" + m_LauncherInstallPath + "\" /SILENT";
-		Launcher::ExecuteCommand( command, "", false, false );
+		Launcher::ExecuteCommand( command, false, false );
 	}
 
 	return __super::OnExit( );

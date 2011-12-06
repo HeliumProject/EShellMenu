@@ -18,7 +18,11 @@ Shortcut::~Shortcut()
 
 bool Shortcut::Execute()
 {
-	if ( !Launcher::ExecuteCommand( m_Command, m_StartIn ) ) 
+#ifdef _DEBUG
+	if ( !Launcher::ExecuteCommand( m_Command ) ) 
+#else
+	if ( !Launcher::ExecuteCommand( m_Command, false ) ) 
+#endif
 	{
 		std::string error = "Unable to create eshell, with command:\n  " + m_Command;
 		wxMessageDialog dialog( NULL, wxT( error.c_str() ), wxT("Error"), wxOK | wxICON_INFORMATION );

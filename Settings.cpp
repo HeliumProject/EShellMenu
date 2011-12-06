@@ -198,11 +198,6 @@ void Settings::ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_E
 		{
 			shortcut.m_Folder = shortcutElem->GetText();
 		}
-		else if ( shortcutElemString.compare( "Run" ) == 0 )
-		{
-			shortcut.m_Args = std::string ( "-run \"" ) + shortcutElem->GetText() + "\"";
-			shortcut.m_IconPath = shortcutElem->GetText();
-		}
 		else if ( shortcutElemString.compare( "Args" ) == 0 )
 		{
 			shortcut.m_Args = shortcutElem->GetText();
