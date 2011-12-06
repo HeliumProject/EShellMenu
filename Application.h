@@ -50,6 +50,7 @@ namespace Launcher
 		std::set< std::string > m_Favorites;
 
 		std::string m_PerlExePath;
+		std::string m_PerlLibPath;
 		std::string m_EShellPlPath;
 		std::string m_LauncherInstallPath;
 		uint64_t m_CurrentVersion;

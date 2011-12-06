@@ -18,9 +18,7 @@ TrayIcon::TrayIcon( Application* application )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
-	wxIcon icon;
-	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-	SetIcon( icon, "Initializing Launcher..." );
+	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing Launcher..." );
 
 	// Connect Events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
@@ -202,9 +200,7 @@ void TrayIcon::BeginBusy()
 	Disconnect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Clear the current menu and change the icon to notify the user that things are happening
-	wxIcon icon;
-	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_BUSY_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-	SetIcon( icon, wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
+	SetIcon( wxICON( LAUNCHER_BUSY_ICON ), wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
 }
 
 void TrayIcon::EndBusy()
@@ -220,57 +216,7 @@ void TrayIcon::EndBusy()
 	Connect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Set the icon back
-	wxIcon icon;
-	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), m_Application->IsUpdateAvailable() ? MAKEINTRESOURCE( UPDATE_ICON ) : MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-	SetIcon( icon, m_Application->m_Title.c_str() );
-}
-
-void CreateShortcuts( const std::string& perlPath, const std::string& eshellPath, const Settings& settings, const Config& config, M_Shortcut& shortcuts )
-{
-	M_EnvVar copyEnvVars = config.m_EnvVar;
-
-	V_ShortcutInfo::const_iterator ssItr = config.m_Shortcuts.begin();
-	V_ShortcutInfo::const_iterator ssEnd = config.m_Shortcuts.end();
-	for ( ; ssItr != ssEnd; ++ssItr )
-	{
-		const ShortcutInfo& shortcutInfo = (*ssItr);
-
-		// create a Shortcut
-		wxObjectDataPtr< Shortcut > shortcut ( new Shortcut () );
-		shortcut->m_Name = shortcutInfo.m_Name;
-		Settings::ProcessValue( shortcut->m_Name, copyEnvVars );
-
-		shortcut->m_Folder = shortcutInfo.m_Folder;
-		Settings::ProcessValue( shortcut->m_Folder, copyEnvVars );
-
-		// Icon
-		shortcut->m_Icon = shortcutInfo.m_IconPath;
-		Settings::ProcessValue( shortcut->m_Icon, copyEnvVars );
-
-		// Description
-		shortcut->m_Description = shortcutInfo.m_Description;
-		Settings::ProcessValue( shortcut->m_Description, copyEnvVars );
-
-		// SettingsFile Path
-		std::string settingsFile = settings.m_File;
-
-		// Build the Command  
-		shortcut->m_Command = std::string ("\"") + perlPath + "\" \"" + eshellPath + "\"";
-		shortcut->m_Command += " -settingsFile \"" + settingsFile + "\"";
-		shortcut->m_Command += " -config " + config.m_Name;
-
-		if ( !shortcutInfo.m_Args.empty() )
-		{
-			shortcut->m_Command += " " + shortcutInfo.m_Args;
-		}
-
-		Settings::ProcessValue( shortcut->m_Command, copyEnvVars );
-
-		// Create the FavoriteName
-		shortcut->m_FavoriteName = settings.m_Title + " - " + shortcutInfo.m_Name;
-
-		shortcuts[ settings.m_Title ].push_back( shortcut );
-	}
+	SetIcon( m_Application->IsUpdateAvailable() ? wxICON( UPDATE_ICON ) : wxICON( LAUNCHER_ICON ), m_Application->m_Title.c_str() );
 }
 
 void TrayIcon::Refresh( bool reload )
@@ -295,7 +241,52 @@ void TrayIcon::Refresh( bool reload )
 				{
 					for ( M_Config::const_iterator itr = m_Settings.back().m_Configs.begin(), end = m_Settings.back().m_Configs.end(); itr != end; ++itr )
 					{
-						CreateShortcuts( m_Application->m_PerlExePath, m_Application->m_EShellPlPath, m_Settings.back(), itr->second, m_ProjectShortcuts );
+						M_EnvVar copyEnvVars = itr->second.m_EnvVar;
+
+						V_ShortcutInfo::const_iterator ssItr = itr->second.m_Shortcuts.begin();
+						V_ShortcutInfo::const_iterator ssEnd = itr->second.m_Shortcuts.end();
+						for ( ; ssItr != ssEnd; ++ssItr )
+						{
+							const ShortcutInfo& shortcutInfo = (*ssItr);
+
+							// create a Shortcut
+							wxObjectDataPtr< Shortcut > shortcut ( new Shortcut () );
+							shortcut->m_Name = shortcutInfo.m_Name;
+							Settings::ProcessValue( shortcut->m_Name, copyEnvVars );
+
+							shortcut->m_Folder = shortcutInfo.m_Folder;
+							Settings::ProcessValue( shortcut->m_Folder, copyEnvVars );
+
+							// Icon
+							shortcut->m_Icon = shortcutInfo.m_IconPath;
+							Settings::ProcessValue( shortcut->m_Icon, copyEnvVars );
+
+							// Description
+							shortcut->m_Description = shortcutInfo.m_Description;
+							Settings::ProcessValue( shortcut->m_Description, copyEnvVars );
+
+							// SettingsFile Path
+							std::string settingsFile = m_Settings.back().m_File;
+
+							// Build the Command  
+							shortcut->m_Command = std::string ("\"") + m_Application->m_PerlExePath + "\"";
+							shortcut->m_Command += "-I\"" + m_Application->m_PerlLibPath + "\"";
+							shortcut->m_Command += " \"" + m_Application->m_EShellPlPath + "\"";
+							shortcut->m_Command += " -settingsFile \"" + settingsFile + "\"";
+							shortcut->m_Command += " -config " + itr->second.m_Name;
+
+							if ( !shortcutInfo.m_Args.empty() )
+							{
+								shortcut->m_Command += " " + shortcutInfo.m_Args;
+							}
+
+							Settings::ProcessValue( shortcut->m_Command, copyEnvVars );
+
+							// Create the FavoriteName
+							shortcut->m_FavoriteName = m_Settings.back().m_Title + " - " + shortcutInfo.m_Name;
+
+							m_ProjectShortcuts[ m_Settings.back().m_Title ].push_back( shortcut );
+						}
 					}
 				}
 			}
@@ -306,12 +297,7 @@ void TrayIcon::Refresh( bool reload )
 			m_Menu = new wxMenu();
 			m_Menu->AppendSeparator();
 			wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Reload, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
-			{
-				wxIcon refreshIcon;
-				refreshIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( REFRESH_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-				refreshIcon.SetSize( 16, 16 );
-				refreshMenuItem->SetBitmap( refreshIcon );
-			}
+			refreshMenuItem->SetBitmap( wxIcon( "REFRESH_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 			m_Menu->Append( refreshMenuItem );
 
 			m_UpdateMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Update, wxT( "Update" ), wxEmptyString, wxITEM_NORMAL );
@@ -344,10 +330,7 @@ void TrayIcon::Refresh( bool reload )
 		m_UpdateMenuItem->Enable( update );
 		if ( update )
 		{
-			wxIcon updateIcon;
-			updateIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( UPDATE_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-			updateIcon.SetSize( 16, 16 );
-			m_UpdateMenuItem->SetBitmap( updateIcon );
+			m_UpdateMenuItem->SetBitmap( wxIcon( "UPDATE_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 		}
 	}
 	EndBusy();
@@ -357,28 +340,35 @@ void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuIte
 {
 	wxFileName name ( shortcut.m_Icon );
 
-	wxImageHandler* handler = wxImage::FindHandler( name.GetExt() );
-	if ( handler )
+	if ( shortcut.m_Icon.empty() )
 	{
-		wxBitmap bitmap;
-		bitmap.LoadFile( shortcut.m_Icon, wxBITMAP_TYPE_ANY );
-		if ( bitmap.IsOk() )
-		{
-			shortcutMenuItem->SetBitmap( bitmap );
-		}
+		shortcutMenuItem->SetBitmap( wxIcon( "PROMPT_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 	}
 	else
 	{
-		// get the icon data from the shell associations
-		SHFILEINFO info;
-		ZeroMemory( &info, sizeof( info ) );
-		SHGetFileInfo( shortcut.m_Icon.c_str(), 0, &info, sizeof( info ), SHGFI_ICON | SHGFI_SMALLICON );
-		if ( info.hIcon )
+		wxImageHandler* handler = wxImage::FindHandler( name.GetExt() );
+		if ( handler )
 		{
-			wxIcon icon;
-			icon.SetHICON( info.hIcon );
-			icon.SetSize( 16, 16 );
-			shortcutMenuItem->SetBitmap( icon );
+			wxBitmap bitmap;
+			bitmap.LoadFile( shortcut.m_Icon, wxBITMAP_TYPE_ANY );
+			if ( bitmap.IsOk() )
+			{
+				shortcutMenuItem->SetBitmap( bitmap );
+			}
+		}
+		else
+		{
+			// get the icon data from the shell associations
+			SHFILEINFO info;
+			ZeroMemory( &info, sizeof( info ) );
+			SHGetFileInfo( shortcut.m_Icon.c_str(), 0, &info, sizeof( info ), SHGFI_ICON | SHGFI_SMALLICON );
+			if ( info.hIcon )
+			{
+				wxIcon icon;
+				icon.SetHICON( info.hIcon );
+				icon.SetSize( 16, 16 );
+				shortcutMenuItem->SetBitmap( icon );
+			}
 		}
 	}
 }
@@ -450,10 +440,6 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 			}
 		}
 
-		wxIcon folderIcon;
-		folderIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( FOLDER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-		folderIcon.SetSize( 16, 16 );
-
 		M_SubMenues::reverse_iterator subMenuItr = subMenus.rbegin();
 		M_SubMenues::reverse_iterator subMenuEnd = subMenus.rend();
 		for ( ; subMenuItr != subMenuEnd; ++subMenuItr )
@@ -464,13 +450,12 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 				wxITEM_NORMAL,
 				subMenuItr->second );
 
-			subMenuItem->SetBitmap( wxBitmap( folderIcon ) );
-
+			subMenuItem->SetBitmap( wxIcon( "FOLDER_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 			projectMenu->Prepend( subMenuItem );
 		}
 
 		wxMenuItem* projectItem = parentMenu->Prepend( wxID_ANY, title, projectMenu );
-		projectItem->SetBitmap( wxBitmap( folderIcon ) );
+		projectItem->SetBitmap( wxIcon( "FOLDER_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 	}
 
 	if ( !favoriteShortcuts.empty() )

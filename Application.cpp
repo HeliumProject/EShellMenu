@@ -14,7 +14,7 @@ static const std::string g_DefaultLauncherInstallFile = "EShellLauncherSetup.exe
 #ifdef _DEBUG
 static const int g_UpdateIntervalInSeconds = 60 * 1;
 #else
-static const int g_UpdateIntervalInSeconds = 60 * 30;
+static const int g_UpdateIntervalInSeconds = 60 * 5;
 #endif
 
 Application::Application()
@@ -145,6 +145,13 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	cBin.AppendDir( "c" );
 	cBin.AppendDir( "bin" );
 	::SetCurrentDirectory( cBin.GetPath() );
+
+	wxFileName lib ( m_PerlExePath.c_str() );
+	lib.RemoveLastDir(); // pop /bin
+	lib.RemoveLastDir(); // pop /perl
+	lib.AppendDir( "site" );
+	lib.AppendDir( "lib" );
+	m_PerlLibPath = lib.GetPath();
 
 	return __super::OnCmdLineParsed( parser );
 }
