@@ -93,7 +93,7 @@ namespace Launcher
 		static std::string ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing = std::set< std::string >() );
 
 	public:
-		std::string m_Project;
+		std::string m_Title;
 		std::string m_File;
 		M_EnvVar m_EnvVar;
 		M_Config m_Configs;

@@ -306,9 +306,6 @@ bool Settings::LoadFile( const std::string& file, bool includeFile )
 {
 	m_File = file;
 
-#pragma TODO("Load the project name from the settings")
-	m_Project = m_File;
-
 	//open the config file
 	TiXmlDocument doc;
 	if (!doc.LoadFile( file.c_str() ))
@@ -362,6 +359,9 @@ bool Settings::LoadFile( const std::string& file, bool includeFile )
 			return false;
 		}
 	}
+
+	m_Title = "%ESHELL_TITLE%";
+	ProcessValue( m_Title, m_EnvVar );
 
 	return true;
 }

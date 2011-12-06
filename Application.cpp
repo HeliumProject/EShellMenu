@@ -14,7 +14,7 @@ static const std::string g_DefaultLauncherInstallFile = "EShellLauncherSetup.exe
 #ifdef _DEBUG
 static const int g_UpdateIntervalInSeconds = 60 * 1;
 #else
-static const int g_UpdateIntervalInSeconds = 60 * 1;
+static const int g_UpdateIntervalInSeconds = 60 * 30;
 #endif
 
 Application::Application()
@@ -72,7 +72,7 @@ bool Application::IsFavorite( const std::string& command )
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
 {
 	SetVendorName( "EShell Games" );
-	parser.SetLogo( wxT( "Tools Launcher (c) 2009 - EShell Games\n" ) );
+	parser.SetLogo( wxT( "EShell Launcher (c) 20xx - Helium Project\n" ) );
 
 	parser.AddOption( "perl", "PerlLocation", "The location of the perl distribution (containing /bin)" );
 	parser.AddOption( "eshell", "EShellLocation", "The location of the directory containing eshell.pl" );
@@ -266,12 +266,12 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 			if ( IsUpdateAvailable() )
 			{
 				std::string newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
-				wxString itemTitle = "New Update Available";
+				wxString text = "New Update Available";
 				if ( !newVersion.empty() )
 				{
-					itemTitle += wxString( " v" ) + wxString( newVersion.c_str() );
+					text += wxString( ": v" ) + wxString( newVersion.c_str() );
 				}
-				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), itemTitle );
+				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), text );
 
 				m_TrayIcon->Refresh( false );
 			}
@@ -291,8 +291,8 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
 	m_UpdateLauncherNow = false;
 
-	const char* title = "Update Launcher?";
-	const char* msg = "There is an update available for the Launcher.  Would you like to exit the Launcher and update now?";
+	const char* title = "Update EShell Launcher?";
+	const char* msg = "There is an update available for the Eshell Launcher.  Would you like to exit and update now?";
 	m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
 	if ( m_UpdateLauncherNow )
 	{

@@ -214,7 +214,7 @@ void TrayIcon::EndBusy()
 
 	// Set the icon back
 	wxIcon icon;
-	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
+	icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), m_Application->IsUpdateAvailable() ? MAKEINTRESOURCE( UPDATE_ICON ) : MAKEINTRESOURCE( LAUNCHER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
 	SetIcon( icon, m_Application->m_Title.c_str() );
 }
 
@@ -260,12 +260,12 @@ void CreateShortcuts( const std::string& perlPath, const std::string& eshellPath
 		Settings::ProcessValue( shortcut->m_Command, copyEnvVars );
 
 		// Create the Display Folder
-		shortcut->m_ProjectName = settings.m_Project;
+		shortcut->m_ProjectName = settings.m_Title;
 
 		// Create the FavoriteName
-		shortcut->m_FavoriteName = settings.m_Project + " - " + shortcutInfo.m_Name;
+		shortcut->m_FavoriteName = settings.m_Title + " - " + shortcutInfo.m_Name;
 
-		shortcuts[ settings.m_Project ].push_back( shortcut );
+		shortcuts[ settings.m_Title ].push_back( shortcut );
 	}
 }
 
