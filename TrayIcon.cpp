@@ -270,7 +270,7 @@ void TrayIcon::Refresh( bool reload )
 
 							// Build the Command  
 							shortcut->m_Command = std::string ("\"") + m_Application->m_PerlExePath + "\"";
-							shortcut->m_Command += "-I\"" + m_Application->m_PerlLibPath + "\"";
+							shortcut->m_Command += " -I\"" + m_Application->m_PerlLibPath + "\"";
 							shortcut->m_Command += " \"" + m_Application->m_EShellPlPath + "\"";
 							shortcut->m_Command += " -settingsFile \"" + settingsFile + "\"";
 							shortcut->m_Command += " -config " + itr->second.m_Name;
