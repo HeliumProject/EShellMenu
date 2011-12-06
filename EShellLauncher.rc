@@ -49,6 +49,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+0						ICON                    "icons\\launcher.ico"
 LAUNCHER_ICON           ICON                    "icons\\launcher.ico"
 LAUNCHER_BUSY_ICON      ICON                    "icons\\launcher_busy.ico"
 FOLDER_ICON             ICON                    "icons\\folder.ico"
