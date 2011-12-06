@@ -64,6 +64,13 @@ void Application::AddFavorite( const std::string& command )
 	SaveTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
 }
 
+void Application::RemoveFavorite( const std::string& command )
+{
+	m_Favorites.erase( command );
+
+	SaveTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
+}
+
 bool Application::IsFavorite( const std::string& command )
 {
 	return m_Favorites.find( command ) != m_Favorites.end();

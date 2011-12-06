@@ -25,7 +25,6 @@ namespace Launcher
 
 	public:
 		std::string m_Name;             // Display name
-		std::string m_ProjectName;
 		std::string m_FavoriteName;     // Display name for when the shortcut is in the favorites menu
 		std::string m_Icon;             // Optional MenuIcon
 		std::string m_Description;      // Mouse over description

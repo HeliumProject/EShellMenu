@@ -20,6 +20,7 @@ namespace Launcher
 
 		void AddProject( const std::string& project );
 		void AddFavorite( const std::string& command );
+		void RemoveFavorite( const std::string& command );
 		bool IsFavorite( const std::string& command );
 
 		bool IsUpdateAvailable() const

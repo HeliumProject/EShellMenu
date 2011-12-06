@@ -123,7 +123,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
 	{
 		wxMenuItem* shortcutMenuItem = projectMenu->FindItem( evt.GetId() ); 
-		Shortcut* shortcut = reinterpret_cast<Shortcut*> ( shortcutMenuItem->GetRefData() );
+		Shortcut* shortcut = static_cast< Shortcut* >( shortcutMenuItem->GetRefData() );
 
 		if ( wxIsCtrlDown() )
 		{
@@ -131,7 +131,14 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 		}
 		else if ( wxIsShiftDown() )
 		{
-			m_Application->AddFavorite( shortcut->m_Command );
+			if ( shortcutMenuItem->GetMenu() == m_Menu )
+			{
+				m_Application->RemoveFavorite( shortcut->m_Command );
+			}
+			else
+			{
+				m_Application->AddFavorite( shortcut->m_Command );
+			}
 
 			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Refresh );
 			AddPendingEvent( pending );
@@ -259,9 +266,6 @@ void CreateShortcuts( const std::string& perlPath, const std::string& eshellPath
 
 		Settings::ProcessValue( shortcut->m_Command, copyEnvVars );
 
-		// Create the Display Folder
-		shortcut->m_ProjectName = settings.m_Title;
-
 		// Create the FavoriteName
 		shortcut->m_FavoriteName = settings.m_Title + " - " + shortcutInfo.m_Name;
 
@@ -387,7 +391,7 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 	M_Shortcut::reverse_iterator projEnd = m_ProjectShortcuts.rend();
 	for ( ; projItr != projEnd; ++projItr )
 	{
-		const std::string& projName = projItr->first;
+		const std::string& title = projItr->first;
 		const V_Shortcut& shortcuts = projItr->second;
 
 		if ( shortcuts.empty() )
@@ -446,6 +450,10 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 			}
 		}
 
+		wxIcon folderIcon;
+		folderIcon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( FOLDER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
+		folderIcon.SetSize( 16, 16 );
+
 		M_SubMenues::reverse_iterator subMenuItr = subMenus.rbegin();
 		M_SubMenues::reverse_iterator subMenuEnd = subMenus.rend();
 		for ( ; subMenuItr != subMenuEnd; ++subMenuItr )
@@ -456,14 +464,13 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 				wxITEM_NORMAL,
 				subMenuItr->second );
 
-			wxIcon icon;
-			icon.SetHICON( (HICON)::LoadImage( ::GetModuleHandle( NULL ), MAKEINTRESOURCE( FOLDER_ICON ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR ) );
-			subMenuItem->SetBitmap( wxBitmap( icon ) );
+			subMenuItem->SetBitmap( wxBitmap( folderIcon ) );
 
 			projectMenu->Prepend( subMenuItem );
 		}
 
-		parentMenu->Prepend( wxID_ANY, wxT( Capitalize( projName, true ).c_str() ), projectMenu );
+		wxMenuItem* projectItem = parentMenu->Prepend( wxID_ANY, title, projectMenu );
+		projectItem->SetBitmap( wxBitmap( folderIcon ) );
 	}
 
 	if ( !favoriteShortcuts.empty() )
