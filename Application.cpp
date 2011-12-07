@@ -102,7 +102,7 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	{
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
-		name.AppendDir( "perl" );
+		name.AppendDir( "StrawberryPerl" );
 		name.AppendDir( "perl" );
 		name.AppendDir( "bin" );
 		name.SetName( "perl" );

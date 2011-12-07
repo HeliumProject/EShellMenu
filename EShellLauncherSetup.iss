@@ -48,7 +48,7 @@ AppSupportURL={#_AppPublisherURL}
 AppUpdatesURL={#_AppPublisherURL}
 Compression=lzma
 CreateUninstallRegKey=yes
-DefaultDirName={pf}\{#_AppName}
+DefaultDirName={pf64}\{#_AppName}
 DisableDirPage=no
 DefaultGroupName={#_AppName}
 OutputDir=.\
@@ -81,7 +81,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Source: "build\{#_BuildConfig}\EShellLauncher.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\{#_BuildConfig}\EShellLauncher.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
-Source: "submodule\perl\*"; DestDir: "{app}\perl"; Flags: recursesubdirs
+Source: "submodule\StrawberryPerl\*"; DestDir: "{app}\StrawberryPerl"; Flags: recursesubdirs
 
 [Icons]
 Name: "{commonstartup}\{#_AppName}"; Filename: "{app}\EShellLauncher.exe"; Comment: {#_VersionInfoComments}; Tasks: windowsstartupicon
