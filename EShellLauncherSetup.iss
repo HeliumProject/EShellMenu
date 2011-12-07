@@ -81,7 +81,8 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Source: "build\{#_BuildConfig}\EShellLauncher.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\{#_BuildConfig}\EShellLauncher.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
-Source: "submodule\StrawberryPerl\*"; DestDir: "{app}\StrawberryPerl"; Flags: recursesubdirs
+Source: "submodule\StrawberryPerl\c\bin\*"; DestDir: "{app}\StrawberryPerl\c\bin"; Flags: recursesubdirs
+Source: "submodule\StrawberryPerl\perl\*"; DestDir: "{app}\StrawberryPerl\perl"; Flags: recursesubdirs
 
 [Icons]
 Name: "{commonstartup}\{#_AppName}"; Filename: "{app}\EShellLauncher.exe"; Comment: {#_VersionInfoComments}; Tasks: windowsstartupicon
