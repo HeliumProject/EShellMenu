@@ -16,7 +16,7 @@ Settings::~Settings()
 {
 }
 
-void Settings::SetEnvVar( const std::string& envVarName, const std::string& envVarValue, M_EnvVar& envVars, bool isPath )
+void Settings::SetEnvVar( const tstring& envVarName, const tstring& envVarValue, M_EnvVar& envVars, bool isPath )
 {
 	if ( !envVarName.empty() && !envVarValue.empty() )
 	{
@@ -25,7 +25,7 @@ void Settings::SetEnvVar( const std::string& envVarName, const std::string& envV
 	}
 }
 
-void Settings::GetEnvVarAliasValue( const std::string& envVarName, const M_EnvVar& envVars, std::string& aliasVar, const char* defaultValue )
+void Settings::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& envVars, tstring& aliasVar, const tchar_t* defaultValue )
 {
 	if ( !envVarName.empty() )
 	{
@@ -43,53 +43,47 @@ void Settings::GetEnvVarAliasValue( const std::string& envVarName, const M_EnvVa
 	}
 }
 
-void Settings::ProcessValue( std::string& value, const M_EnvVar& envVars )
+void Settings::ProcessValue( tstring& value, const M_EnvVar& envVars )
 {
-	const std::regex grepTokens( "%(.*?)%", std::regex::icase  );
+	const tregex grepTokens( wxT("%(.*?)%"), std::regex::icase  );
 
-	std::string tempValue = value;
-	std::sregex_iterator itr( tempValue.begin(), tempValue.end(), grepTokens );
-	std::sregex_iterator end;
-
-	for ( ; itr != end; ++itr )
+	tstring tempValue = value;
+	for ( tsregex_iterator itr( tempValue.begin(), tempValue.end(), grepTokens ), end; itr != end; ++itr )
 	{
-		const std::match_results<std::string::const_iterator>& resultTokens = *itr;
+		const std::match_results<tstring::const_iterator>& resultTokens = *itr;
 
-		std::string varName ( resultTokens[1].first, resultTokens[1].second );
+		tstring varName ( resultTokens[1].first, resultTokens[1].second );
 		if ( !varName.empty() )
 		{
 			M_EnvVar::const_iterator foundVar = envVars.find( varName );
 			if ( foundVar != envVars.end() )
 			{
-				std::string replaceTokenStr = "%" + varName + "%";
-				std::regex replaceToken( replaceTokenStr, std::regex::icase );
+				tstring replaceTokenStr = wxT("%") + varName + wxT("%");
+				tregex replaceToken( replaceTokenStr, std::regex::icase );
 				value = std::regex_replace( value, replaceToken, ProcessEnvVar( foundVar->second, envVars ) );
 			}
 		}
 	}
 }
 
-std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing )
+tstring Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< tstring >& currentlyProcessing )
 {
-	std::pair< std::set< std::string >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_Name );
+	std::pair< std::set< tstring >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_Name );
 	if ( !inserted.second )
 	{
-		throw Exception( "Cyclical environment variable reference found for: %s", envVar.m_Name.c_str() );
+		throw Exception( wxT("Cyclical environment variable reference found for: %s"), envVar.m_Name.c_str() );
 	}
 
 	// we are now processing this EnvVar
-	std::string processedValue = envVar.m_Value;
+	tstring processedValue = envVar.m_Value;
 
-	const std::regex grepTokens( "%([A-Z_\\-]*)%", std::regex::icase  );
-	std::sregex_iterator itr( envVar.m_Value.begin(), envVar.m_Value.end(), grepTokens );
-	std::sregex_iterator end;
-
-	for ( ; itr != end; ++itr )
+	const tregex grepTokens( wxT("%([A-Z_\\-]*)%"), std::regex::icase  );
+	for ( tsregex_iterator itr( envVar.m_Value.begin(), envVar.m_Value.end(), grepTokens ), end; itr != end; ++itr )
 	{
-		const std::match_results<std::string::const_iterator>& resultTokens = *itr;
+		const std::match_results<tstring::const_iterator>& resultTokens = *itr;
 
-		std::string varName ( resultTokens[1].first, resultTokens[1].second );
-		std::string varValue;
+		tstring varName ( resultTokens[1].first, resultTokens[1].second );
+		tstring varValue;
 		if ( varName == envVar.m_Name 
 			&& Launcher::GetEnvVar( varName, varValue ) )
 		{
@@ -97,7 +91,7 @@ std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVa
 		}
 		else if ( currentlyProcessing.find( varName ) != currentlyProcessing.end() )
 		{
-			throw Exception( "Cyclical environment variable reference found for: %s and %s", envVar.m_Name.c_str(), varName.c_str() );
+			throw Exception( wxT("Cyclical environment variable reference found for: %s and %s"), envVar.m_Name.c_str(), varName.c_str() );
 		}
 		else
 		{
@@ -108,12 +102,12 @@ std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVa
 			}
 			else if ( !Launcher::GetEnvVar( varName, varValue ) )
 			{
-				throw Exception( "Unknown environment variable reference found: %s", varName.c_str() );
+				throw Exception( wxT("Unknown environment variable reference found: %s"), varName.c_str() );
 			}
 		}
 
-		std::string replaceTokenStr = "%" + varName + "%";
-		std::regex replaceToken( replaceTokenStr, std::regex::icase ); 
+		tstring replaceTokenStr = wxT("%") + varName + wxT("%");
+		tregex replaceToken( replaceTokenStr, std::regex::icase ); 
 		processedValue = std::regex_replace( processedValue, replaceToken, varValue );
 	}
 
@@ -123,17 +117,27 @@ std::string Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVa
 }
 
 //<EnvVar variableName="P4PORT" value="perforce.insomniacgames.com:60606" override="0" />
-void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeFile )
+void Settings::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile )
 {
-	std::string varName = elem->Attribute( "variableName" );
+	tstring varName = elem->GetAttribute( wxT("variableName") );
 	//toUpper( varName );
 
 	// when override is false, we don't override existing variables; defaults to true
-	int intValue;
-	bool overrideAttrib = ( ( elem->Attribute( "override", &intValue ) == NULL ) || ( intValue == 1 ) ) ? true : false ;
+    bool overrideAttrib;
+    {
+	    wxString value;
+        if ( elem->GetAttribute( wxT("override"), &value ) )
+        {
+            overrideAttrib = value == wxT("1");
+        }
+        else
+        {
+            overrideAttrib = true;
+        }
+    }
 	overrideAttrib = includeFile ? false : overrideAttrib;
 
-	std::pair< std::map<std::string, EnvVar>::iterator, bool > inserted = envVars.insert( M_EnvVar::value_type( varName, EnvVar() ) );
+	std::pair< std::map<tstring, EnvVar>::iterator, bool > inserted = envVars.insert( M_EnvVar::value_type( varName, EnvVar() ) );
 
 	// early out if we didn't insert and the existing variable override is false
 	EnvVar& envVar = inserted.first->second;
@@ -148,27 +152,32 @@ void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeF
 
 	// Type
 	envVar.m_IsPath = false;
-	if ( elem->Attribute( "type" ) )
-	{
-		std::string type = elem->Attribute( "type" );
-		std::transform( type.begin(), type.end(), type.begin(), tolower);
-		envVar.m_IsPath = ( type == "path" );
-	}
+    {
+        wxString type;
+	    if ( elem->GetAttribute( wxT("type"), &type ) )
+	    {
+		    std::transform( type.begin(), type.end(), type.begin(), tolower);
+		    envVar.m_IsPath = ( type == wxT("path") );
+	    }
+    }
 
 	// Value
-	envVar.m_Value = "";
-	if ( elem->Attribute( "value" ) )
-	{
-		envVar.m_Value = elem->Attribute( "value" );
-	}
+    envVar.m_Value.clear();
+    {
+        wxString value;
+	    if ( elem->GetAttribute( wxT("value"), &value ) )
+	    {
+		    envVar.m_Value = value;
+	    }
+    }
 
 	// if we're not overriding, make sure the variable is not already defined
 	if ( !envVar.m_IsOverride )
 	{
-		std::string varValue("");
+		tstring varValue;
 		if ( Launcher::GetEnvVar( envVar.m_Name, varValue ) )
 		{
-			Launcher::ConsolePrint( "EnvVar %s's override is '0'; using machine value \"%s\" (rather than settings file value \"%s\").\n", varName.c_str(), varValue.c_str(), envVar.m_Value.c_str() );
+			Launcher::ConsolePrint( wxT("EnvVar %s's override is '0'; using machine value \"%s\" (rather than settings file value \"%s\").\n"), varName.c_str(), varValue.c_str(), envVar.m_Value.c_str() );
 			envVar.m_Value = varValue;
 		}
 	}
@@ -182,33 +191,33 @@ void Settings::ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeF
 //  <Icon location="%IG_PROJECT_BIN%\Luna.exe" number="0" />
 //  <IconPath>%IG_PROJECT_DATA%\luna\themes\default\moon_16.png</IconPath>
 //</Shortcut>
-void Settings::ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
+void Settings::ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
 {
 	ShortcutInfo shortcut;
 
-	for ( TiXmlElement* shortcutElem = elem->FirstChildElement(); shortcutElem != NULL; shortcutElem = shortcutElem->NextSiblingElement() )
+    for ( wxXmlNode* shortcutElem = elem->GetChildren(); shortcutElem != NULL; shortcutElem = shortcutElem->GetNext() )
 	{
-		std::string shortcutElemString = shortcutElem->Value();
+		tstring shortcutElemString = shortcutElem->GetName();
 
-		if ( shortcutElemString.compare( "Name" ) == 0 )
+		if ( shortcutElemString.compare( wxT("Name") ) == 0 )
 		{
-			shortcut.m_Name = shortcutElem->GetText();
+			shortcut.m_Name = shortcutElem->GetContent();
 		}
-		else if ( shortcutElemString.compare( "Folder" ) == 0 )
+		else if ( shortcutElemString.compare( wxT("Folder") ) == 0 )
 		{
-			shortcut.m_Folder = shortcutElem->GetText();
+			shortcut.m_Folder = shortcutElem->GetContent();
 		}
-		else if ( shortcutElemString.compare( "Args" ) == 0 )
+		else if ( shortcutElemString.compare( wxT("Args") ) == 0 )
 		{
-			shortcut.m_Args = shortcutElem->GetText();
+			shortcut.m_Args = shortcutElem->GetContent();
 		}
-		else if ( shortcutElemString.compare( "Description" ) == 0 )
+		else if ( shortcutElemString.compare( wxT("Description") ) == 0 )
 		{
-			shortcut.m_Description = shortcutElem->GetText();
+			shortcut.m_Description = shortcutElem->GetContent();
 		}
-		else if ( shortcutElemString.compare( "Icon" ) == 0 && shortcutElem->GetText() )
+        else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetContent().length() )
 		{
-			shortcut.m_IconPath = shortcutElem->GetText();
+			shortcut.m_IconPath = shortcutElem->GetContent();
 		}
 	}
 
@@ -216,21 +225,22 @@ void Settings::ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_E
 }
 
 //<Include>%IG_PROJECT_CODE%\config\SDKSubscription.xml</Include>
-void Settings::ParseInclude( TiXmlElement* elem, V_IncludeFiles& includes )
+void Settings::ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes )
 {
 	IncludeFile includeFile;
 
-	if ( elem->GetText() )
+    wxString path;
+    if ( elem->GetContent().length() )
 	{
-		includeFile.m_Path = elem->GetText();
+		includeFile.m_Path = elem->GetContent();
 	}
-	else if ( elem->Attribute( "path" ) )
+	else if ( elem->GetAttribute( wxT("path"), &path ) )
 	{
-		includeFile.m_Path = elem->Attribute( "path" );
+		includeFile.m_Path = path;
 	}
 
-	int intValue;
-	if ( ( elem->Attribute( "optional", &intValue ) != NULL ) && ( intValue == 1 ) )
+	wxString optionalAttrib;
+	if ( elem->GetAttribute( wxT("optional"), &optionalAttrib ) && optionalAttrib == wxT("1") )
 	{
 		includeFile.m_Optional = true;
 	}
@@ -239,23 +249,18 @@ void Settings::ParseInclude( TiXmlElement* elem, V_IncludeFiles& includes )
 }
 
 //<Config name="gameplay" parent="production" description="SP and MP Gameplay programmers">
-void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar )
+void Settings::ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& globalEnvVar )
 {
-	int intValue;
-	if ( ( elem->Attribute( "hidden", &intValue ) != NULL ) && ( intValue == 1 ) )
+    wxString hiddenAttrib;
+	if ( elem->GetAttribute( wxT("hidden"), &hiddenAttrib ) && hiddenAttrib == wxT("1") )
 	{
 		// hidden config... skip it
 		return;
 	}
 
 	Config config;
-	config.m_Name = elem->Attribute( "name" );
-
-	config.m_Parent = "";
-	if ( elem->Attribute( "parent" ) )
-	{
-		config.m_Parent = elem->Attribute( "parent" );
-	}
+	config.m_Name = elem->GetAttribute( wxT("name") );
+	config.m_Parent = elem->GetAttribute( wxT("parent"), wxEmptyString );
 
 	M_Config::iterator foundParent = configs.find( config.m_Parent );
 	if ( foundParent != configs.end() )
@@ -267,28 +272,24 @@ void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& glo
 		config.m_EnvVar = globalEnvVar;
 	}
 
-	config.m_Description = "";
-	if ( elem->Attribute( "description" ) )
-	{
-		config.m_Description = elem->Attribute( "description" );
-	}
+	config.m_Description = elem->GetAttribute( wxT("description"), wxEmptyString );
 
-	for ( TiXmlElement* configElem = elem->FirstChildElement(); configElem != NULL; configElem = configElem->NextSiblingElement() )
+	for ( wxXmlNode* configElem = elem->GetChildren(); configElem != NULL; configElem = configElem->GetNext() )
 	{
-		std::string configElemString = configElem->Value();
+		tstring configElemString = configElem->GetName();
 
 		//<EnvVar>
-		if ( configElemString.compare( "EnvVar" ) == 0 )
+		if ( configElemString.compare( wxT("EnvVar") ) == 0 )
 		{
 			ParseEnvVar( configElem, config.m_EnvVar );
 		}
 		//<Shortcut>
-		else if ( configElemString.compare( "Shortcut" ) == 0 )
+		else if ( configElemString.compare( wxT("Shortcut") ) == 0 )
 		{
 			ParseShortcut( configElem, config.m_Shortcuts, config.m_EnvVar );
 		}
 		//<Include>
-		else if ( configElemString.compare( "Include" ) == 0 )
+		else if ( configElemString.compare( wxT("Include") ) == 0 )
 		{
 			ParseInclude( configElem, config.m_IncludeFiles );
 		}
@@ -297,44 +298,42 @@ void Settings::ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& glo
 	configs.insert( M_Config::value_type( config.m_Name, config ) );
 }
 
-bool Settings::LoadFile( const std::string& file, bool includeFile )
+bool Settings::LoadFile( const tstring& file, bool includeFile )
 {
 	m_File = file;
 
 	//open the config file
-	TiXmlDocument doc;
-	if (!doc.LoadFile( file.c_str() ))
+	wxXmlDocument doc;
+    if ( !doc.Load( file.c_str() ) )
 	{
 		return false;
 	}
 
 	// <Settings>
-	TiXmlElement* projectSettings = doc.FirstChildElement();
-	if ( projectSettings && std::string (projectSettings->Value()) == "Settings" )
+	wxXmlNode* projectSettings = doc.GetRoot();
+	if ( projectSettings && tstring (projectSettings->GetName()) == wxT("Settings") )
 	{
-		for ( TiXmlElement* elem = projectSettings->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement() )
+		for ( wxXmlNode* elem = projectSettings->GetChildren(); elem != NULL; elem = elem->GetNext() )
 		{
-			std::string elemString =  elem->Value();
+			tstring elemString = elem->GetName();
 
 			//<EnvVar>
-			if ( elemString.compare( "EnvVar" ) == 0 )
+			if ( elemString.compare( wxT("EnvVar") ) == 0 )
 			{
 				ParseEnvVar( elem, m_EnvVar, includeFile );
 			}
 			//<Include>
-			else if ( elemString.compare( "Include" ) == 0 )
+			else if ( elemString.compare( wxT("Include") ) == 0 )
 			{
 				ParseInclude( elem, m_IncludeFiles );
 			}
 			//<Config>
-			else if ( elemString.compare( "Config" ) == 0 )
+			else if ( elemString.compare( wxT("Config") ) == 0 )
 			{
 				ParseConfig( elem, m_Configs, m_EnvVar );
 			}
 		}
 	}
-
-	doc.Clear();
 
 	// We can't ProcessInculdeFiles here because part of the path may
 	// have been defined in the with EvnVars in the EnvironmentVariableAlias,
@@ -344,7 +343,7 @@ bool Settings::LoadFile( const std::string& file, bool includeFile )
 	V_IncludeFiles::iterator includeFileEnd = m_IncludeFiles.end();
 	for ( ; includeFileItr != includeFileEnd; ++includeFileItr )
 	{
-		std::string includeFile = includeFileItr->m_Path;
+		tstring includeFile = includeFileItr->m_Path;
 
 		// This would be bad because it's going to use all the default values for env vars that have aliases
 		ProcessValue( includeFile, m_EnvVar ); 
@@ -355,7 +354,7 @@ bool Settings::LoadFile( const std::string& file, bool includeFile )
 		}
 	}
 
-	m_Title = "%ESHELL_TITLE%";
+	m_Title = wxT("%ESHELL_TITLE%");
 	ProcessValue( m_Title, m_EnvVar );
 
 	return true;

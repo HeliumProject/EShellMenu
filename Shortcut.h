@@ -12,7 +12,7 @@ namespace Launcher
 	//
 	class Shortcut;
 	typedef std::vector< wxObjectDataPtr< Shortcut > > V_Shortcut;
-	typedef std::map< std::string, V_Shortcut > M_Shortcut;
+	typedef std::map< tstring, V_Shortcut > M_Shortcut;
 
 	class Shortcut : public wxObjectRefData
 	{
@@ -24,14 +24,14 @@ namespace Launcher
 		virtual bool CopyToClipboard();
 
 	public:
-		std::string m_Name;             // Display name
-		std::string m_FavoriteName;     // Display name for when the shortcut is in the favorites menu
-		std::string m_Icon;             // Optional MenuIcon
-		std::string m_Description;      // Mouse over description
-		std::string m_Folder;           // Optional name of sub menu
-		std::string m_Command;          // Command complete with Arguments
+		tstring m_Name;             // Display name
+		tstring m_FavoriteName;     // Display name for when the shortcut is in the favorites menu
+		tstring m_Icon;             // Optional MenuIcon
+		tstring m_Description;      // Mouse over description
+		tstring m_Folder;           // Optional name of sub menu
+		tstring m_Command;          // Command complete with Arguments
 
 		bool        m_Disable;          // true if we think the shortcut will not load
-		std::string m_DisableReason;    // the reason this might fail
+		tstring m_DisableReason;    // the reason this might fail
 	};
 }

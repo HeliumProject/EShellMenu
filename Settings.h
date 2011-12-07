@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-class TiXmlElement;
-
 namespace Launcher
 {
 	class EnvVar
@@ -19,12 +17,12 @@ namespace Launcher
 
 		}
 
-		std::string m_Name;
-		std::string m_Value;
+		tstring m_Name;
+		tstring m_Value;
 		bool m_IsPath;
 		bool m_IsOverride;
 	};
-	typedef std::map<std::string, EnvVar> M_EnvVar;
+	typedef std::map<tstring, EnvVar> M_EnvVar;
 
 	class IncludeFile
 	{
@@ -35,7 +33,7 @@ namespace Launcher
 
 		}
 
-		std::string m_Path;
+		tstring m_Path;
 		bool m_Optional;
 	};
 	typedef std::vector< IncludeFile > V_IncludeFiles;
@@ -43,11 +41,11 @@ namespace Launcher
 	class ShortcutInfo
 	{
 	public:
-		std::string m_Name;             // Display name: "prompt", etc...
-		std::string m_Folder;			// Folder to put it in (under the project menu)
-		std::string m_Args;             // Args to pass to eshell
-		std::string m_Description;      // Mouse over description
-		std::string m_IconPath;         // Path to the .png file
+		tstring m_Name;             // Display name: "prompt", etc...
+		tstring m_Folder;			// Folder to put it in (under the project menu)
+		tstring m_Args;             // Args to pass to eshell
+		tstring m_Description;      // Mouse over description
+		tstring m_IconPath;         // Path to the .png file
 	};
 	typedef std::vector< ShortcutInfo > V_ShortcutInfo;
 
@@ -60,9 +58,9 @@ namespace Launcher
 
 		}
 
-		std::string m_Name;
-		std::string m_Parent;
-		std::string m_Description;
+		tstring m_Name;
+		tstring m_Parent;
+		tstring m_Description;
 		bool m_Hidden;		// used to hide from displayed configs
 
 		M_EnvVar m_EnvVar;
@@ -70,7 +68,7 @@ namespace Launcher
 		V_IncludeFiles m_IncludeFiles;
 	};
 	typedef std::vector< Config > V_Config;
-	typedef std::map< std::string, Config > M_Config;
+	typedef std::map< tstring, Config > M_Config;
 
 	class Settings
 	{
@@ -78,23 +76,23 @@ namespace Launcher
 		Settings();
 		~Settings();
 
-		bool LoadFile( const std::string& settingsFile, bool includeFile = false );
+		bool LoadFile( const tstring& settingsFile, bool includeFile = false );
 
-		static void ProcessValue( std::string& value, const M_EnvVar& envVar );
-		static void SetEnvVar( const std::string& envVarName, const std::string& envVarValue, M_EnvVar& envVars, bool isPath = true );
-		static void GetEnvVarAliasValue( const std::string& envVarName, const M_EnvVar& envVars, std::string& aliasVar, const char* defaultValue = NULL );
+		static void ProcessValue( tstring& value, const M_EnvVar& envVar );
+		static void SetEnvVar( const tstring& envVarName, const tstring& envVarValue, M_EnvVar& envVars, bool isPath = true );
+		static void GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& envVars, tstring& aliasVar, const tchar_t* defaultValue = NULL );
 
 	protected:
-		static void ParseEnvVar( TiXmlElement* elem, M_EnvVar& envVars, bool includeFile = false );
-		static void ParseInclude( TiXmlElement* elem, V_IncludeFiles& includes );
-		static void ParseConfig( TiXmlElement* elem, M_Config& configs, M_EnvVar& globalEnvVar );
-		static void ParseShortcut( TiXmlElement* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
+		static void ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile = false );
+		static void ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes );
+		static void ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& globalEnvVar );
+		static void ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
 
-		static std::string ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< std::string >& currentlyProcessing = std::set< std::string >() );
+		static tstring ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< tstring >& currentlyProcessing = std::set< tstring >() );
 
 	public:
-		std::string m_Title;
-		std::string m_File;
+		tstring m_Title;
+		tstring m_File;
 		M_EnvVar m_EnvVar;
 		M_Config m_Configs;
 		V_IncludeFiles m_IncludeFiles;

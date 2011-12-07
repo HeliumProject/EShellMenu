@@ -18,10 +18,10 @@ namespace Launcher
 
 		void LoadState();
 
-		void AddProject( const std::string& project );
-		void AddFavorite( const std::string& command );
-		void RemoveFavorite( const std::string& command );
-		bool IsFavorite( const std::string& command );
+		void AddProject( const tstring& project );
+		void AddFavorite( const tstring& command );
+		void RemoveFavorite( const tstring& command );
+		bool IsFavorite( const tstring& command );
 
 		bool IsUpdateAvailable() const
 		{
@@ -42,17 +42,17 @@ namespace Launcher
 
 	private:
 		HANDLE m_MutexHandle;
-		std::string m_Title;
-		std::string m_MutexName;
+		tstring m_Title;
+		tstring m_MutexName;
 
 		TrayIcon* m_TrayIcon;
-		std::set< std::string > m_Projects;
-		std::set< std::string > m_Favorites;
+		std::set< tstring > m_Projects;
+		std::set< tstring > m_Favorites;
 
-		std::string m_PerlExePath;
-		std::string m_PerlLibPath;
-		std::string m_EShellPlPath;
-		std::string m_LauncherInstallPath;
+		tstring m_PerlExePath;
+		tstring m_PerlLibPath;
+		tstring m_EShellPlPath;
+		tstring m_LauncherInstallPath;
 		uint64_t m_CurrentVersion;
 		uint64_t m_NetworkVersion;
 		bool m_UpdateLauncherNow;

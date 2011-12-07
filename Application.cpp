@@ -9,8 +9,8 @@
 
 using namespace Launcher;
 
-static const std::string g_DefaultLauncherInstallDir  = "\\\\eshell\\eshell\\launcher\\";
-static const std::string g_DefaultLauncherInstallFile = "EShellLauncherSetup.exe";
+static const tstring g_DefaultLauncherInstallDir  = wxT("\\\\eshell\\eshell\\launcher\\");
+static const tstring g_DefaultLauncherInstallFile = wxT("EShellLauncherSetup.exe");
 #ifdef _DEBUG
 static const int g_UpdateIntervalInSeconds = 60 * 1;
 #else
@@ -19,7 +19,7 @@ static const int g_UpdateIntervalInSeconds = 60 * 5;
 
 Application::Application()
 	: m_MutexHandle( NULL )
-	, m_Title( "EShell Launcher v"LAUNCHER_VERSION_STRING )
+	, m_Title( wxT("EShell Launcher v") LAUNCHER_VERSION_STRING )
 	, m_TrayIcon( NULL )
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
@@ -35,9 +35,9 @@ Application::Application()
 	Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
 
 #ifdef _DEBUG
-	m_MutexName = "EShellLauncher_DEBUG";
+	m_MutexName = wxT("EShellLauncher_DEBUG");
 #else
-	m_MutexName = "EShellLauncher";
+	m_MutexName = wxT("EShellLauncher");
 #endif
 
 	Connect( wxEVT_TIMER, wxTimerEventHandler( Application::OnUpdateTimer ), NULL, this );
@@ -50,39 +50,39 @@ Application::~Application()
 	Disconnect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
 }
 
-void Application::AddProject( const std::string& project )
+void Application::AddProject( const tstring& project )
 {
 	m_Projects.insert( project );
 
-	SaveTextFile( Launcher::GetUserFile( "projects", "txt" ), m_Projects );
+	SaveTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 }
 
-void Application::AddFavorite( const std::string& command )
+void Application::AddFavorite( const tstring& command )
 {
 	m_Favorites.insert( command );
 
-	SaveTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
+	SaveTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
-void Application::RemoveFavorite( const std::string& command )
+void Application::RemoveFavorite( const tstring& command )
 {
 	m_Favorites.erase( command );
 
-	SaveTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
+	SaveTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
-bool Application::IsFavorite( const std::string& command )
+bool Application::IsFavorite( const tstring& command )
 {
 	return m_Favorites.find( command ) != m_Favorites.end();
 }
 
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
 {
-	SetVendorName( "EShell Games" );
-	parser.SetLogo( wxT( "EShell Launcher (c) 20xx - Helium Project\n" ) );
+	SetVendorName( wxT("Helium Project") );
+	parser.SetLogo( wxT("EShell Launcher (c) 20xx - Helium Project\n") );
 
-	parser.AddOption( "perl", "PerlLocation", "The location of the perl distribution (containing /bin)" );
-	parser.AddOption( "eshell", "EShellLocation", "The location of the directory containing eshell.pl" );
+	parser.AddOption( wxT("perl"), wxT("PerlLocation"), wxT("The location of the perl distribution (containing /bin)") );
+	parser.AddOption( wxT("eshell"), wxT("EShellLocation"), wxT("The location of the directory containing eshell.pl") );
 
 	return __super::OnInitCmdLine( parser );
 }
@@ -90,67 +90,67 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
 	wxString perl;
-	if ( parser.Found( "perl", &perl ) )
+	if ( parser.Found( wxT("perl"), &perl ) )
 	{
-		wxFileName name ( perl, "" );
-		name.AppendDir( "bin" );
-		name.SetName( "perl" );
-		name.SetExt( "exe" );
+		wxFileName name ( perl, wxT("") );
+		name.AppendDir( wxT("bin") );
+		name.SetName( wxT("perl") );
+		name.SetExt( wxT("exe") );
 		m_PerlExePath = name.GetFullPath();
 	}
 	else
 	{
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
-		name.AppendDir( "StrawberryPerl" );
-		name.AppendDir( "perl" );
-		name.AppendDir( "bin" );
-		name.SetName( "perl" );
-		name.SetExt( "exe" );
+		name.AppendDir( wxT("StrawberryPerl") );
+		name.AppendDir( wxT("perl") );
+		name.AppendDir( wxT("bin") );
+		name.SetName( wxT("perl") );
+		name.SetExt( wxT("exe") );
 		m_PerlExePath = name.GetFullPath();
 	}
 
 	wxString eshell;
-	if ( parser.Found( "eshell", &eshell ) )
+	if ( parser.Found( wxT("eshell"), &eshell ) )
 	{
-		wxFileName name ( eshell, "" );
-		name.SetName( "eshell" );
-		name.SetExt( "pl" );
+		wxFileName name ( eshell, wxT("") );
+		name.SetName( wxT("eshell") );
+		name.SetExt( wxT("pl") );
 		m_EShellPlPath = name.GetFullPath();
 	}
 	else
 	{
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
-		name.SetName( "eshell" );
-		name.SetExt( "pl" );
+		name.SetName( wxT("eshell") );
+		name.SetExt( wxT("pl") );
 		m_EShellPlPath = name.GetFullPath();
 	}
 
 	if ( !FileExists( m_PerlExePath ) )
 	{
-		wxMessageBox( std::string( "Perl doesn't exist at the expected location:\n" ) + m_PerlExePath, "Error", wxOK | wxICON_ERROR );
+		wxMessageBox( tstring( wxT("Perl doesn't exist at the expected location:\n") ) + m_PerlExePath, wxT("Error"), wxOK | wxICON_ERROR );
 		return false;
 	}
 
 	if ( !FileExists( m_EShellPlPath ) )
 	{
-		wxMessageBox( std::string( "EShell.pl doesn't exist at the expected location:\n" ) + m_EShellPlPath, "Error", wxOK | wxICON_ERROR );
+		wxMessageBox( tstring( wxT("EShell.pl doesn't exist at the expected location:\n") ) + m_EShellPlPath, wxT("Error"), wxOK | wxICON_ERROR );
 		return false;
 	}
 
 	wxFileName cBin ( m_PerlExePath.c_str() );
 	cBin.RemoveLastDir(); // pop /bin
 	cBin.RemoveLastDir(); // pop /perl
-	cBin.AppendDir( "c" );
-	cBin.AppendDir( "bin" );
+	cBin.AppendDir( wxT("c") );
+	cBin.AppendDir( wxT("bin") );
 	::SetCurrentDirectory( cBin.GetPath() );
 
 	wxFileName lib ( m_PerlExePath.c_str() );
 	lib.RemoveLastDir(); // pop /bin
 	lib.RemoveLastDir(); // pop /perl
-	lib.AppendDir( "site" );
-	lib.AppendDir( "lib" );
+	lib.AppendDir( wxT("site") );
+	lib.AppendDir( wxT("lib") );
 	m_PerlLibPath = lib.GetPath();
 
 	return __super::OnCmdLineParsed( parser );
@@ -254,7 +254,7 @@ int Application::OnExit()
 	// Update the launcher if necessary.
 	if ( m_UpdateLauncherNow && FileExists( m_LauncherInstallPath ) )
 	{
-		std::string command = "\"" + m_LauncherInstallPath + "\" /SILENT";
+		tstring command = "\"" + m_LauncherInstallPath + "\" /SILENT";
 		Launcher::ExecuteCommand( command, false, false );
 	}
 
@@ -279,7 +279,7 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 			// only refresh if the network version has changed
 			if ( IsUpdateAvailable() )
 			{
-				std::string newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
+				tstring newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
 				wxString text = "New Update Available";
 				if ( !newVersion.empty() )
 				{
@@ -305,8 +305,8 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
 	m_UpdateLauncherNow = false;
 
-	const char* title = "Update EShell Launcher?";
-	const char* msg = "There is an update available for the Eshell Launcher.  Would you like to exit and update now?";
+	const tchar_t* title = wxT("Update EShell Launcher?");
+	const tchar_t* msg = wxT("There is an update available for the Eshell Launcher.  Would you like to exit and update now?");
 	m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
 	if ( m_UpdateLauncherNow )
 	{
@@ -317,10 +317,10 @@ void Application::OnMenuUpdate( wxCommandEvent& evt )
 void Application::LoadState()
 {
 	m_Projects.clear();
-	LoadTextFile( Launcher::GetUserFile( "projects", "txt" ), m_Projects );
+	LoadTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 
 	m_Favorites.clear();
-	LoadTextFile( Launcher::GetUserFile( "favorites", "txt" ), m_Favorites );
+	LoadTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
 #ifdef _DEBUG

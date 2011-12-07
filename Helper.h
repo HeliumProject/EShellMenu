@@ -4,21 +4,21 @@
 
 namespace Launcher
 {
-	bool FileExists( const std::string& fileName );
-	bool DirectoryExists( const std::string& fileName );
-	bool ExecuteCommand( const std::string& command, bool showWindow = true, bool block = false );
+	bool FileExists( const tstring& fileName );
+	bool DirectoryExists( const tstring& fileName );
+	bool ExecuteCommand( const tstring& command, bool showWindow = true, bool block = false );
 
-	std::string Capitalize( const std::string& str, const bool isGameName = false );
-	std::string RemoveSlashes( const std::string& str, const std::string& replace = std::string(" ") );
+	tstring Capitalize( const tstring& str, const bool isGameName = false );
+	tstring RemoveSlashes( const tstring& str, const tstring& replace = tstring( wxT(" ") ) );
 
-	bool GetFileVersion( const std::string& path, uint64_t& version );
-	std::string GetFileVersionString( uint64_t version );
+	bool GetFileVersion( const tstring& path, uint64_t& version );
+	tstring GetFileVersionString( uint64_t version );
 
-	void ConsolePrint(const char *fmt,...);
+	void ConsolePrint(const tchar_t *fmt,...);
 
-	bool GetEnvVar( const std::string& envVarName, std::string& envVarValue );
+	bool GetEnvVar( const tstring& envVarName, tstring& envVarValue );
 
-	std::string GetUserFile( const std::string& basename, const std::string& ext );
-	void LoadTextFile( const std::string& file, std::set< std::string >& contents );
-	bool SaveTextFile( const std::string& file, const std::set< std::string >& contents );
+	tstring GetUserFile( const tstring& basename, const tstring& ext );
+	void LoadTextFile( const tstring& file, std::set< tstring >& contents );
+	bool SaveTextFile( const tstring& file, const std::set< tstring >& contents );
 }

@@ -26,7 +26,7 @@ namespace Launcher
 	class Exception
 	{
 	protected:
-		mutable std::string m_Message;
+		mutable tstring m_Message;
 
 	protected:
 		Exception()
@@ -35,7 +35,7 @@ namespace Launcher
 		}
 
 	public:
-		Exception( const char *msgFormat, ... )
+		Exception( const tchar_t *msgFormat, ... )
 		{
 			va_list msgArgs;
 			va_start( msgArgs, msgFormat );
@@ -47,17 +47,17 @@ namespace Launcher
 		// These accessors are thow that re-throw blocks can amend the exception message
 		//
 
-		std::string& Get()
+		tstring& Get()
 		{
 			return m_Message;
 		}
 
-		const std::string& Get() const
+		const tstring& Get() const
 		{
 			return m_Message;
 		}
 
-		void Set(const std::string& message)
+		void Set(const tstring& message)
 		{
 			m_Message = message;
 		}
@@ -66,13 +66,13 @@ namespace Launcher
 		// This allow operation with std::exception case statements
 		//
 
-		virtual const char* What() const
+		virtual const tchar_t* What() const
 		{
 			return m_Message.c_str();
 		}
 
 	protected:
-		void SetMessage( const char* msgFormat, ... )
+		void SetMessage( const tchar_t* msgFormat, ... )
 		{
 			va_list msgArgs;
 			va_start( msgArgs, msgFormat );
@@ -80,11 +80,11 @@ namespace Launcher
 			va_end( msgArgs );
 		}
 
-		void SetMessage( const char* msgFormat, va_list msgArgs )
+		void SetMessage( const tchar_t* msgFormat, va_list msgArgs )
 		{
-			char msgBuffer[ERROR_STRING_BUF_SIZE];
+			tchar_t msgBuffer[ERROR_STRING_BUF_SIZE];
 
-			_vsnprintf( msgBuffer, sizeof(msgBuffer) / sizeof( char ), msgFormat, msgArgs );
+			_sntprintf( msgBuffer, sizeof(msgBuffer) / sizeof( char ), msgFormat, msgArgs );
 			msgBuffer[sizeof(msgBuffer) / sizeof(msgBuffer[0]) - 1] = 0; 
 
 			m_Message = msgBuffer;
