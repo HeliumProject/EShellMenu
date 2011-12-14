@@ -179,9 +179,7 @@ void Launcher::ConsolePrint(const tchar_t *fmt,...)
 bool Launcher::GetEnvVar( const tstring& envVarName, tstring& envVarValue )
 {
     tchar_t envVarSetting[8192];
-    ::GetEnvironmentVariable( envVarName.c_str(), envVarSetting, sizeof(envVarSetting) / sizeof(tchar_t) );
-
-    if ( envVarSetting )
+    if ( ::GetEnvironmentVariable( envVarName.c_str(), envVarSetting, sizeof(envVarSetting) / sizeof(tchar_t) ) )
     {
         envVarValue = envVarSetting;
         return true;
@@ -221,7 +219,7 @@ bool Launcher::SaveTextFile( const tstring& file, const std::set< tstring >& con
     wxFileName name ( file.c_str() );
     name.Mkdir( wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL );
 
-    tfstream out( file.c_str() );
+	tofstream out( file.c_str() );
     if ( !out.good() )
     {
         return false;

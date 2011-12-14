@@ -201,23 +201,23 @@ void Settings::ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvV
 
 		if ( shortcutElemString.compare( wxT("Name") ) == 0 )
 		{
-			shortcut.m_Name = shortcutElem->GetContent();
+			shortcut.m_Name = shortcutElem->GetNodeContent();
 		}
 		else if ( shortcutElemString.compare( wxT("Folder") ) == 0 )
 		{
-			shortcut.m_Folder = shortcutElem->GetContent();
+			shortcut.m_Folder = shortcutElem->GetNodeContent();
 		}
 		else if ( shortcutElemString.compare( wxT("Args") ) == 0 )
 		{
-			shortcut.m_Args = shortcutElem->GetContent();
+			shortcut.m_Args = shortcutElem->GetNodeContent();
 		}
 		else if ( shortcutElemString.compare( wxT("Description") ) == 0 )
 		{
-			shortcut.m_Description = shortcutElem->GetContent();
+			shortcut.m_Description = shortcutElem->GetNodeContent();
 		}
-        else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetContent().length() )
+        else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetNodeContent().length() )
 		{
-			shortcut.m_IconPath = shortcutElem->GetContent();
+			shortcut.m_IconPath = shortcutElem->GetNodeContent();
 		}
 	}
 
@@ -230,9 +230,9 @@ void Settings::ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes )
 	IncludeFile includeFile;
 
     wxString path;
-    if ( elem->GetContent().length() )
+    if ( elem->GetNodeContent().length() )
 	{
-		includeFile.m_Path = elem->GetContent();
+		includeFile.m_Path = elem->GetNodeContent();
 	}
 	else if ( elem->GetAttribute( wxT("path"), &path ) )
 	{
