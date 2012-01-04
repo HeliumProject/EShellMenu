@@ -1,21 +1,21 @@
 #include "stdafx.h"
-#include "Shortcut.h"
+#include "MenuItem.h"
 
 #include "Helper.h"
-#include "Settings.h"
+#include "Project.h"
 
 using namespace Launcher;
 
-Shortcut::Shortcut()
+MenuItem::MenuItem()
 	: m_Disable( false )
 {
 }
 
-Shortcut::~Shortcut()
+MenuItem::~MenuItem()
 {
 }
 
-bool Shortcut::Execute()
+bool MenuItem::Execute()
 {
 #ifdef _DEBUG
 	if ( !Launcher::ExecuteCommand( m_Command ) ) 
@@ -32,7 +32,7 @@ bool Shortcut::Execute()
 	return true;
 }
 
-bool Shortcut::CopyToClipboard()
+bool MenuItem::CopyToClipboard()
 {
 	bool result = false;
 

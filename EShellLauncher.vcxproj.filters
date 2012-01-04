@@ -5,8 +5,8 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="TrayIcon.cpp" />
-    <ClCompile Include="Shortcut.cpp" />
-    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Project.cpp" />
+    <ClCompile Include="MenuItem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -16,8 +16,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="Exception.h" />
-    <ClInclude Include="Shortcut.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="Project.h" />
+    <ClInclude Include="MenuItem.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EShellLauncher.rc" />

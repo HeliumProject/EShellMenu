@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Settings.h"
+#include "Project.h"
 #include "TrayIcon.h"
 
 #include <set>
@@ -9,7 +9,6 @@
 
 namespace Launcher
 {
-	// The "Controller" between the Settings and the TrayIcon
 	class Application : public wxApp
 	{
 	public:
@@ -19,6 +18,8 @@ namespace Launcher
 		void LoadState();
 
 		void AddProject( const tstring& project );
+		void RemoveProject( const tstring& project );
+
 		void AddFavorite( const tstring& command );
 		void RemoveFavorite( const tstring& command );
 		bool IsFavorite( const tstring& command );

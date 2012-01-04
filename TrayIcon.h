@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Settings.h"
-#include "Shortcut.h"
+#include "Project.h"
+#include "MenuItem.h"
 
 namespace Launcher
 {
@@ -48,15 +48,16 @@ namespace Launcher
 		void OnMenuReload( wxCommandEvent& evt );
 		void OnMenuShortcut( wxCommandEvent& evt );
 		void OnMenuAdd( wxCommandEvent& evt );
+		void OnMenuRemove( wxCommandEvent& evt );
 
 	private:
-		void DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem );
+		void DetectAndSetIcon( MenuItem& menuItem, wxMenuItem* actualMenuItem );
 		void CreateProjectsMenu( wxMenu* parentMenu );
 
 	private:
 		Application* m_Application;
-		V_Settings m_Settings;
-		M_Shortcut m_ProjectShortcuts;
+		std::vector< Project > m_Projects;
+		std::map< tstring, std::pair< Project*, std::vector< MenuItem > > > m_MenuItems;
 		wxMenu* m_Menu;
 		wxMenuItem* m_UpdateMenuItem;
 		int m_BusyCount;

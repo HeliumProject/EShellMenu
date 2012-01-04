@@ -197,8 +197,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Settings.cpp" />
-    <ClCompile Include="Shortcut.cpp" />
+    <ClCompile Include="MenuItem.cpp" />
+    <ClCompile Include="Project.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -215,8 +215,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.h" />
-    <ClInclude Include="Settings.h" />
-    <ClInclude Include="Shortcut.h" />
+    <ClInclude Include="MenuItem.h" />
+    <ClInclude Include="Project.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="TrayIcon.h" />

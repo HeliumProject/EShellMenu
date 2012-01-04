@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Settings.h"
+#include "Project.h"
 
 #include "Exception.h"
 #include "Helper.h"
@@ -8,15 +8,15 @@
 
 using namespace Launcher;
 
-Settings::Settings()
+Project::Project()
 {
 }
 
-Settings::~Settings()
+Project::~Project()
 {
 }
 
-void Settings::SetEnvVar( const tstring& envVarName, const tstring& envVarValue, M_EnvVar& envVars, bool isPath )
+void Project::SetEnvVar( const tstring& envVarName, const tstring& envVarValue, M_EnvVar& envVars, bool isPath )
 {
 	if ( !envVarName.empty() && !envVarValue.empty() )
 	{
@@ -25,7 +25,7 @@ void Settings::SetEnvVar( const tstring& envVarName, const tstring& envVarValue,
 	}
 }
 
-void Settings::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& envVars, tstring& aliasVar, const tchar_t* defaultValue )
+void Project::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& envVars, tstring& aliasVar, const tchar_t* defaultValue )
 {
 	if ( !envVarName.empty() )
 	{
@@ -34,7 +34,7 @@ void Settings::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& e
 		{
 			aliasVar = foundEnvVar->second.m_Value;
 
-			Settings::ProcessValue( aliasVar, envVars );
+			Project::ProcessValue( aliasVar, envVars );
 		}
 		else if ( defaultValue )
 		{
@@ -43,7 +43,7 @@ void Settings::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& e
 	}
 }
 
-void Settings::ProcessValue( tstring& value, const M_EnvVar& envVars )
+void Project::ProcessValue( tstring& value, const M_EnvVar& envVars )
 {
 	const tregex grepTokens( wxT("%(.*?)%"), std::regex::icase  );
 
@@ -66,7 +66,7 @@ void Settings::ProcessValue( tstring& value, const M_EnvVar& envVars )
 	}
 }
 
-tstring Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< tstring >& currentlyProcessing )
+tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< tstring >& currentlyProcessing )
 {
 	std::pair< std::set< tstring >::const_iterator, bool > inserted = currentlyProcessing.insert( envVar.m_Name );
 	if ( !inserted.second )
@@ -117,24 +117,24 @@ tstring Settings::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, 
 }
 
 //<EnvVar variableName="P4PORT" value="perforce.insomniacgames.com:60606" override="0" />
-void Settings::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile )
+void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile )
 {
 	tstring varName = elem->GetAttribute( wxT("variableName") );
 	//toUpper( varName );
 
 	// when override is false, we don't override existing variables; defaults to true
-    bool overrideAttrib;
-    {
-	    wxString value;
-        if ( elem->GetAttribute( wxT("override"), &value ) )
-        {
-            overrideAttrib = value == wxT("1");
-        }
-        else
-        {
-            overrideAttrib = true;
-        }
-    }
+	bool overrideAttrib;
+	{
+		wxString value;
+		if ( elem->GetAttribute( wxT("override"), &value ) )
+		{
+			overrideAttrib = value == wxT("1");
+		}
+		else
+		{
+			overrideAttrib = true;
+		}
+	}
 	overrideAttrib = includeFile ? false : overrideAttrib;
 
 	std::pair< std::map<tstring, EnvVar>::iterator, bool > inserted = envVars.insert( M_EnvVar::value_type( varName, EnvVar() ) );
@@ -152,24 +152,24 @@ void Settings::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile
 
 	// Type
 	envVar.m_IsPath = false;
-    {
-        wxString type;
-	    if ( elem->GetAttribute( wxT("type"), &type ) )
-	    {
-		    std::transform( type.begin(), type.end(), type.begin(), tolower);
-		    envVar.m_IsPath = ( type == wxT("path") );
-	    }
-    }
+	{
+		wxString type;
+		if ( elem->GetAttribute( wxT("type"), &type ) )
+		{
+			std::transform( type.begin(), type.end(), type.begin(), tolower);
+			envVar.m_IsPath = ( type == wxT("path") );
+		}
+	}
 
 	// Value
-    envVar.m_Value.clear();
-    {
-        wxString value;
-	    if ( elem->GetAttribute( wxT("value"), &value ) )
-	    {
-		    envVar.m_Value = value;
-	    }
-    }
+	envVar.m_Value.clear();
+	{
+		wxString value;
+		if ( elem->GetAttribute( wxT("value"), &value ) )
+		{
+			envVar.m_Value = value;
+		}
+	}
 
 	// if we're not overriding, make sure the variable is not already defined
 	if ( !envVar.m_IsOverride )
@@ -184,18 +184,18 @@ void Settings::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile
 
 }
 
-//<Shortcut>
+//<MenuItem>
 //  <Name>Luna</Name>
 //  <Args>-exec Luna</Args>
 //  <Description>Luna</Description>
 //  <Icon location="%IG_PROJECT_BIN%\Luna.exe" number="0" />
 //  <IconPath>%IG_PROJECT_DATA%\luna\themes\default\moon_16.png</IconPath>
-//</Shortcut>
-void Settings::ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars )
+//</MenuItem>
+void Project::ParseShortcut( wxXmlNode* elem, std::vector< Shortcut >& shortcuts, M_EnvVar& envVars )
 {
-	ShortcutInfo shortcut;
+	Shortcut shortcut;
 
-    for ( wxXmlNode* shortcutElem = elem->GetChildren(); shortcutElem != NULL; shortcutElem = shortcutElem->GetNext() )
+	for ( wxXmlNode* shortcutElem = elem->GetChildren(); shortcutElem != NULL; shortcutElem = shortcutElem->GetNext() )
 	{
 		tstring shortcutElemString = shortcutElem->GetName();
 
@@ -215,7 +215,7 @@ void Settings::ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvV
 		{
 			shortcut.m_Description = shortcutElem->GetNodeContent();
 		}
-        else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetNodeContent().length() )
+		else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetNodeContent().length() )
 		{
 			shortcut.m_IconPath = shortcutElem->GetNodeContent();
 		}
@@ -225,12 +225,12 @@ void Settings::ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvV
 }
 
 //<Include>%IG_PROJECT_CODE%\config\SDKSubscription.xml</Include>
-void Settings::ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes )
+void Project::ParseInclude( wxXmlNode* elem, std::vector< Include >& includes )
 {
-	IncludeFile includeFile;
+	Include includeFile;
 
-    wxString path;
-    if ( elem->GetNodeContent().length() )
+	wxString path;
+	if ( elem->GetNodeContent().length() )
 	{
 		includeFile.m_Path = elem->GetNodeContent();
 	}
@@ -249,9 +249,9 @@ void Settings::ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes )
 }
 
 //<Config name="gameplay" parent="production" description="SP and MP Gameplay programmers">
-void Settings::ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& globalEnvVar )
+void Project::ParseConfig( wxXmlNode* elem, std::map< tstring, Config >& configs, M_EnvVar& globalEnvVar )
 {
-    wxString hiddenAttrib;
+	wxString hiddenAttrib;
 	if ( elem->GetAttribute( wxT("hidden"), &hiddenAttrib ) && hiddenAttrib == wxT("1") )
 	{
 		// hidden config... skip it
@@ -262,7 +262,7 @@ void Settings::ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& global
 	config.m_Name = elem->GetAttribute( wxT("name") );
 	config.m_Parent = elem->GetAttribute( wxT("parent"), wxEmptyString );
 
-	M_Config::iterator foundParent = configs.find( config.m_Parent );
+	std::map< tstring, Config >::iterator foundParent = configs.find( config.m_Parent );
 	if ( foundParent != configs.end() )
 	{
 		config.m_EnvVar = foundParent->second.m_EnvVar;
@@ -283,7 +283,7 @@ void Settings::ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& global
 		{
 			ParseEnvVar( configElem, config.m_EnvVar );
 		}
-		//<Shortcut>
+		//<MenuItem>
 		else if ( configElemString.compare( wxT("Shortcut") ) == 0 )
 		{
 			ParseShortcut( configElem, config.m_Shortcuts, config.m_EnvVar );
@@ -291,25 +291,25 @@ void Settings::ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& global
 		//<Include>
 		else if ( configElemString.compare( wxT("Include") ) == 0 )
 		{
-			ParseInclude( configElem, config.m_IncludeFiles );
+			ParseInclude( configElem, config.m_Includes );
 		}
 	}
 
-	configs.insert( M_Config::value_type( config.m_Name, config ) );
+	configs.insert( std::map< tstring, Config >::value_type( config.m_Name, config ) );
 }
 
-bool Settings::LoadFile( const tstring& file, bool includeFile )
+bool Project::LoadFile( const tstring& file, bool includeFile )
 {
 	m_File = file;
 
 	//open the config file
 	wxXmlDocument doc;
-    if ( !doc.Load( file.c_str() ) )
+	if ( !doc.Load( file.c_str() ) )
 	{
 		return false;
 	}
 
-	// <Settings>
+	// <Project>
 	wxXmlNode* projectSettings = doc.GetRoot();
 	if ( projectSettings && tstring (projectSettings->GetName()) == wxT("Settings") )
 	{
@@ -325,7 +325,7 @@ bool Settings::LoadFile( const tstring& file, bool includeFile )
 			//<Include>
 			else if ( elemString.compare( wxT("Include") ) == 0 )
 			{
-				ParseInclude( elem, m_IncludeFiles );
+				ParseInclude( elem, m_Includes );
 			}
 			//<Config>
 			else if ( elemString.compare( wxT("Config") ) == 0 )
@@ -339,8 +339,8 @@ bool Settings::LoadFile( const tstring& file, bool includeFile )
 	// have been defined in the with EvnVars in the EnvironmentVariableAlias,
 	// so we can't ProcessValue on the include path or we will get the
 	// defaults values."
-	V_IncludeFiles::iterator includeFileItr = m_IncludeFiles.begin();
-	V_IncludeFiles::iterator includeFileEnd = m_IncludeFiles.end();
+	std::vector< Include >::iterator includeFileItr = m_Includes.begin();
+	std::vector< Include >::iterator includeFileEnd = m_Includes.end();
 	for ( ; includeFileItr != includeFileEnd; ++includeFileItr )
 	{
 		tstring includeFile = includeFileItr->m_Path;

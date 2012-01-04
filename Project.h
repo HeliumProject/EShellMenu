@@ -24,10 +24,10 @@ namespace Launcher
 	};
 	typedef std::map<tstring, EnvVar> M_EnvVar;
 
-	class IncludeFile
+	class Include
 	{
 	public:
-		IncludeFile()
+		Include()
 			: m_Optional( false )
 		{
 
@@ -36,9 +36,8 @@ namespace Launcher
 		tstring m_Path;
 		bool m_Optional;
 	};
-	typedef std::vector< IncludeFile > V_IncludeFiles;
 
-	class ShortcutInfo
+	class Shortcut
 	{
 	public:
 		tstring m_Name;             // Display name: "prompt", etc...
@@ -47,7 +46,6 @@ namespace Launcher
 		tstring m_Description;      // Mouse over description
 		tstring m_IconPath;         // Path to the .png file
 	};
-	typedef std::vector< ShortcutInfo > V_ShortcutInfo;
 
 	class Config
 	{
@@ -64,19 +62,17 @@ namespace Launcher
 		bool m_Hidden;		// used to hide from displayed configs
 
 		M_EnvVar m_EnvVar;
-		V_ShortcutInfo m_Shortcuts;
-		V_IncludeFiles m_IncludeFiles;
+		std::vector< Shortcut > m_Shortcuts;
+		std::vector< Include > m_Includes;
 	};
-	typedef std::vector< Config > V_Config;
-	typedef std::map< tstring, Config > M_Config;
 
-	class Settings
+	class Project
 	{
 	public:
-		Settings();
-		~Settings();
+		Project();
+		~Project();
 
-		bool LoadFile( const tstring& settingsFile, bool includeFile = false );
+		bool LoadFile( const tstring& project, bool includeFile = false );
 
 		static void ProcessValue( tstring& value, const M_EnvVar& envVar );
 		static void SetEnvVar( const tstring& envVarName, const tstring& envVarValue, M_EnvVar& envVars, bool isPath = true );
@@ -84,9 +80,9 @@ namespace Launcher
 
 	protected:
 		static void ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile = false );
-		static void ParseInclude( wxXmlNode* elem, V_IncludeFiles& includes );
-		static void ParseConfig( wxXmlNode* elem, M_Config& configs, M_EnvVar& globalEnvVar );
-		static void ParseShortcut( wxXmlNode* elem, V_ShortcutInfo& shortcuts, M_EnvVar& envVars );
+		static void ParseInclude( wxXmlNode* elem, std::vector< Include >& includes );
+		static void ParseConfig( wxXmlNode* elem, std::map< tstring, Config >& configs, M_EnvVar& globalEnvVar );
+		static void ParseShortcut( wxXmlNode* elem, std::vector< Shortcut >& shortcuts, M_EnvVar& envVars );
 
 		static tstring ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, std::set< tstring >& currentlyProcessing = std::set< tstring >() );
 
@@ -94,9 +90,19 @@ namespace Launcher
 		tstring m_Title;
 		tstring m_File;
 		M_EnvVar m_EnvVar;
-		M_Config m_Configs;
-		V_IncludeFiles m_IncludeFiles;
+		std::map< tstring, Config > m_Configs;
+		std::vector< Include > m_Includes;
 	};
 
-	typedef std::vector< Settings > V_Settings;
+	class ProjectRefData : public wxObjectRefData
+	{
+	public:
+		ProjectRefData( Project* project )
+			: m_Project( project )
+		{
+
+		}
+
+		Project* m_Project;
+	};
 }

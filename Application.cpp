@@ -2,7 +2,7 @@
 #include "Application.h"
 
 #include "Helper.h"
-#include "Settings.h"
+#include "Project.h"
 #include "Version.h"
 
 #include <regex>
@@ -25,12 +25,32 @@ Application::Application()
 	, m_NetworkVersion( 0 )
 	, m_UpdateLauncherNow( false )
 	, m_UpdateTimer( this )
-	, m_LauncherInstallPath( g_DefaultLauncherInstallDir + g_DefaultLauncherInstallFile )
 {
 	// Figure out the current version
 	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
 	uint32_t versionLo = ( LAUNCHER_VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
+
+	tstring dir = g_DefaultLauncherInstallDir;
+	tchar_t dirEnv[ MAX_PATH ] = { 0 };
+	if ( ::GetEnvironmentVariable( wxT("ESHELL_LAUNCHER_INSTALL_DIR"), dirEnv, sizeof(dirEnv) / sizeof(tchar_t) ) )
+	{
+		dir = dirEnv;
+
+		if ( *dir.rbegin() != wxT('\\') && *dir.rbegin() != wxT('/') )
+		{
+			dir.append( wxT("\\") );
+		}
+	}
+
+	tstring file = g_DefaultLauncherInstallFile;
+	tchar_t fileEnv[ MAX_PATH ] = { 0 };
+	if ( ::GetEnvironmentVariable( wxT("ESHELL_LAUNCHER_INSTALL_FILE"), fileEnv, sizeof(fileEnv) / sizeof(tchar_t) ) )
+	{
+		file = fileEnv;
+	}
+
+	m_LauncherInstallPath = dir + file;
 
 	Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
 
@@ -53,6 +73,13 @@ Application::~Application()
 void Application::AddProject( const tstring& project )
 {
 	m_Projects.insert( project );
+
+	SaveTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
+}
+
+void Application::RemoveProject( const tstring& project )
+{
+	m_Projects.erase( project );
 
 	SaveTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 }

@@ -1,6 +1,6 @@
 #define LAUNCHER_VERSION_MAJOR			3
 #define LAUNCHER_VERSION_MINOR			0
-#define LAUNCHER_VERSION_PATCH			5
+#define LAUNCHER_VERSION_PATCH			9
 
 // Next default values for new objects
 // 

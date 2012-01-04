@@ -2,7 +2,7 @@
 #include "TrayIcon.h"
 
 #include "Application.h"
-#include "Shortcut.h"
+#include "MenuItem.h"
 #include "Helper.h"
 #include "Version.h"
 #include "resource.h"
@@ -52,7 +52,7 @@ void TrayIcon::Initialize()
 
 void TrayIcon::Cleanup()
 {
-	m_ProjectShortcuts.clear();
+	m_MenuItems.clear();
 
 	RemoveIcon();
 
@@ -120,36 +120,36 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 
 	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
 	{
-		wxMenuItem* shortcutMenuItem = projectMenu->FindItem( evt.GetId() ); 
-		Shortcut* shortcut = static_cast< Shortcut* >( shortcutMenuItem->GetRefData() );
+		wxMenuItem* menuItemMenuItem = projectMenu->FindItem( evt.GetId() ); 
+		MenuItem* menuItem = static_cast< MenuItemRefData* >( menuItemMenuItem->GetRefData() )->m_MenuItem;
 
 		if ( wxIsCtrlDown() )
 		{
-			shortcut->CopyToClipboard();
+			menuItem->CopyToClipboard();
 		}
 		else if ( wxIsShiftDown() )
 		{
-			if ( shortcutMenuItem->GetMenu() == m_Menu )
+			if ( menuItemMenuItem->GetMenu() == m_Menu )
 			{
-				m_Application->RemoveFavorite( shortcut->m_Command );
+				m_Application->RemoveFavorite( menuItem->m_Command );
 			}
 			else
 			{
-				m_Application->AddFavorite( shortcut->m_Command );
+				m_Application->AddFavorite( menuItem->m_Command );
 			}
 
 			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Refresh );
 			AddPendingEvent( pending );
 		}
-		else if ( shortcut->m_Disable )
+		else if ( menuItem->m_Disable )
 		{
 			wxString invalidShortcut( "" );
 
-			if ( !shortcut->m_DisableReason.empty() )
+			if ( !menuItem->m_DisableReason.empty() )
 			{
 				invalidShortcut += "The Launcher was unable to create valid settings for this shortcut\n";
 				invalidShortcut += "for the following reason(s):\n";
-				invalidShortcut += shortcut->m_DisableReason + "\n";
+				invalidShortcut += menuItem->m_DisableReason + "\n";
 			}
 			else
 			{
@@ -157,13 +157,13 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 				invalidShortcut += "for one or more of the following reasons:\n";
 				invalidShortcut += " - EShell.pl did not exist in the expected location.\n";
 			} 
-			invalidShortcut += "\n\nYou can copy the shortcut to your clipboard by holding Ctrl and clicking on the shortcut.\n";
+			invalidShortcut += "\n\nYou can copy the shortcut to your clipboard by holding Ctrl and clicking on the menuItem.\n";
 			invalidShortcut += "This may give you additional useful information.\n";
 
 			wxMessageDialog dialog(
 				NULL,
 				invalidShortcut,
-				wxT( "Invalid Shortcut" ),
+				wxT( "Invalid MenuItem" ),
 				wxOK | wxICON_ERROR );
 
 			dialog.ShowModal();
@@ -172,7 +172,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 		{
 			BeginBusy();
 			{
-				shortcut->Execute();
+				menuItem->Execute();
 			}
 			EndBusy();
 		}
@@ -181,10 +181,23 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 
 void TrayIcon::OnMenuAdd( wxCommandEvent& evt )
 {
-	wxFileDialog dlg ( NULL, "Open Eshell Settings file", wxEmptyString, "eshell.xml", "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST );
+	wxFileDialog dlg ( NULL, "Open Eshell Project file", wxEmptyString, "eshell.xml", "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST );
 	if ( wxID_OK == dlg.ShowModal() )
 	{
 		m_Application->AddProject( tstring( dlg.GetPath().c_str() ) );
+		Refresh( true );
+	}
+}
+
+void TrayIcon::OnMenuRemove( wxCommandEvent& evt )
+{
+	wxMenu* projectMenu = wxDynamicCast( evt.GetEventObject(), wxMenu );
+
+	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
+	{
+		wxMenuItem* removeMenuItem = projectMenu->FindItem( evt.GetId() ); 
+		Project* project = static_cast< ProjectRefData* >( removeMenuItem->GetRefData() )->m_Project;
+		m_Application->RemoveProject( project->m_File );
 		Refresh( true );
 	}
 }
@@ -225,67 +238,81 @@ void TrayIcon::Refresh( bool reload )
 	{  
 		if ( reload )
 		{
-			m_Settings.clear();
-			m_ProjectShortcuts.clear();
+			m_Projects.clear();
+			m_MenuItems.clear();
 
 			m_Application->LoadState();
 
 			for ( std::set< tstring >::const_iterator itr = m_Application->m_Projects.begin(), end = m_Application->m_Projects.end(); itr != end; ++itr )
 			{
-				m_Settings.push_back( Settings() );
-				if ( !m_Settings.back().LoadFile( *itr ) )
+				if ( !FileExists( *itr ) )
 				{
-					m_Settings.resize( m_Settings.size() - 1 );
+					continue;
+				}
+
+				m_Projects.push_back( Project() );
+
+				Project& project ( m_Projects.back() );
+				
+				if ( !project.LoadFile( *itr ) )
+				{
+					m_Projects.resize( m_Projects.size() - 1 );
 				}
 				else
 				{
-					for ( M_Config::const_iterator itr = m_Settings.back().m_Configs.begin(), end = m_Settings.back().m_Configs.end(); itr != end; ++itr )
+					m_MenuItems[ project.m_Title ] = std::make_pair( &project, std::vector< MenuItem > () );
+
+					for ( std::map< tstring, Config >::const_iterator itr = m_Projects.back().m_Configs.begin(), end = m_Projects.back().m_Configs.end(); itr != end; ++itr )
 					{
 						M_EnvVar copyEnvVars = itr->second.m_EnvVar;
 
-						V_ShortcutInfo::const_iterator ssItr = itr->second.m_Shortcuts.begin();
-						V_ShortcutInfo::const_iterator ssEnd = itr->second.m_Shortcuts.end();
+						std::vector< Shortcut >::const_iterator ssItr = itr->second.m_Shortcuts.begin();
+						std::vector< Shortcut >::const_iterator ssEnd = itr->second.m_Shortcuts.end();
 						for ( ; ssItr != ssEnd; ++ssItr )
 						{
-							const ShortcutInfo& shortcutInfo = (*ssItr);
+							const Shortcut& shortcut = (*ssItr);
 
-							// create a Shortcut
-							wxObjectDataPtr< Shortcut > shortcut ( new Shortcut () );
-							shortcut->m_Name = shortcutInfo.m_Name;
-							Settings::ProcessValue( shortcut->m_Name, copyEnvVars );
+							m_MenuItems[ project.m_Title ].second.push_back( MenuItem () );
+							MenuItem& menuItem ( m_MenuItems[ m_Projects.back().m_Title ].second.back() );
 
-							shortcut->m_Folder = shortcutInfo.m_Folder;
-							Settings::ProcessValue( shortcut->m_Folder, copyEnvVars );
+							menuItem.m_Name = shortcut.m_Name;
+							Project::ProcessValue( menuItem.m_Name, copyEnvVars );
 
-							// Icon
-							shortcut->m_Icon = shortcutInfo.m_IconPath;
-							Settings::ProcessValue( shortcut->m_Icon, copyEnvVars );
-
-							// Description
-							shortcut->m_Description = shortcutInfo.m_Description;
-							Settings::ProcessValue( shortcut->m_Description, copyEnvVars );
-
-							// SettingsFile Path
-							tstring settingsFile = m_Settings.back().m_File;
-
-							// Build the Command  
-							shortcut->m_Command = tstring ( wxT("\"") ) + m_Application->m_PerlExePath + wxT("\"");
-							shortcut->m_Command += wxT(" -I\"") + m_Application->m_PerlLibPath + wxT("\"");
-							shortcut->m_Command += wxT(" \"") + m_Application->m_EShellPlPath + wxT("\"");
-							shortcut->m_Command += wxT(" -settingsFile \"") + settingsFile + wxT("\"");
-							shortcut->m_Command += wxT(" -config ") + itr->second.m_Name;
-
-							if ( !shortcutInfo.m_Args.empty() )
+							if ( shortcut.m_Folder != wxT("none") )
 							{
-								shortcut->m_Command += wxT(" ") + shortcutInfo.m_Args;
+								menuItem.m_Folder = shortcut.m_Folder;
+								Project::ProcessValue( menuItem.m_Folder, copyEnvVars );
+								if ( menuItem.m_Folder.empty() && itr->first != wxT("default") )
+								{
+									menuItem.m_Folder = itr->first;
+								}
 							}
 
-							Settings::ProcessValue( shortcut->m_Command, copyEnvVars );
+							menuItem.m_Icon = shortcut.m_IconPath;
+							Project::ProcessValue( menuItem.m_Icon, copyEnvVars );
+
+							menuItem.m_Description = shortcut.m_Description;
+							Project::ProcessValue( menuItem.m_Description, copyEnvVars );
+
+							// SettingsFile Path
+							tstring project = m_Projects.back().m_File;
+
+							// Build the Command  
+							menuItem.m_Command = tstring ( wxT("\"") ) + m_Application->m_PerlExePath + wxT("\"");
+							menuItem.m_Command += wxT(" -I\"") + m_Application->m_PerlLibPath + wxT("\"");
+							menuItem.m_Command += wxT(" \"") + m_Application->m_EShellPlPath + wxT("\"");
+							menuItem.m_Command += wxT(" -settingsFile \"") + project + wxT("\"");
+							menuItem.m_Command += wxT(" -config ") + itr->second.m_Name;
+
+							if ( !shortcut.m_Args.empty() )
+							{
+								menuItem.m_Command += wxT(" ") + shortcut.m_Args;
+							}
+
+							Project::ProcessValue( menuItem.m_Command, copyEnvVars );
 
 							// Create the FavoriteName
-							shortcut->m_FavoriteName = m_Settings.back().m_Title + " - " + shortcutInfo.m_Name;
-
-							m_ProjectShortcuts[ m_Settings.back().m_Title ].push_back( shortcut );
+							menuItem.m_FavoriteName = m_Projects.back().m_Title + " - " + shortcut.m_Name;
 						}
 					}
 				}
@@ -321,7 +348,7 @@ void TrayIcon::Refresh( bool reload )
 			m_Menu->PrependSeparator();
 		}
 
-		if ( !m_ProjectShortcuts.empty() )
+		if ( !m_MenuItems.empty() )
 		{
 			CreateProjectsMenu( m_Menu );
 		}
@@ -336,13 +363,13 @@ void TrayIcon::Refresh( bool reload )
 	EndBusy();
 }
 
-void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuItem )
+void TrayIcon::DetectAndSetIcon( MenuItem& menuItem, wxMenuItem* actualMenuItem )
 {
-	wxFileName name ( shortcut.m_Icon );
+	wxFileName name ( menuItem.m_Icon );
 
-	if ( shortcut.m_Icon.empty() )
+	if ( menuItem.m_Icon.empty() )
 	{
-		shortcutMenuItem->SetBitmap( wxIcon( "PROMPT_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
+		actualMenuItem->SetBitmap( wxIcon( "PROMPT_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 	}
 	else
 	{
@@ -350,10 +377,10 @@ void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuIte
 		if ( handler )
 		{
 			wxBitmap bitmap;
-			bitmap.LoadFile( shortcut.m_Icon, wxBITMAP_TYPE_ANY );
+			bitmap.LoadFile( menuItem.m_Icon, wxBITMAP_TYPE_ANY );
 			if ( bitmap.IsOk() )
 			{
-				shortcutMenuItem->SetBitmap( bitmap );
+				actualMenuItem->SetBitmap( bitmap );
 			}
 		}
 		else
@@ -361,13 +388,13 @@ void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuIte
 			// get the icon data from the shell associations
 			SHFILEINFO info;
 			ZeroMemory( &info, sizeof( info ) );
-			SHGetFileInfo( shortcut.m_Icon.c_str(), 0, &info, sizeof( info ), SHGFI_ICON | SHGFI_SMALLICON );
+			SHGetFileInfo( menuItem.m_Icon.c_str(), 0, &info, sizeof( info ), SHGFI_ICON | SHGFI_SMALLICON );
 			if ( info.hIcon )
 			{
 				wxIcon icon;
 				icon.SetHICON( info.hIcon );
 				icon.SetSize( 16, 16 );
-				shortcutMenuItem->SetBitmap( icon );
+				actualMenuItem->SetBitmap( icon );
 			}
 		}
 	}
@@ -375,56 +402,57 @@ void TrayIcon::DetectAndSetIcon( Shortcut& shortcut, wxMenuItem* shortcutMenuIte
 
 void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 {
-	V_Shortcut favoriteShortcuts;
+	std::vector< MenuItem* > favoriteShortcuts;
 
-	M_Shortcut::reverse_iterator projItr = m_ProjectShortcuts.rbegin();
-	M_Shortcut::reverse_iterator projEnd = m_ProjectShortcuts.rend();
+	std::map< tstring, std::pair< Project*, std::vector< MenuItem > > >::reverse_iterator projItr = m_MenuItems.rbegin();
+	std::map< tstring, std::pair< Project*, std::vector< MenuItem > > >::reverse_iterator projEnd = m_MenuItems.rend();
 	for ( ; projItr != projEnd; ++projItr )
 	{
 		const tstring& title = projItr->first;
-		const V_Shortcut& shortcuts = projItr->second;
-
-		if ( shortcuts.empty() )
+		
+		std::vector< MenuItem >& menuItems = projItr->second.second;
+		if ( menuItems.empty() )
+		{
 			continue;
+		}
 
 		wxMenu* projectMenu = new wxMenu();
 
 		typedef std::map< tstring, wxMenu* > M_SubMenues;
 		M_SubMenues subMenus;
 
-		V_Shortcut::const_iterator shortcutItr = shortcuts.begin();
-		V_Shortcut::const_iterator shortcutEnd = shortcuts.end();
-		for ( ; shortcutItr != shortcutEnd; ++shortcutItr )
+		std::vector< MenuItem >::iterator menuItemItr = menuItems.begin();
+		std::vector< MenuItem >::iterator menuItemEnd = menuItems.end();
+		for ( ; menuItemItr != menuItemEnd; ++menuItemItr )
 		{
-			const wxObjectDataPtr< Shortcut >& shortcut = (*shortcutItr);
+			MenuItem& menuItem = (*menuItemItr);
 
-			wxMenuItem* shortcutMenuItem = new wxMenuItem( projectMenu, wxID_ANY,
-				wxString( shortcut->m_Name.c_str() ),
-				wxString( shortcut->m_Description.c_str() ),
+			wxMenuItem* actualMenuItem = new wxMenuItem( projectMenu, wxID_ANY,
+				wxString( menuItem.m_Name.c_str() ),
+				wxString( menuItem.m_Description.c_str() ),
 				wxITEM_NORMAL );
 
-			if ( shortcut->m_Disable )
+			if ( menuItem.m_Disable )
 			{
 				wxString name( "INVALID: " );
-				name += shortcut->m_Name.c_str();
-				shortcutMenuItem->SetText( name );
-				shortcutMenuItem->Enable( false );
+				name += menuItem.m_Name.c_str();
+				actualMenuItem->SetText( name );
+				actualMenuItem->Enable( false );
 			}
 
-			DetectAndSetIcon( *shortcut, shortcutMenuItem );
+			DetectAndSetIcon( menuItem, actualMenuItem );
 
-			shortcut.get()->IncRef();
-			shortcutMenuItem->SetRefData( shortcut.get() );
+			actualMenuItem->SetRefData( new MenuItemRefData( &menuItem ) );
 
-			if ( shortcut->m_Folder.empty() )
+			if ( menuItem.m_Folder.empty() )
 			{
-				projectMenu->Append( shortcutMenuItem );
+				projectMenu->Append( actualMenuItem );
 			}
 			else
 			{
 				wxMenu* menuToInsert = new wxMenu();
-				std::pair< M_SubMenues::iterator, bool > insertedSubMenu = subMenus.insert( M_SubMenues::value_type( shortcut->m_Folder, menuToInsert ) );
-				insertedSubMenu.first->second->Append( shortcutMenuItem );
+				std::pair< M_SubMenues::iterator, bool > insertedSubMenu = subMenus.insert( M_SubMenues::value_type( menuItem.m_Folder, menuToInsert ) );
+				insertedSubMenu.first->second->Append( actualMenuItem );
 				if ( !insertedSubMenu.second )
 				{
 					// New menu was not inserted, you have to clean it up
@@ -432,11 +460,11 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 				}
 			}
 
-			Connect( shortcutMenuItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuShortcut ), NULL, this );
+			Connect( actualMenuItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuShortcut ), NULL, this );
 
-			if ( m_Application->IsFavorite( shortcut->m_Command ) )
+			if ( m_Application->IsFavorite( menuItem.m_Command ) )
 			{
-				favoriteShortcuts.push_back( shortcut );
+				favoriteShortcuts.push_back( &menuItem );
 			}
 		}
 
@@ -456,27 +484,31 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 
 		wxMenuItem* projectItem = parentMenu->Prepend( wxID_ANY, title, projectMenu );
 		projectItem->SetBitmap( wxIcon( "FOLDER_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
+
+		projectMenu->AppendSeparator();
+		wxMenuItem* remove = projectMenu->Append( wxID_ANY, "Remove" );
+		remove->SetRefData( new ProjectRefData( projItr->second.first ) );
+		Connect( remove->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRemove ), NULL, this );
 	}
 
 	if ( !favoriteShortcuts.empty() )
 	{
 		parentMenu->PrependSeparator();
 
-		V_Shortcut::reverse_iterator favItr = favoriteShortcuts.rbegin();
-		V_Shortcut::reverse_iterator favEnd = favoriteShortcuts.rend();
+		std::vector< MenuItem* >::reverse_iterator favItr = favoriteShortcuts.rbegin();
+		std::vector< MenuItem* >::reverse_iterator favEnd = favoriteShortcuts.rend();
 		for( ; favItr != favEnd; ++favItr )
 		{
-			wxObjectDataPtr< Shortcut > shortcut = (*favItr);
+			MenuItem* menuItem = (*favItr);
 
 			wxMenuItem* favoritesMenuItem = new wxMenuItem( parentMenu, wxID_ANY,
-				wxString( shortcut->m_FavoriteName.c_str() ),
-				wxString( shortcut->m_Description.c_str() ),
+				wxString( menuItem->m_FavoriteName.c_str() ),
+				wxString( menuItem->m_Description.c_str() ),
 				wxITEM_NORMAL );
 
-			DetectAndSetIcon( *shortcut, favoritesMenuItem );
+			DetectAndSetIcon( *menuItem, favoritesMenuItem );
 
-			shortcut.get()->IncRef();
-			favoritesMenuItem->SetRefData( shortcut.get() );
+			favoritesMenuItem->SetRefData( new MenuItemRefData( menuItem ) );
 
 			parentMenu->Prepend( favoritesMenuItem );
 
