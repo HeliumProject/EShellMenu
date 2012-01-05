@@ -300,7 +300,10 @@ void Project::ParseConfig( wxXmlNode* elem, std::map< tstring, Config >& configs
 
 bool Project::LoadFile( const tstring& file, bool includeFile )
 {
-	m_File = file;
+	if ( m_File.empty() )
+	{
+		m_File = file;
+	}
 
 	//open the config file
 	wxXmlDocument doc;
@@ -343,14 +346,26 @@ bool Project::LoadFile( const tstring& file, bool includeFile )
 	std::vector< Include >::iterator includeFileEnd = m_Includes.end();
 	for ( ; includeFileItr != includeFileEnd; ++includeFileItr )
 	{
-		tstring includeFile = includeFileItr->m_Path;
-
-		// This would be bad because it's going to use all the default values for env vars that have aliases
-		ProcessValue( includeFile, m_EnvVar ); 
-
-		if ( FileExists( includeFile ) && !LoadFile( includeFile, true ) )
+		if ( !includeFileItr->m_Loaded )
 		{
-			return false;
+			includeFileItr->m_Loaded = true;
+
+			tstring includeFile = includeFileItr->m_Path;
+
+			// This would be bad because it's going to use all the default values for env vars that have aliases
+			ProcessValue( includeFile, m_EnvVar );
+
+			if ( includeFile.find( wxT(':') ) == tstring::npos )
+			{
+				wxFileName name ( file );
+				tstring relFile = name.GetPath( wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR ).c_str();
+				includeFile = relFile + includeFile;
+			}
+
+			if ( FileExists( includeFile ) && !LoadFile( includeFile, true ) )
+			{
+				return false;
+			}
 		}
 	}
 

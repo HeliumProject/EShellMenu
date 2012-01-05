@@ -29,12 +29,14 @@ namespace Launcher
 	public:
 		Include()
 			: m_Optional( false )
+			, m_Loaded( false )
 		{
 
 		}
 
 		tstring m_Path;
 		bool m_Optional;
+		bool m_Loaded;
 	};
 
 	class Shortcut
