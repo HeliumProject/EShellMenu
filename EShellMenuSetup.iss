@@ -109,13 +109,11 @@ begin
   Result := sUnInstallString;
 end;
 
-
 /////////////////////////////////////////////////////////////////////
 function IsUpgrade(): Boolean;
 begin
   Result := (GetUninstallString() <> '');
 end;
-
 
 /////////////////////////////////////////////////////////////////////
 function UnInstallOldVersion(): Integer;
