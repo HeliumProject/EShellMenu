@@ -4,7 +4,7 @@
 
 ; This script uses Inno Setup Preprocessor (ISPP) by Alex Yackimoff.
 ; To download and install ISPP, get the Inno Setup QuickStart Pack from http://www.jrsoftware.org/isdl.php#qsp
-#define _AppName          	"EShell Launcher"
+#define _AppName          	"EShell"
 #define _AppMutex         	"EShellLauncher"
 #define _AppPublisher     	"Helium Project"
 #define _AppPublisherURL  	"http://www.heliumproject.org/"
@@ -27,9 +27,9 @@
 #define _BuildConfig		"Release"
 #endif
 
-#define _VersionInfoComments    "EShell Launcher is a system tray applicaiton used to launch tools in the correct process environment."
+#define _VersionInfoComments    "EShell is a system tray applicaiton used to launch tools in the correct process environment."
 #define _VersionInfoCopyright   "Copyright (C) " + _AppPublisher
-#define _VersionInfoDescription "EShell Launcher"
+#define _VersionInfoDescription "EShell"
 #define _VersionInfoVersion     _AppVersion
 
 [Setup]
@@ -72,7 +72,7 @@ VersionInfoVersion={#_VersionInfoVersion}
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "windowsstartupicon"; Description: "Start Launcher on Windows Startup (Recommended)"; GroupDescription: "Startup:"
+Name: "windowsstartupicon"; Description: "Start EShell on Windows Startup (Recommended)"; GroupDescription: "Startup:"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
@@ -83,6 +83,9 @@ Source: "build\{#_BuildConfig}\EShellLauncher.pdb"; DestDir: "{app}"; Flags: ign
 Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\StrawberryPerl\c\bin\*"; DestDir: "{app}\StrawberryPerl\c\bin"; Flags: recursesubdirs
 Source: "submodule\StrawberryPerl\perl\*"; DestDir: "{app}\StrawberryPerl\perl"; Flags: recursesubdirs
+
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "ESHELL_LAUNCHER_INSTALL_DIR"; ValueData: "{#_InstallDir}"
 
 [Icons]
 Name: "{commonstartup}\{#_AppName}"; Filename: "{app}\EShellLauncher.exe"; Comment: {#_VersionInfoComments}; Tasks: windowsstartupicon

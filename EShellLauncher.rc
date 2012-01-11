@@ -83,12 +83,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "A system tray applicaton used to launch shells and tools through EShell."
             VALUE "CompanyName", "Helium Project"
-            VALUE "FileDescription", "EShell Launcher"
+            VALUE "FileDescription", "EShell"
             VALUE "FileVersion", "2"", ""2"", ""0"", 0"
-            VALUE "InternalName", "EShell Launcher"
+            VALUE "InternalName", "EShell"
             VALUE "LegalCopyright", "Copyright (C) Helium Project"
             VALUE "OriginalFilename", "EShellLauncher.exe"
-            VALUE "ProductName", "EShell Launcher"
+            VALUE "ProductName", "EShell"
             VALUE "ProductVersion", "2"", ""2"", ""0"", 0"
         END
     END

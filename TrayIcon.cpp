@@ -18,7 +18,7 @@ TrayIcon::TrayIcon( Application* application )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
-	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing Launcher..." );
+	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing EShell..." );
 
 	// Connect Events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
@@ -74,7 +74,7 @@ void TrayIcon::OnTrayIconClick( wxTaskBarIconEvent& evt )
 
 void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 {
-	if ( m_Application->m_UpdateLauncherNow || wxYES == wxMessageBox( wxT( "Are you sure you would like to exit the Launcher?" ), wxT( "Exit EShell Launcher?" ), wxYES_NO | wxCENTER | wxICON_QUESTION ) )
+	if ( m_Application->m_UpdateLauncherNow || wxYES == wxMessageBox( wxT( "Are you sure you would like to exit the Launcher?" ), wxT( "Exit EShell?" ), wxYES_NO | wxCENTER | wxICON_QUESTION ) )
 	{
 		wxExit();
 	}
@@ -84,7 +84,7 @@ void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 {
 	tstring aboutLauncher;
 	aboutLauncher += 
-		wxT("The EShell Launcher is a system tray applicaiton used to launch \n") \
+		wxT("The EShell is a system tray applicaiton used to launch \n") \
 		wxT("EShell's tools in the correct process environment. \n");
 	aboutLauncher +=
 		wxT("\nFeatures:\n") \
@@ -94,7 +94,7 @@ void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 	wxMessageDialog dialog(
 		NULL,
 		aboutLauncher.c_str(),
-		wxT( "About EShell Launcher" ),
+		wxT( "About EShell" ),
 		wxOK | wxICON_INFORMATION );
 
 	dialog.ShowModal();
@@ -332,7 +332,7 @@ void TrayIcon::Refresh( bool reload )
 
 			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
 			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Exit, wxString( wxT("Exit EShell Launcher v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Exit, wxString( wxT("Exit EShell v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
 		}
 		else
 		{

@@ -19,22 +19,21 @@ my $g_VersionFilePath     = 'resource.h';
 my $g_ChangelistFilePath  = 'changelist.txt';
 my $g_VersionTxtFilePath  = File::Spec->catfile( $g_OutputDir, 'version.txt' );
 my $g_OutputFilePath      = File::Spec->catfile( $g_OutputDir, "$g_OutputBaseFilename.exe" );
-my $g_PublishRoot         = "\\\\eshell\\eshell\\launcher";
 
 
 #
 # parse options
 #
 
-my $g_Publish = 0;
+my $g_Publish;
 my $gotOptions = GetOptions
 (
-  "publish" => \$g_Publish,
+  "publish=s" => \$g_Publish,
 );
 
 if ( !$gotOptions )
 {    
-  print STDERR ( "Usage: build_installer [-publish]\n" );
+  print STDERR ( "Usage: build_installer -publish=\"path\"\n" );
   exit 1;
 }
 
@@ -83,7 +82,7 @@ if ( -e $g_OutputFilePath )
 
 mkpath( $g_OutputDir );
 
-system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\"" );
+system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\" /d\"_InstallDir=$g_Publish\"" );
 
 
 #
@@ -99,7 +98,7 @@ if ( $g_Publish )
   }
   close OUT;
   
-  my $g_PublishVerFolder = $g_PublishRoot;
+  my $g_PublishVerFolder = $g_Publish;
   mkpath( $g_PublishVerFolder );
 
   print( "\n o Publishing to $g_PublishVerFolder...\n" );
