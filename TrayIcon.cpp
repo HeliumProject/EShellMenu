@@ -9,7 +9,7 @@
 
 #include <shellapi.h>
 
-using namespace Launcher;
+using namespace EShellMenu;
 
 TrayIcon::TrayIcon( Application* application ) 
 	: m_Application( application ) 
@@ -18,16 +18,16 @@ TrayIcon::TrayIcon( Application* application )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
-	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing EShell..." );
+	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing EShell Menu..." );
 
 	// Connect Events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Connect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Connect( LauncherEventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
-	Connect( LauncherEventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
-	Connect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
-	Connect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
-	Connect( LauncherEventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
+	Connect( EventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
+	Connect( EventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
+	Connect( EventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Connect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
+	Connect( EventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
 }
 
 TrayIcon::~TrayIcon() 
@@ -35,11 +35,11 @@ TrayIcon::~TrayIcon()
 	// Disconnect Events
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Disconnect( LauncherEventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
-	Disconnect( LauncherEventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
-	Disconnect( LauncherEventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
-	Disconnect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
-	Disconnect( LauncherEventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
+	Disconnect( EventIDs::Exit, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuExit ), NULL, this );
+	Disconnect( EventIDs::Help, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuHelp ), NULL, this );
+	Disconnect( EventIDs::Refresh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRefresh ), NULL, this );
+	Disconnect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
+	Disconnect( EventIDs::Add, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuAdd ), NULL, this );
 
 	// Dynamically added
 	Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuShortcut ), NULL, this );
@@ -74,7 +74,7 @@ void TrayIcon::OnTrayIconClick( wxTaskBarIconEvent& evt )
 
 void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 {
-	if ( m_Application->m_UpdateLauncherNow || wxYES == wxMessageBox( wxT( "Are you sure you would like to exit the Launcher?" ), wxT( "Exit EShell?" ), wxYES_NO | wxCENTER | wxICON_QUESTION ) )
+	if ( m_Application->m_UpdateNow || wxYES == wxMessageBox( wxT( "Are you sure you would like to exit EShell Menu?" ), wxT( "Exit EShell?" ), wxYES_NO | wxCENTER | wxICON_QUESTION ) )
 	{
 		wxExit();
 	}
@@ -82,19 +82,19 @@ void TrayIcon::OnMenuExit( wxCommandEvent& evt )
 
 void TrayIcon::OnMenuHelp( wxCommandEvent& evt )
 {
-	tstring aboutLauncher;
-	aboutLauncher += 
-		wxT("The EShell is a system tray applicaiton used to launch \n") \
+	tstring about;
+	about += 
+		wxT("EShell Menu is a system tray applicaiton used to launch \n") \
 		wxT("EShell's tools in the correct process environment. \n");
-	aboutLauncher +=
+	about +=
 		wxT("\nFeatures:\n") \
 		wxT("  Shift+Click - add/remove a 'favorite' shortcut.\n") \
 		wxT("  Ctrl+Click  - copy a shortcut to the clipboard.\n");
 
 	wxMessageDialog dialog(
 		NULL,
-		aboutLauncher.c_str(),
-		wxT( "About EShell" ),
+		about.c_str(),
+		wxT( "About EShell Menu" ),
 		wxOK | wxICON_INFORMATION );
 
 	dialog.ShowModal();
@@ -138,7 +138,7 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 				m_Application->AddFavorite( menuItem->m_Command );
 			}
 
-			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Refresh );
+			wxCommandEvent pending( wxEVT_COMMAND_MENU_SELECTED, EventIDs::Refresh );
 			AddPendingEvent( pending );
 		}
 		else if ( menuItem->m_Disable )
@@ -147,13 +147,13 @@ void TrayIcon::OnMenuShortcut( wxCommandEvent& evt )
 
 			if ( !menuItem->m_DisableReason.empty() )
 			{
-				invalidShortcut += "The Launcher was unable to create valid settings for this shortcut\n";
+				invalidShortcut += "The EShellMenu was unable to create valid settings for this shortcut\n";
 				invalidShortcut += "for the following reason(s):\n";
 				invalidShortcut += menuItem->m_DisableReason + "\n";
 			}
 			else
 			{
-				invalidShortcut += "The Launcher was unable to create valid settings for this shortcut\n";
+				invalidShortcut += "The EShellMenu was unable to create valid settings for this shortcut\n";
 				invalidShortcut += "for one or more of the following reasons:\n";
 				invalidShortcut += " - EShell.pl did not exist in the expected location.\n";
 			} 
@@ -210,7 +210,7 @@ void TrayIcon::BeginBusy()
 	// Disconnect events
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Disconnect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Disconnect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
+	Disconnect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Clear the current menu and change the icon to notify the user that things are happening
 	SetIcon( wxICON( LAUNCHER_BUSY_ICON ), wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
@@ -226,7 +226,7 @@ void TrayIcon::EndBusy()
 	// Re-connect events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
 	Connect( wxID_ANY, wxEVT_TASKBAR_LEFT_UP, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
-	Connect( LauncherEventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
+	Connect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Set the icon back
 	SetIcon( m_Application->IsUpdateAvailable() ? wxICON( UPDATE_ICON ) : wxICON( LAUNCHER_ICON ), m_Application->m_Title.c_str() );
@@ -323,23 +323,23 @@ void TrayIcon::Refresh( bool reload )
 		{
 			m_Menu = new wxMenu();
 			m_Menu->AppendSeparator();
-			wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Reload, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
+			wxMenuItem* refreshMenuItem = new wxMenuItem( m_Menu, EventIDs::Reload, wxT( "Refresh" ), wxEmptyString, wxITEM_NORMAL );
 			refreshMenuItem->SetBitmap( wxIcon( "REFRESH_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 			m_Menu->Append( refreshMenuItem );
 
-			m_UpdateMenuItem = new wxMenuItem( m_Menu, LauncherEventIDs::Update, wxT( "Update" ), wxEmptyString, wxITEM_NORMAL );
+			m_UpdateMenuItem = new wxMenuItem( m_Menu, EventIDs::Update, wxT( "Update" ), wxEmptyString, wxITEM_NORMAL );
 			m_Menu->Append( m_UpdateMenuItem );
 
-			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, LauncherEventIDs::Exit, wxString( wxT("Exit EShell v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Exit, wxString( wxT("Exit EShell Menu v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
 		}
 		else
 		{
 			wxMenuItemList list = m_Menu->GetMenuItems();
 			for ( wxMenuItemList::const_iterator itr = list.begin(), end = list.end(); itr != end; ++itr )
 			{
-				if ( (*itr)->GetId() < LauncherEventIDs::First || (*itr)->GetId() > LauncherEventIDs::Last )
+				if ( (*itr)->GetId() < EventIDs::First || (*itr)->GetId() > EventIDs::Last )
 				{
 					m_Menu->Remove( *itr );
 					delete *itr;

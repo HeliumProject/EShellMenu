@@ -7,7 +7,7 @@
 #include <string>
 #include <exception>
 
-namespace Launcher
+namespace EShellMenu
 {
 	//
 	// Constants

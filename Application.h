@@ -7,7 +7,7 @@
 #include <string>
 #include <stdint.h>
 
-namespace Launcher
+namespace EShellMenu
 {
 	class Application : public wxApp
 	{
@@ -29,7 +29,7 @@ namespace Launcher
 			return m_NetworkVersion > m_CurrentVersion;
 		}
 
-		friend class Launcher::TrayIcon;
+		friend class EShellMenu::TrayIcon;
 
 	protected:
 		virtual void OnInitCmdLine( wxCmdLineParser& parser );
@@ -53,10 +53,10 @@ namespace Launcher
 		tstring m_PerlExePath;
 		tstring m_PerlLibPath;
 		tstring m_EShellPlPath;
-		tstring m_LauncherInstallPath;
+		tstring m_InstallPath;
 		uint64_t m_CurrentVersion;
 		uint64_t m_NetworkVersion;
-		bool m_UpdateLauncherNow;
+		bool m_UpdateNow;
 		wxTimer m_UpdateTimer;
 	};
 }

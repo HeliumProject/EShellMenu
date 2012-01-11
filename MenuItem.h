@@ -2,7 +2,7 @@
 
 #include <wx/object.h>
 
-namespace Launcher
+namespace EShellMenu
 {
 	//
 	// What does the command look like:

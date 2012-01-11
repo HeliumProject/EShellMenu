@@ -6,7 +6,7 @@
 
 #include <regex>
 
-using namespace Launcher;
+using namespace EShellMenu;
 
 Project::Project()
 {
@@ -85,7 +85,7 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 		tstring varName ( resultTokens[1].first, resultTokens[1].second );
 		tstring varValue;
 		if ( varName == envVar.m_Name 
-			&& Launcher::GetEnvVar( varName, varValue ) )
+			&& EShellMenu::GetEnvVar( varName, varValue ) )
 		{
 			// do nothing
 		}
@@ -100,7 +100,7 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 			{          
 				varValue = ProcessEnvVar( foundVar->second, envVars );
 			}
-			else if ( !Launcher::GetEnvVar( varName, varValue ) )
+			else if ( !EShellMenu::GetEnvVar( varName, varValue ) )
 			{
 				throw Exception( wxT("Unknown environment variable reference found: %s"), varName.c_str() );
 			}
@@ -175,9 +175,9 @@ void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile 
 	if ( !envVar.m_IsOverride )
 	{
 		tstring varValue;
-		if ( Launcher::GetEnvVar( envVar.m_Name, varValue ) )
+		if ( EShellMenu::GetEnvVar( envVar.m_Name, varValue ) )
 		{
-			Launcher::ConsolePrint( wxT("EnvVar %s's override is '0'; using machine value \"%s\" (rather than settings file value \"%s\").\n"), varName.c_str(), varValue.c_str(), envVar.m_Value.c_str() );
+			EShellMenu::ConsolePrint( wxT("EnvVar %s's override is '0'; using machine value \"%s\" (rather than settings file value \"%s\").\n"), varName.c_str(), varValue.c_str(), envVar.m_Value.c_str() );
 			envVar.m_Value = varValue;
 		}
 	}

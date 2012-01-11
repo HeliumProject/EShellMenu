@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace Launcher
+namespace EShellMenu
 {
 	class EnvVar
 	{

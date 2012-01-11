@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{78E67146-D146-4815-AD92-46922B327547}</ProjectGuid>
-    <RootNamespace>EShellLauncher</RootNamespace>
+    <RootNamespace>EShellMenu</RootNamespace>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>
@@ -225,7 +225,7 @@
     <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="EShellLauncher.rc" />
+    <ResourceCompile Include="EShellMenu.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

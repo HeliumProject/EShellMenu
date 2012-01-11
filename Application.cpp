@@ -7,10 +7,10 @@
 
 #include <regex>
 
-using namespace Launcher;
+using namespace EShellMenu;
 
-static const tstring g_DefaultLauncherInstallDir  = wxT("\\\\eshell\\eshell\\launcher\\");
-static const tstring g_DefaultLauncherInstallFile = wxT("EShellLauncherSetup.exe");
+static const tstring g_DefaultInstallDir  = wxT("\\\\eshell\\installs\\");
+
 #ifdef _DEBUG
 static const int g_UpdateIntervalInSeconds = 60 * 1;
 #else
@@ -19,11 +19,11 @@ static const int g_UpdateIntervalInSeconds = 60 * 5;
 
 Application::Application()
 	: m_MutexHandle( NULL )
-	, m_Title( wxT("EShell Launcher v") LAUNCHER_VERSION_STRING )
+	, m_Title( wxT("EShell Menu v") LAUNCHER_VERSION_STRING )
 	, m_TrayIcon( NULL )
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
-	, m_UpdateLauncherNow( false )
+	, m_UpdateNow( false )
 	, m_UpdateTimer( this )
 {
 	// Figure out the current version
@@ -31,71 +31,77 @@ Application::Application()
 	uint32_t versionLo = ( LAUNCHER_VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
 
-	tstring dir = g_DefaultLauncherInstallDir;
-	tchar_t dirEnv[ MAX_PATH ] = { 0 };
-	if ( ::GetEnvironmentVariable( wxT("ESHELL_LAUNCHER_INSTALL_DIR"), dirEnv, sizeof(dirEnv) / sizeof(tchar_t) ) )
+	wxStandardPaths sp;
+	wxFileName installDirTxt ( sp.GetExecutablePath() );
+	installDirTxt.SetName( "install_dir" );
+	installDirTxt.SetExt( "txt" );
+	
+	tstring dir = g_DefaultInstallDir;
+	if ( wxFileName::FileExists( installDirTxt.GetFullPath() ) )
 	{
-		dir = dirEnv;
-
-		if ( *dir.rbegin() != wxT('\\') && *dir.rbegin() != wxT('/') )
+		tifstream in( static_cast< const tchar_t* >( installDirTxt.GetFullPath().c_str() ) );
+		if ( in.good() )
 		{
-			dir.append( wxT("\\") );
+			tstring line;
+			if ( getline( in, line ) )
+			{
+				in.close();
+				dir = line;
+
+				if ( *dir.rbegin() != wxT('\\') && *dir.rbegin() != wxT('/') )
+				{
+					dir.append( wxT("\\") );
+				}
+			}
 		}
 	}
 
-	tstring file = g_DefaultLauncherInstallFile;
-	tchar_t fileEnv[ MAX_PATH ] = { 0 };
-	if ( ::GetEnvironmentVariable( wxT("ESHELL_LAUNCHER_INSTALL_FILE"), fileEnv, sizeof(fileEnv) / sizeof(tchar_t) ) )
-	{
-		file = fileEnv;
-	}
+	m_InstallPath = dir + wxT( "EShellMenuSetup.exe" );
 
-	m_LauncherInstallPath = dir + file;
-
-	Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
+	EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
 
 #ifdef _DEBUG
-	m_MutexName = wxT("EShellLauncher_DEBUG");
+	m_MutexName = wxT("EShellMenu_DEBUG");
 #else
-	m_MutexName = wxT("EShellLauncher");
+	m_MutexName = wxT("EShellMenu");
 #endif
 
 	Connect( wxEVT_TIMER, wxTimerEventHandler( Application::OnUpdateTimer ), NULL, this );
-	Connect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this ); 
+	Connect( EventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this ); 
 }
 
 Application::~Application()
 {
 	Disconnect( wxEVT_TIMER, wxTimerEventHandler( Application::OnUpdateTimer ), NULL, this );
-	Disconnect( LauncherEventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
+	Disconnect( EventIDs::Update, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Application::OnMenuUpdate ), NULL, this );
 }
 
 void Application::AddProject( const tstring& project )
 {
 	m_Projects.insert( project );
 
-	SaveTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
+	SaveTextFile( EShellMenu::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 }
 
 void Application::RemoveProject( const tstring& project )
 {
 	m_Projects.erase( project );
 
-	SaveTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
+	SaveTextFile( EShellMenu::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 }
 
 void Application::AddFavorite( const tstring& command )
 {
 	m_Favorites.insert( command );
 
-	SaveTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
+	SaveTextFile( EShellMenu::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
 void Application::RemoveFavorite( const tstring& command )
 {
 	m_Favorites.erase( command );
 
-	SaveTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
+	SaveTextFile( EShellMenu::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
 bool Application::IsFavorite( const tstring& command )
@@ -106,7 +112,7 @@ bool Application::IsFavorite( const tstring& command )
 void Application::OnInitCmdLine( wxCmdLineParser& parser )
 {
 	SetVendorName( wxT("Helium Project") );
-	parser.SetLogo( wxT("EShell Launcher (c) 20xx - Helium Project\n") );
+	parser.SetLogo( wxT("EShell Menu (c) 20xx - Helium Project\n") );
 
 	parser.AddOption( wxT("perl"), wxT("PerlLocation"), wxT("The location of the perl distribution (containing /bin)") );
 	parser.AddOption( wxT("eshell"), wxT("EShellLocation"), wxT("The location of the directory containing eshell.pl") );
@@ -202,8 +208,8 @@ bool Application::OnInit()
 		{
 			// if we couldn't get it, ask if we want to try again
 			int promptResult = wxMessageBox(
-				wxT( "EShell Launcher is currently running.\n\nPlease close all instances of it now, then click OK to continue, or Cancel to exit." ),
-				wxT( "EShell Launcher" ),
+				wxT( "EShell Menu is currently running.\n\nPlease close all instances of it now, then click OK to continue, or Cancel to exit." ),
+				wxT( "EShell Menu" ),
 				wxOK |wxCANCEL | wxCENTER | wxICON_QUESTION );
 
 			if ( promptResult == wxCANCEL )
@@ -252,14 +258,14 @@ int Application::OnRun()
 	}
 	catch ( std::exception& ex )
 	{
-		wxString error( "EShell Launcher failed to run.\n\n  Reason:\n  ");
+		wxString error( "EShell Menu failed to run.\n\n  Reason:\n  ");
 		error += ex.what();
 		error += "\n\nExiting...\n"; 
 
 		wxMessageDialog dialog(
 			NULL,
 			error,
-			wxT("EShell Launcher Error"), wxOK | wxICON_INFORMATION );
+			wxT("EShell Menu Error"), wxOK | wxICON_INFORMATION );
 		dialog.ShowModal();
 	}
 
@@ -279,10 +285,10 @@ int Application::OnExit()
 	m_MutexHandle = NULL;
 
 	// Update the launcher if necessary.
-	if ( m_UpdateLauncherNow && FileExists( m_LauncherInstallPath ) )
+	if ( m_UpdateNow && FileExists( m_InstallPath ) )
 	{
-		tstring command = "\"" + m_LauncherInstallPath + "\" /SILENT";
-		Launcher::ExecuteCommand( command, false, false );
+		tstring command = "\"" + m_InstallPath + "\" /SILENT";
+		EShellMenu::ExecuteCommand( command, false, false );
 	}
 
 	return __super::OnExit( );
@@ -301,18 +307,18 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 		{
 			m_TrayIcon->BeginBusy();
 
-			Launcher::GetFileVersion( m_LauncherInstallPath, m_NetworkVersion );
+			EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
 
 			// only refresh if the network version has changed
 			if ( IsUpdateAvailable() )
 			{
-				tstring newVersion = Launcher::GetFileVersionString( m_NetworkVersion );
+				tstring newVersion = EShellMenu::GetFileVersionString( m_NetworkVersion );
 				wxString text = "New Update Available";
 				if ( !newVersion.empty() )
 				{
 					text += wxString( ": v" ) + wxString( newVersion.c_str() );
 				}
-				m_TrayIcon->ShowBalloon( wxT("EShell Launcher"), text );
+				m_TrayIcon->ShowBalloon( wxT("EShell Menu"), text );
 
 				m_TrayIcon->Refresh( false );
 			}
@@ -330,24 +336,24 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 
 void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
-	m_UpdateLauncherNow = false;
+	m_UpdateNow = false;
 
-	const tchar_t* title = wxT("Update EShell Launcher?");
-	const tchar_t* msg = wxT("There is an update available for the Eshell Launcher.  Would you like to exit and update now?");
-	m_UpdateLauncherNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
-	if ( m_UpdateLauncherNow )
+	const tchar_t* title = wxT("Update EShell Menu?");
+	const tchar_t* msg = wxT("There is an update available for Eshell Menu.  Would you like to exit and update now?");
+	m_UpdateNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
+	if ( m_UpdateNow )
 	{
-		m_TrayIcon->AddPendingEvent( wxCommandEvent ( wxEVT_COMMAND_MENU_SELECTED, LauncherEventIDs::Exit ) );
+		m_TrayIcon->AddPendingEvent( wxCommandEvent ( wxEVT_COMMAND_MENU_SELECTED, EventIDs::Exit ) );
 	}
 }
 
 void Application::LoadState()
 {
 	m_Projects.clear();
-	LoadTextFile( Launcher::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
+	LoadTextFile( EShellMenu::GetUserFile( wxT("projects"), wxT("txt") ), m_Projects );
 
 	m_Favorites.clear();
-	LoadTextFile( Launcher::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
+	LoadTextFile( EShellMenu::GetUserFile( wxT("favorites"), wxT("txt") ), m_Favorites );
 }
 
 #ifdef _DEBUG

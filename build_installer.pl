@@ -4,7 +4,6 @@ use Data::Dumper;
 use File::Basename;
 use File::Copy;
 use File::Path;
-use Getopt::Long;
 
 
 #
@@ -12,8 +11,8 @@ use Getopt::Long;
 #
 
 my $g_ISCCFilePath        = File::Spec->catfile( 'submodule', 'InnoSetup', 'ISCC.exe' );
-my $g_ISSFilePath         = 'EShellLauncherSetup.iss';
-my $g_OutputBaseFilename  = 'EShellLauncherSetup';
+my $g_ISSFilePath         = 'EShellMenuSetup.iss';
+my $g_OutputBaseFilename  = 'EShellMenuSetup';
 my $g_OutputDir           = 'install';
 my $g_VersionFilePath     = 'resource.h';
 my $g_ChangelistFilePath  = 'changelist.txt';
@@ -25,17 +24,11 @@ my $g_OutputFilePath      = File::Spec->catfile( $g_OutputDir, "$g_OutputBaseFil
 # parse options
 #
 
-my $g_Publish;
-my $gotOptions = GetOptions
-(
-  "publish=s" => \$g_Publish,
-);
+open (FOO, "install_dir.txt") || die "ERROR Unable to open install_dir.txt, please create one with the path to the installer directory: $!\n";
+my @install_dir = <FOO>;
+close FOO;
 
-if ( !$gotOptions )
-{    
-  print STDERR ( "Usage: build_installer -publish=\"path\"\n" );
-  exit 1;
-}
+my $g_InstallDir = shift (@install_dir);
 
 
 #
@@ -82,14 +75,14 @@ if ( -e $g_OutputFilePath )
 
 mkpath( $g_OutputDir );
 
-system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\" /d\"_InstallDir=$g_Publish\"" );
+system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\" /d\"_InstallDir=$g_InstallDir\"" );
 
 
 #
 # publish installer
 #
 
-if ( $g_Publish )
+if ( $g_InstallDir )
 {
   system ( "del /Q /F \"$g_VersionTxtFilePath\"" ) if ( -e $g_VersionTxtFilePath  );
   if ( open ( OUT, ">$g_VersionTxtFilePath" ) )
@@ -98,22 +91,22 @@ if ( $g_Publish )
   }
   close OUT;
   
-  my $g_PublishVerFolder = $g_Publish;
-  mkpath( $g_PublishVerFolder );
+  my $g_InstallDirVerFolder = $g_InstallDir;
+  mkpath( $g_InstallDirVerFolder );
 
-  print( "\n o Publishing to $g_PublishVerFolder...\n" );
+  print( "\n o Publishing to $g_InstallDirVerFolder...\n" );
 
-  my $g_PublishFilePath = File::Spec->catfile( $g_PublishVerFolder, "$g_OutputBaseFilename.exe" ); 
-  system ( "del /Q /F \"$g_PublishFilePath\"" ) if ( -e $g_PublishFilePath  );
-  copy( $g_OutputFilePath, $g_PublishFilePath );
+  my $g_InstallDirFilePath = File::Spec->catfile( $g_InstallDirVerFolder, "$g_OutputBaseFilename.exe" ); 
+  system ( "del /Q /F \"$g_InstallDirFilePath\"" ) if ( -e $g_InstallDirFilePath  );
+  copy( $g_OutputFilePath, $g_InstallDirFilePath );
 
-  my $g_PublishChangelistFilePath = File::Spec->catfile( $g_PublishVerFolder, "changelist.txt" );
-  system ( "del /Q /F \"$g_PublishChangelistFilePath\"" ) if ( -e $g_PublishChangelistFilePath  );
-  copy( $g_ChangelistFilePath, $g_PublishChangelistFilePath );
+  my $g_InstallDirChangelistFilePath = File::Spec->catfile( $g_InstallDirVerFolder, "changelist.txt" );
+  system ( "del /Q /F \"$g_InstallDirChangelistFilePath\"" ) if ( -e $g_InstallDirChangelistFilePath  );
+  copy( $g_ChangelistFilePath, $g_InstallDirChangelistFilePath );
   
-  my $g_PublishVersionFilePath = File::Spec->catfile( $g_PublishVerFolder, "version.txt" );
-  system ( "del /Q /F \"$g_PublishVersionFilePath\"" ) if ( -e $g_PublishVersionFilePath  );
-  copy( $g_VersionTxtFilePath, $g_PublishVersionFilePath );
+  my $g_InstallDirVersionFilePath = File::Spec->catfile( $g_InstallDirVerFolder, "version.txt" );
+  system ( "del /Q /F \"$g_InstallDirVersionFilePath\"" ) if ( -e $g_InstallDirVersionFilePath  );
+  copy( $g_VersionTxtFilePath, $g_InstallDirVersionFilePath );
 }
 
 exit 0;

@@ -3,13 +3,13 @@
 #include "Project.h"
 #include "MenuItem.h"
 
-namespace Launcher
+namespace EShellMenu
 {
 	class Application;
 
-	namespace LauncherEventIDs
+	namespace EventIDs
 	{
-		enum LauncherEventID
+		enum EventID
 		{
 			First = wxID_HIGHEST + 1,
 			Exit = First,

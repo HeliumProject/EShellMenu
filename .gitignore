@@ -13,3 +13,4 @@
 build/*
 install/*
 ipch/*
+install_dir.txt

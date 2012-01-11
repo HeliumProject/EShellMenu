@@ -1,10 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EShellLauncher", "EShellLauncher.vcxproj", "{78E67146-D146-4815-AD92-46922B327547}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EShellMenu", "EShellMenu.vcxproj", "{78E67146-D146-4815-AD92-46922B327547}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0A3F32A-84BD-4397-B118-0AB7A42F8BE1}"
 	ProjectSection(SolutionItems) = preProject
+		build_installer.pl = build_installer.pl
+		build_wx.bat = build_wx.bat
 		submodule\EShell\eshell.pl = submodule\EShell\eshell.pl
+		EShellMenuSetup.iss = EShellMenuSetup.iss
 	EndProjectSection
 EndProject
 Global

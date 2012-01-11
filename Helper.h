@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace Launcher
+namespace EShellMenu
 {
 	bool FileExists( const tstring& fileName );
 	bool DirectoryExists( const tstring& fileName );

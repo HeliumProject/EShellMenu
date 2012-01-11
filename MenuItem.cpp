@@ -4,7 +4,7 @@
 #include "Helper.h"
 #include "Project.h"
 
-using namespace Launcher;
+using namespace EShellMenu;
 
 MenuItem::MenuItem()
 	: m_Disable( false )
@@ -18,9 +18,9 @@ MenuItem::~MenuItem()
 bool MenuItem::Execute()
 {
 #ifdef _DEBUG
-	if ( !Launcher::ExecuteCommand( m_Command ) ) 
+	if ( !EShellMenu::ExecuteCommand( m_Command ) ) 
 #else
-	if ( !Launcher::ExecuteCommand( m_Command, false ) ) 
+	if ( !EShellMenu::ExecuteCommand( m_Command, false ) ) 
 #endif
 	{
 		tstring error = wxT("Unable to create eshell, with command:\n  ") + m_Command;

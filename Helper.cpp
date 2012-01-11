@@ -10,7 +10,7 @@
 
 const static uint32_t MAX_PRINT_SIZE = 8192;
 
-bool Launcher::FileExists(const tstring& fileName)
+bool EShellMenu::FileExists(const tstring& fileName)
 {
     DWORD fileAttr;
     fileAttr = GetFileAttributes(fileName.c_str());
@@ -27,7 +27,7 @@ bool Launcher::FileExists(const tstring& fileName)
     }
 }
 
-bool Launcher::DirectoryExists(const tstring& fileName)
+bool EShellMenu::DirectoryExists(const tstring& fileName)
 {
     DWORD fileAttr;
     fileAttr = GetFileAttributes(fileName.c_str());
@@ -44,7 +44,7 @@ bool Launcher::DirectoryExists(const tstring& fileName)
     }
 }
 
-bool Launcher::ExecuteCommand( const tstring& command, bool showWindow, bool block )
+bool EShellMenu::ExecuteCommand( const tstring& command, bool showWindow, bool block )
 {
     STARTUPINFO si;
     memset( &si, 0, sizeof( si ) );
@@ -88,7 +88,7 @@ bool Launcher::ExecuteCommand( const tstring& command, bool showWindow, bool blo
     return success;
 }
 
-tstring Launcher::Capitalize( const tstring& str, const bool isGameName )
+tstring EShellMenu::Capitalize( const tstring& str, const bool isGameName )
 {
     const tregex matchGameNamePattern( wxT("^.*[0-9]+.*$"), std::regex::icase );
 
@@ -111,7 +111,7 @@ tstring Launcher::Capitalize( const tstring& str, const bool isGameName )
     return newStr;
 }
 
-tstring Launcher::RemoveSlashes( const tstring& str, const tstring& replace )
+tstring EShellMenu::RemoveSlashes( const tstring& str, const tstring& replace )
 {
     const tregex slash( wxT("[\\\\/]+") ); 
     return std::regex_replace( str, slash, replace );
@@ -121,7 +121,7 @@ tstring Launcher::RemoveSlashes( const tstring& str, const tstring& replace )
 // version number.  The version number is a 64-bit number that is made up of four parts:
 // Compatible/Feature/Patch/Build.  This app does not use the build number so it will
 // always be zero.
-bool Launcher::GetFileVersion( const tstring& path, uint64_t& version )
+bool EShellMenu::GetFileVersion( const tstring& path, uint64_t& version )
 {
     bool succeeded = false;
     DWORD dwHandle = 0;
@@ -148,7 +148,7 @@ bool Launcher::GetFileVersion( const tstring& path, uint64_t& version )
     return succeeded;
 }
 
-tstring Launcher::GetFileVersionString( uint64_t version )
+tstring EShellMenu::GetFileVersionString( uint64_t version )
 {
     tstringstream versionStr;
 
@@ -161,7 +161,7 @@ tstring Launcher::GetFileVersionString( uint64_t version )
     return versionStr.str();
 }
 
-void Launcher::ConsolePrint(const tchar_t *fmt,...) 
+void EShellMenu::ConsolePrint(const tchar_t *fmt,...) 
 {
     va_list args;
     va_start(args, fmt); 
@@ -176,7 +176,7 @@ void Launcher::ConsolePrint(const tchar_t *fmt,...)
     va_end(args);      
 }
 
-bool Launcher::GetEnvVar( const tstring& envVarName, tstring& envVarValue )
+bool EShellMenu::GetEnvVar( const tstring& envVarName, tstring& envVarValue )
 {
     tchar_t envVarSetting[8192];
     if ( ::GetEnvironmentVariable( envVarName.c_str(), envVarSetting, sizeof(envVarSetting) / sizeof(tchar_t) ) )
@@ -188,7 +188,7 @@ bool Launcher::GetEnvVar( const tstring& envVarName, tstring& envVarValue )
     return false;
 }
 
-tstring Launcher::GetUserFile( const tstring& basename, const tstring& ext )
+tstring EShellMenu::GetUserFile( const tstring& basename, const tstring& ext )
 {
     wxFileName name ( wxFileName::GetHomeDir(), basename );
     name.AppendDir( ".eshell" );
@@ -197,7 +197,7 @@ tstring Launcher::GetUserFile( const tstring& basename, const tstring& ext )
     return tstring( name.GetFullPath().c_str() );
 }
 
-void Launcher::LoadTextFile( const tstring& file, std::set< tstring >& contents )
+void EShellMenu::LoadTextFile( const tstring& file, std::set< tstring >& contents )
 {
     tifstream in( file.c_str() );
     if ( !in.good() )
@@ -214,7 +214,7 @@ void Launcher::LoadTextFile( const tstring& file, std::set< tstring >& contents 
     in.close();
 }
 
-bool Launcher::SaveTextFile( const tstring& file, const std::set< tstring >& contents )
+bool EShellMenu::SaveTextFile( const tstring& file, const std::set< tstring >& contents )
 {
     wxFileName name ( file.c_str() );
     name.Mkdir( wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL );
