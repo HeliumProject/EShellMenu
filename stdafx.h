@@ -4,6 +4,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 
+#include <stdint.h>
 #include <algorithm>
 #include <cstring>
 #include <direct.h>

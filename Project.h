@@ -96,15 +96,15 @@ namespace EShellMenu
 		std::vector< Include > m_Includes;
 	};
 
-	class ProjectRefData : public wxObjectRefData
+	class StringRefData : public wxObjectRefData
 	{
 	public:
-		ProjectRefData( Project* project )
-			: m_Project( project )
+		StringRefData( const tstring& str )
+			: m_Value( str )
 		{
 
 		}
 
-		Project* m_Project;
+		tstring m_Value;
 	};
 }

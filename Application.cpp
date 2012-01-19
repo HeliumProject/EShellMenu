@@ -3,7 +3,7 @@
 
 #include "Helper.h"
 #include "Project.h"
-#include "Version.h"
+#include "resource.h"
 
 #include <regex>
 
@@ -19,7 +19,7 @@ static const int g_UpdateIntervalInSeconds = 60 * 5;
 
 Application::Application()
 	: m_MutexHandle( NULL )
-	, m_Title( wxT("EShell Menu v") LAUNCHER_VERSION_STRING )
+	, m_Title( wxT("EShell Menu v") VERSION_STRING )
 	, m_TrayIcon( NULL )
 	, m_CurrentVersion( 0 )
 	, m_NetworkVersion( 0 )
@@ -27,8 +27,8 @@ Application::Application()
 	, m_UpdateTimer( this )
 {
 	// Figure out the current version
-	uint32_t versionHi = ( LAUNCHER_VERSION_MAJOR << 16 ) | LAUNCHER_VERSION_MINOR;
-	uint32_t versionLo = ( LAUNCHER_VERSION_PATCH << 16 ) | 0;
+	uint32_t versionHi = ( VERSION_MAJOR << 16 ) | VERSION_MINOR;
+	uint32_t versionLo = ( VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
 
 	wxStandardPaths sp;
@@ -126,6 +126,7 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	if ( parser.Found( wxT("perl"), &perl ) )
 	{
 		wxFileName name ( perl, wxT("") );
+		name.AppendDir( wxT("perl") );
 		name.AppendDir( wxT("bin") );
 		name.SetName( wxT("perl") );
 		name.SetExt( wxT("exe") );

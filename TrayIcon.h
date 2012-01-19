@@ -49,6 +49,7 @@ namespace EShellMenu
 		void OnMenuShortcut( wxCommandEvent& evt );
 		void OnMenuAdd( wxCommandEvent& evt );
 		void OnMenuRemove( wxCommandEvent& evt );
+		void OnMenuEdit( wxCommandEvent& evt );
 
 	private:
 		void DetectAndSetIcon( MenuItem& menuItem, wxMenuItem* actualMenuItem );
@@ -57,7 +58,7 @@ namespace EShellMenu
 	private:
 		Application* m_Application;
 		std::vector< Project > m_Projects;
-		std::map< tstring, std::pair< Project*, std::vector< MenuItem > > > m_MenuItems;
+		std::map< tstring, std::pair< uint32_t, std::vector< MenuItem > > > m_MenuItems;
 		wxMenu* m_Menu;
 		wxMenuItem* m_UpdateMenuItem;
 		int m_BusyCount;

@@ -221,7 +221,6 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Version.h" />
     <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>

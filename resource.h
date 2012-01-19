@@ -1,6 +1,15 @@
-#define LAUNCHER_VERSION_MAJOR			3
-#define LAUNCHER_VERSION_MINOR			1
-#define LAUNCHER_VERSION_PATCH			0
+#define VERSION_MAJOR			3
+#define VERSION_MINOR			2
+#define VERSION_PATCH			0
+
+#define VERSION_STRINGIFY(major, minor, patch) wxT(#major) wxT(".") wxT(#minor) wxT(".") wxT(#patch)
+#define VERSION_TOSTRING(major, minor, patch) VERSION_STRINGIFY(major,minor,patch)
+#define VERSION_STRING VERSION_TOSTRING( VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH )
+
+#define RESOURCE_VERSION VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, 0
+#define RESOURCE_VERSION_STRINGIFY(major, minor, patch) #major "," #minor "," #patch ",0"
+#define RESOURCE_VERSION_TOSTRING(major, minor, patch) RESOURCE_VERSION_STRINGIFY(major, minor, patch)
+#define RESOURCE_VERSION_STRING RESOURCE_VERSION_TOSTRING( VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH )
 
 // Next default values for new objects
 // 

@@ -4,7 +4,6 @@
 #include "Application.h"
 #include "MenuItem.h"
 #include "Helper.h"
-#include "Version.h"
 #include "resource.h"
 
 #include <shellapi.h>
@@ -18,7 +17,7 @@ TrayIcon::TrayIcon( Application* application )
 	, m_BusyCount( 0 )
 	, m_IsMenuShowing( false )
 {
-	SetIcon( wxICON( LAUNCHER_ICON ), "Initializing EShell Menu..." );
+	SetIcon( wxICON( LOGO_ICON ), "Initializing EShell Menu..." );
 
 	// Connect Events
 	Connect( wxID_ANY, wxEVT_TASKBAR_CLICK, wxTaskBarIconEventHandler( TrayIcon::OnTrayIconClick ), NULL, this );
@@ -195,10 +194,22 @@ void TrayIcon::OnMenuRemove( wxCommandEvent& evt )
 
 	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
 	{
-		wxMenuItem* removeMenuItem = projectMenu->FindItem( evt.GetId() ); 
-		Project* project = static_cast< ProjectRefData* >( removeMenuItem->GetRefData() )->m_Project;
-		m_Application->RemoveProject( project->m_File );
+		wxMenuItem* menuItem = projectMenu->FindItem( evt.GetId() ); 
+		StringRefData* refData = static_cast< StringRefData* >( menuItem->GetRefData() );
+		m_Application->RemoveProject( refData->m_Value );
 		Refresh( true );
+	}
+}
+
+void TrayIcon::OnMenuEdit( wxCommandEvent& evt )
+{
+	wxMenu* projectMenu = wxDynamicCast( evt.GetEventObject(), wxMenu );
+
+	if ( projectMenu && projectMenu->FindItem( evt.GetId() ) )
+	{
+		wxMenuItem* menuItem = projectMenu->FindItem( evt.GetId() ); 
+		StringRefData* refData = static_cast< StringRefData* >( menuItem->GetRefData() );
+		EShellMenu::ExecuteCommand( tstring ( wxT("cmd.exe /c start \"\" \"") ) + refData->m_Value + wxT("\""), false );
 	}
 }
 
@@ -213,7 +224,7 @@ void TrayIcon::BeginBusy()
 	Disconnect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Clear the current menu and change the icon to notify the user that things are happening
-	SetIcon( wxICON( LAUNCHER_BUSY_ICON ), wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
+	SetIcon( wxICON( BUSY_ICON ), wxString( m_Application->m_Title.c_str() ) + " Refreshing..." );
 }
 
 void TrayIcon::EndBusy()
@@ -229,7 +240,7 @@ void TrayIcon::EndBusy()
 	Connect( EventIDs::Reload, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuReload ), NULL, this );
 
 	// Set the icon back
-	SetIcon( m_Application->IsUpdateAvailable() ? wxICON( UPDATE_ICON ) : wxICON( LAUNCHER_ICON ), m_Application->m_Title.c_str() );
+	SetIcon( m_Application->IsUpdateAvailable() ? wxICON( UPDATE_ICON ) : wxICON( LOGO_ICON ), m_Application->m_Title.c_str() );
 }
 
 void TrayIcon::Refresh( bool reload )
@@ -260,7 +271,7 @@ void TrayIcon::Refresh( bool reload )
 				}
 				else
 				{
-					m_MenuItems[ project.m_Title ] = std::make_pair( &project, std::vector< MenuItem > () );
+					m_MenuItems[ project.m_Title ] = std::make_pair( static_cast<uint32_t>( m_Projects.size() - 1 ), std::vector< MenuItem > () );
 
 					for ( std::map< tstring, Config >::const_iterator itr = m_Projects.back().m_Configs.begin(), end = m_Projects.back().m_Configs.end(); itr != end; ++itr )
 					{
@@ -332,7 +343,7 @@ void TrayIcon::Refresh( bool reload )
 
 			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
 			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Exit, wxString( wxT("Exit EShell Menu v"LAUNCHER_VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Exit, wxString( wxT("Exit EShell Menu v"VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
 		}
 		else
 		{
@@ -404,8 +415,8 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 {
 	std::vector< MenuItem* > favoriteShortcuts;
 
-	std::map< tstring, std::pair< Project*, std::vector< MenuItem > > >::reverse_iterator projItr = m_MenuItems.rbegin();
-	std::map< tstring, std::pair< Project*, std::vector< MenuItem > > >::reverse_iterator projEnd = m_MenuItems.rend();
+	std::map< tstring, std::pair< uint32_t, std::vector< MenuItem > > >::reverse_iterator projItr = m_MenuItems.rbegin();
+	std::map< tstring, std::pair< uint32_t, std::vector< MenuItem > > >::reverse_iterator projEnd = m_MenuItems.rend();
 	for ( ; projItr != projEnd; ++projItr )
 	{
 		const tstring& title = projItr->first;
@@ -478,17 +489,22 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 				wxITEM_NORMAL,
 				subMenuItr->second );
 
-			subMenuItem->SetBitmap( wxIcon( "FOLDER_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
+			subMenuItem->SetBitmap( wxIcon( "FOLDER_OPEN_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 			projectMenu->Prepend( subMenuItem );
 		}
 
 		wxMenuItem* projectItem = parentMenu->Prepend( wxID_ANY, title, projectMenu );
-		projectItem->SetBitmap( wxIcon( "FOLDER_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
+		projectItem->SetBitmap( wxIcon( "FOLDER_OPEN_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16 ) );
 
 		projectMenu->AppendSeparator();
+
 		wxMenuItem* remove = projectMenu->Append( wxID_ANY, "Remove" );
-		remove->SetRefData( new ProjectRefData( projItr->second.first ) );
+		remove->SetRefData( new StringRefData( m_Projects[ projItr->second.first ].m_File ) );
 		Connect( remove->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuRemove ), NULL, this );
+
+		wxMenuItem* edit = projectMenu->Append( wxID_ANY, "Edit" );
+		edit->SetRefData( new StringRefData( m_Projects[ projItr->second.first ].m_File ) );
+		Connect( edit->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( TrayIcon::OnMenuEdit ), NULL, this );
 	}
 
 	if ( !favoriteShortcuts.empty() )

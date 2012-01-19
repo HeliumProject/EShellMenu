@@ -49,10 +49,10 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-0						ICON                    "icons\\launcher.ico"
-LAUNCHER_ICON           ICON                    "icons\\launcher.ico"
-LAUNCHER_BUSY_ICON      ICON                    "icons\\launcher_busy.ico"
-FOLDER_ICON             ICON                    "icons\\folder.ico"
+0						ICON                    "icons\\logo.ico"
+LOGO_ICON				ICON                    "icons\\logo.ico"
+BUSY_ICON				ICON                    "icons\\busy.ico"
+FOLDER_OPEN_ICON        ICON                    "icons\\folder_open.ico"
 FOLDER_CLOSED_ICON      ICON                    "icons\\folder_closed.ico"
 OPTIONS_ICON			ICON                    "icons\\options.ico"
 REFRESH_ICON			ICON                    "icons\\refresh.ico"
@@ -65,8 +65,8 @@ PROMPT_ICON				ICON                    "icons\\prompt.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,0,0
- PRODUCTVERSION 2,2,0,0
+ FILEVERSION RESOURCE_VERSION
+ PRODUCTVERSION RESOURCE_VERSION
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -84,12 +84,12 @@ BEGIN
             VALUE "Comments", "A system tray applicaton used to launch shells and tools through EShell."
             VALUE "CompanyName", "Helium Project"
             VALUE "FileDescription", "EShell Menu"
-            VALUE "FileVersion", "2"", ""2"", ""0"", 0"
+            VALUE "FileVersion", RESOURCE_VERSION_STRING
             VALUE "InternalName", "EShell Menu"
             VALUE "LegalCopyright", "Copyright (C) Helium Project"
             VALUE "OriginalFilename", "EShellMenu.exe"
             VALUE "ProductName", "EShell Menu"
-            VALUE "ProductVersion", "2"", ""2"", ""0"", 0"
+            VALUE "ProductVersion", RESOURCE_VERSION_STRING
         END
     END
     BLOCK "VarFileInfo"

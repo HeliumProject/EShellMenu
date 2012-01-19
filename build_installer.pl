@@ -4,6 +4,7 @@ use Data::Dumper;
 use File::Basename;
 use File::Copy;
 use File::Path;
+use Getopt::Long;
 
 
 #
@@ -23,6 +24,18 @@ my $g_OutputFilePath      = File::Spec->catfile( $g_OutputDir, "$g_OutputBaseFil
 #
 # parse options
 #
+
+my $g_Publish = 0;
+my $gotOptions = GetOptions
+(
+  "publish" => \$g_Publish,
+);
+
+if ( !$gotOptions )
+{
+  print STDERR ( "Usage: build_installer [-publish]\n" );
+  exit 1;
+}
 
 open (FOO, "install_dir.txt") || die "ERROR Unable to open install_dir.txt, please create one with the path to the installer directory: $!\n";
 my @install_dir = <FOO>;
@@ -46,15 +59,15 @@ chomp @VersionFileContent;
 
 foreach my $line ( @VersionFileContent )
 {
-  if ( $line =~ /LAUNCHER_VERSION_MAJOR\s+(\d+)/i )
+  if ( $line =~ /VERSION_MAJOR\s+(\d+)/i )
   {
     $g_MajorVersion = $1;
   }
-  elsif ( $line =~ /LAUNCHER_VERSION_MINOR\s+(\d+)/i )
+  elsif ( $line =~ /VERSION_MINOR\s+(\d+)/i )
   {
     $g_MinorVersion = $1;
   }
-  elsif ( $line =~ /LAUNCHER_VERSION_PATCH\s+(\d+)/i )
+  elsif ( $line =~ /VERSION_PATCH\s+(\d+)/i )
   {
     $g_PatchVersion = $1;
   }
@@ -82,7 +95,7 @@ system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_Out
 # publish installer
 #
 
-if ( $g_InstallDir )
+if ( $g_Publish && $g_InstallDir )
 {
   system ( "del /Q /F \"$g_VersionTxtFilePath\"" ) if ( -e $g_VersionTxtFilePath  );
   if ( open ( OUT, ">$g_VersionTxtFilePath" ) )

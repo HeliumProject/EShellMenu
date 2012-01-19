@@ -53,7 +53,7 @@ DefaultGroupName={#_AppName}
 OutputDir=.\
 OutputBaseFilename=EShellMenuSetup
 PrivilegesRequired=admin
-SetupIconFile=icons\launcher.ico
+SetupIconFile=icons\logo.ico
 SolidCompression=yes
 Uninstallable=yes
 UninstallDisplayIcon={uninstallexe}
@@ -79,6 +79,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "install_dir.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "distro\*"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\{#_BuildConfig}\EShellMenu.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\{#_BuildConfig}\EShellMenu.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "submodule\EShell\eshell.pl"; DestDir: "{app}"; Flags: ignoreversion
