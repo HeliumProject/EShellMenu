@@ -309,9 +309,7 @@ void TrayIcon::Refresh( bool reload )
 							tstring project = m_Projects.back().m_File;
 
 							// Build the Command  
-							menuItem.m_Command = tstring ( wxT("\"") ) + m_Application->m_PerlExePath + wxT("\"");
-							menuItem.m_Command += wxT(" -I\"") + m_Application->m_PerlLibPath + wxT("\"");
-							menuItem.m_Command += wxT(" \"") + m_Application->m_EShellPlPath + wxT("\"");
+							menuItem.m_Command = wxT("\"") + m_Application->m_EShellPath + wxT("\"");
 							menuItem.m_Command += wxT(" -settingsFile \"") + project + wxT("\"");
 							menuItem.m_Command += wxT(" -config ") + itr->second.m_Name;
 

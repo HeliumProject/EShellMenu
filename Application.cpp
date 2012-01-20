@@ -114,78 +114,46 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 	SetVendorName( wxT("Helium Project") );
 	parser.SetLogo( wxT("EShell Menu (c) 20xx - Helium Project\n") );
 
-	parser.AddOption( wxT("perl"), wxT("PerlLocation"), wxT("The location of the perl distribution (containing /bin)") );
-	parser.AddOption( wxT("eshell"), wxT("EShellLocation"), wxT("The location of the directory containing eshell.pl") );
+	parser.AddOption( wxT("eshell"), wxT("EShellLocation"), wxT("The location of the directory containing eshell.bat") );
 
 	return __super::OnInitCmdLine( parser );
 }
 
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
-	wxString perl;
-	if ( parser.Found( wxT("perl"), &perl ) )
-	{
-		wxFileName name ( perl, wxT("") );
-		name.AppendDir( wxT("perl") );
-		name.AppendDir( wxT("bin") );
-		name.SetName( wxT("perl") );
-		name.SetExt( wxT("exe") );
-		m_PerlExePath = name.GetFullPath();
-	}
-	else
-	{
-		wxStandardPaths sp;
-		wxFileName name ( sp.GetExecutablePath() );
-		name.AppendDir( wxT("StrawberryPerl") );
-		name.AppendDir( wxT("perl") );
-		name.AppendDir( wxT("bin") );
-		name.SetName( wxT("perl") );
-		name.SetExt( wxT("exe") );
-		m_PerlExePath = name.GetFullPath();
-	}
-
 	wxString eshell;
 	if ( parser.Found( wxT("eshell"), &eshell ) )
 	{
 		wxFileName name ( eshell, wxT("") );
 		name.SetName( wxT("eshell") );
-		name.SetExt( wxT("pl") );
-		m_EShellPlPath = name.GetFullPath();
+		name.SetExt( wxT("bat") );
+		m_EShellPath = name.GetFullPath();
 	}
 	else
 	{
 		wxStandardPaths sp;
 		wxFileName name ( sp.GetExecutablePath() );
 		name.SetName( wxT("eshell") );
-		name.SetExt( wxT("pl") );
-		m_EShellPlPath = name.GetFullPath();
+		name.SetExt( wxT("bat") );
+		while ( name.GetDirCount() )
+		{
+			if ( name.FileExists() )
+			{
+				m_EShellPath = name.GetFullPath();
+				break;
+			}
+			else
+			{
+				name.RemoveLastDir();
+			}
+		}
 	}
 
-	if ( !FileExists( m_PerlExePath ) )
+	if ( !FileExists( m_EShellPath ) )
 	{
-		wxMessageBox( tstring( wxT("Perl doesn't exist at the expected location:\n") ) + m_PerlExePath, wxT("Error"), wxOK | wxICON_ERROR );
+		wxMessageBox( tstring( wxT("eshell.bat doesn't exist at the expected location:\n") ) + m_EShellPath, wxT("Error"), wxOK | wxICON_ERROR );
 		return false;
 	}
-
-	if ( !FileExists( m_EShellPlPath ) )
-	{
-		wxMessageBox( tstring( wxT("EShell.pl doesn't exist at the expected location:\n") ) + m_EShellPlPath, wxT("Error"), wxOK | wxICON_ERROR );
-		return false;
-	}
-
-	wxFileName cBin ( m_PerlExePath.c_str() );
-	cBin.RemoveLastDir(); // pop /bin
-	cBin.RemoveLastDir(); // pop /perl
-	cBin.AppendDir( wxT("c") );
-	cBin.AppendDir( wxT("bin") );
-	::SetCurrentDirectory( cBin.GetPath() );
-
-	wxFileName lib ( m_PerlExePath.c_str() );
-	lib.RemoveLastDir(); // pop /bin
-	lib.RemoveLastDir(); // pop /perl
-	lib.AppendDir( wxT("site") );
-	lib.AppendDir( wxT("lib") );
-	m_PerlLibPath = lib.GetPath();
 
 	return __super::OnCmdLineParsed( parser );
 }

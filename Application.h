@@ -50,9 +50,7 @@ namespace EShellMenu
 		std::set< tstring > m_Projects;
 		std::set< tstring > m_Favorites;
 
-		tstring m_PerlExePath;
-		tstring m_PerlLibPath;
-		tstring m_EShellPlPath;
+		tstring m_EShellPath;
 		tstring m_InstallPath;
 		uint64_t m_CurrentVersion;
 		uint64_t m_NetworkVersion;
