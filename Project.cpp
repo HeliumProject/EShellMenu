@@ -116,11 +116,10 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 	return processedValue;
 }
 
-//<EnvVar variableName="P4PORT" value="perforce.insomniacgames.com:60606" override="0" />
+//<EnvVar variableName="P4PORT" value="perforce:1666" override="0" />
 void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile )
 {
 	tstring varName = elem->GetAttribute( wxT("variableName") );
-	//toUpper( varName );
 
 	// when override is false, we don't override existing variables; defaults to true
 	bool overrideAttrib;
@@ -136,6 +135,56 @@ void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile 
 		}
 	}
 	overrideAttrib = includeFile ? false : overrideAttrib;
+
+	// 'if' conditional information
+	tstring ifStatement;
+	{
+		wxString value;
+		if ( elem->GetAttribute( wxT("if"), &value ) )
+		{
+			ifStatement = value;
+		}
+
+		const tregex ifPattern ( wxT("(.*?)([!=]+)(.*)") );
+
+		tsmatch ifResults; 
+		if ( std::regex_match( ifStatement, ifResults, ifPattern ) )
+		{
+			const tstring& var = ifResults[1];
+			const tstring& op = ifResults[2];
+			const tstring& val = ifResults[3];
+
+			tstring existing;
+			bool gotten = EShellMenu::GetEnvVar( var, existing );
+
+			M_EnvVar::const_iterator found = envVars.find( var );
+			if ( found != envVars.end() )
+			{
+				existing = found->second.m_Value;
+				gotten = true;
+			}
+
+			if ( op == wxT("=") || op == wxT("==") )
+			{
+				if ( !gotten )
+				{
+					return;
+				}
+
+				if ( existing != val )
+				{
+					return;
+				}
+			}
+			else if ( op == wxT("!=") )
+			{
+				if ( gotten && existing == val )
+				{
+					return;
+				}
+			}
+		}
+	}
 
 	std::pair< std::map<tstring, EnvVar>::iterator, bool > inserted = envVars.insert( M_EnvVar::value_type( varName, EnvVar() ) );
 
