@@ -56,8 +56,11 @@ Application::Application()
 		}
 	}
 
-	m_InstallPath = dir + wxT( "EShellMenuSetup.exe" );
-
+	// just like handling -install below
+	wxFileName name;
+	name.SetPath( dir );
+	name.SetName( wxT( "EShellMenuSetup.exe" ) );
+	m_InstallPath = name.GetFullPath();
 	EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
 
 #ifdef _DEBUG
@@ -113,14 +116,30 @@ void Application::OnInitCmdLine( wxCmdLineParser& parser )
 {
 	SetVendorName( wxT("Helium Project") );
 	parser.SetLogo( wxT("EShell Menu (c) 20xx - Helium Project\n") );
-
-	parser.AddOption( wxT("eshell"), wxT("EShellLocation"), wxT("The location of the directory containing eshell.bat") );
+	parser.AddSwitch( wxT("u"), wxT("update"), wxT("Update to the latest version and exit") );
+	parser.AddOption( wxT("i"), wxT("install"), wxT("Location of the directory containing the installer") );
+	parser.AddOption( wxT("e"), wxT("eshell"), wxT("Location of the directory containing eshell.bat") );
 
 	return __super::OnInitCmdLine( parser );
 }
 
 bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 {
+	if ( parser.FoundSwitch( wxT("update" ) ) )
+	{
+		m_UpdateNow = IsUpdateAvailable();
+	}
+
+	wxString install;
+	if ( parser.Found( wxT("install"), &install ) )
+	{
+		// just in the ctor above
+		wxFileName name;
+		name.SetPath( install );
+		name.SetName( wxT( "EShellMenuSetup.exe" ) );
+		EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
+	}
+
 	wxString eshell;
 	if ( parser.Found( wxT("eshell"), &eshell ) )
 	{
@@ -212,7 +231,14 @@ bool Application::OnInit()
 
 	m_TrayIcon = new TrayIcon( this );
 
-	m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+	if ( m_UpdateNow )
+	{
+		m_TrayIcon->AddPendingEvent( wxCommandEvent ( wxEVT_COMMAND_MENU_SELECTED, EventIDs::Exit ) );
+	}
+	else
+	{
+		m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+	}
 
 	return true;
 }
@@ -223,7 +249,7 @@ int Application::OnRun()
 	{
 		m_TrayIcon->Initialize();
 
-		return __super::OnRun( );
+		return __super::OnRun();
 	}
 	catch ( std::exception& ex )
 	{
@@ -260,7 +286,7 @@ int Application::OnExit()
 		EShellMenu::ExecuteCommand( command, false, false );
 	}
 
-	return __super::OnExit( );
+	return __super::OnExit();
 }
 
 void Application::OnUpdateTimer( wxTimerEvent& evt )
@@ -305,8 +331,6 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 
 void Application::OnMenuUpdate( wxCommandEvent& evt )
 {
-	m_UpdateNow = false;
-
 	const tchar_t* title = wxT("Update EShell Menu?");
 	const tchar_t* msg = wxT("There is an update available for Eshell Menu.  Would you like to exit and update now?");
 	m_UpdateNow = wxYES == wxMessageBox( msg, title, wxYES_NO | wxICON_QUESTION );
