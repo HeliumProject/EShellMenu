@@ -143,42 +143,50 @@ void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile 
 		if ( elem->GetAttribute( wxT("if"), &value ) )
 		{
 			ifStatement = value;
-		}
 
-		const tregex ifPattern ( wxT("(.*?)([!=]+)(.*)") );
+			const tregex ifPattern ( wxT("(.*?)([!=]+)(.*)") );
 
-		tsmatch ifResults; 
-		if ( std::regex_match( ifStatement, ifResults, ifPattern ) )
-		{
-			const tstring& var = ifResults[1];
-			const tstring& op = ifResults[2];
-			const tstring& val = ifResults[3];
-
-			tstring existing;
-			bool gotten = EShellMenu::GetEnvVar( var, existing );
-
-			M_EnvVar::const_iterator found = envVars.find( var );
-			if ( found != envVars.end() )
+			tsmatch ifResults; 
+			if ( std::regex_match( ifStatement, ifResults, ifPattern ) )
 			{
-				existing = found->second.m_Value;
-				gotten = true;
-			}
+				const tstring& var = ifResults[1];
+				const tstring& op = ifResults[2];
+				const tstring& val = ifResults[3];
 
-			if ( op == wxT("=") || op == wxT("==") )
-			{
-				if ( !gotten )
+				tstring existing;
+				bool gotten = EShellMenu::GetEnvVar( var, existing );
+
+				M_EnvVar::const_iterator found = envVars.find( var );
+				if ( found != envVars.end() )
 				{
-					return;
+					existing = found->second.m_Value;
+					gotten = true;
 				}
 
-				if ( existing != val )
+				if ( op == wxT("=") || op == wxT("==") )
 				{
-					return;
+					if ( !gotten )
+					{
+						return;
+					}
+
+					if ( existing != val )
+					{
+						return;
+					}
+				}
+				else if ( op == wxT("!=") )
+				{
+					if ( gotten && existing == val )
+					{
+						return;
+					}
 				}
 			}
-			else if ( op == wxT("!=") )
+			else
 			{
-				if ( gotten && existing == val )
+				tstring existing;
+				if ( !EShellMenu::GetEnvVar( static_cast< const tchar_t* >( value.c_str() ), existing ) )
 				{
 					return;
 				}
