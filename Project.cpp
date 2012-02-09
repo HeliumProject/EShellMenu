@@ -264,10 +264,6 @@ void Project::ParseShortcut( wxXmlNode* elem, std::vector< Shortcut >& shortcuts
 		{
 			shortcut.m_Folder = shortcutElem->GetNodeContent();
 		}
-		else if ( shortcutElemString.compare( wxT("Args") ) == 0 )
-		{
-			shortcut.m_Args = shortcutElem->GetNodeContent();
-		}
 		else if ( shortcutElemString.compare( wxT("Description") ) == 0 )
 		{
 			shortcut.m_Description = shortcutElem->GetNodeContent();
@@ -275,6 +271,22 @@ void Project::ParseShortcut( wxXmlNode* elem, std::vector< Shortcut >& shortcuts
 		else if ( shortcutElemString.compare( wxT("Icon") ) == 0 && shortcutElem->GetNodeContent().length() )
 		{
 			shortcut.m_IconPath = shortcutElem->GetNodeContent();
+		}
+		else if ( shortcutElemString.compare( wxT("Args") ) == 0 )
+		{
+			shortcut.m_Args = shortcutElem->GetNodeContent();
+		}
+		else if ( shortcutElemString.compare( wxT("Target") ) == 0 )
+		{
+			shortcut.m_Target = shortcutElem->GetNodeContent();
+		}
+		else if ( shortcutElemString.compare( wxT("WorkingDirectory") ) == 0 )
+		{
+			shortcut.m_WorkingDirectory = shortcutElem->GetNodeContent();
+		}
+		else if ( shortcutElemString.compare( wxT("Installer") ) == 0 )
+		{
+			shortcut.m_Installer = shortcutElem->GetNodeContent();
 		}
 	}
 

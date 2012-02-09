@@ -44,9 +44,12 @@ namespace EShellMenu
 	public:
 		tstring m_Name;             // Display name: "prompt", etc...
 		tstring m_Folder;			// Folder to put it in (under the project menu)
-		tstring m_Args;             // Args to pass to eshell
 		tstring m_Description;      // Mouse over description
 		tstring m_IconPath;         // Path to the .png file
+		tstring m_Args;             // Args to pass to eshell, overrides
+		tstring m_Target;			// If no Args specified, use -run <blah> to this file
+		tstring m_WorkingDirectory;	// The working directory to launch the target in
+		tstring m_Installer;		// If target is defined, but doesn't exist, kick into this installer
 	};
 
 	class Config

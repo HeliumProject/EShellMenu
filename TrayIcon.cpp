@@ -317,6 +317,44 @@ void TrayIcon::Refresh( bool reload )
 							{
 								menuItem.m_Command += wxT(" ") + shortcut.m_Args;
 							}
+							else
+							{
+								tstring target = shortcut.m_Target;
+								Project::ProcessValue( target, copyEnvVars );
+								if ( FileExists( target ) )
+								{
+									menuItem.m_Icon = target;
+
+									tstring workingDirectory = shortcut.m_WorkingDirectory;
+									Project::ProcessValue( workingDirectory, copyEnvVars );
+									if ( workingDirectory.empty() )
+									{
+										menuItem.m_Command += wxT(" -run \"") + shortcut.m_Target + wxT("\"");
+									}
+									else
+									{
+										menuItem.m_Command += wxT(" -run \"start \\\"") + shortcut.m_Name + wxT("\\\"");
+										menuItem.m_Command += wxT(" /d\\\"") + workingDirectory + wxT("\\\"");
+										menuItem.m_Command += wxT(" \\\"") + target + wxT("\\\"\"");
+									}
+								}
+								else
+								{
+									tstring installer = shortcut.m_Installer;
+									Project::ProcessValue( installer, copyEnvVars );
+									if ( FileExists( installer ) )
+									{
+										menuItem.m_Icon = installer;
+										menuItem.m_Name = wxT("Install: ") + menuItem.m_Name;
+										menuItem.m_Command += wxT(" -run \"") + installer + wxT("\"");
+									}
+									else
+									{
+										menuItem.m_Name = wxT("Missing installer for: ") + menuItem.m_Name;
+										menuItem.m_Command.clear();
+									}
+								}
+							}
 
 							Project::ProcessValue( menuItem.m_Command, copyEnvVars );
 
