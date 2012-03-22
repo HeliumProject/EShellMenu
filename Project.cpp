@@ -252,6 +252,12 @@ void Project::ParseShortcut( wxXmlNode* elem, std::vector< Shortcut >& shortcuts
 {
 	Shortcut shortcut;
 
+	wxString optional;
+	if ( elem->GetAttribute( wxT("optional"), &optional ) )
+	{
+		shortcut.m_Optional = optional == wxT("1");
+	}
+
 	for ( wxXmlNode* shortcutElem = elem->GetChildren(); shortcutElem != NULL; shortcutElem = shortcutElem->GetNext() )
 	{
 		tstring shortcutElemString = shortcutElem->GetName();

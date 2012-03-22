@@ -282,9 +282,7 @@ void TrayIcon::Refresh( bool reload )
 						for ( ; ssItr != ssEnd; ++ssItr )
 						{
 							const Shortcut& shortcut = (*ssItr);
-
-							m_MenuItems[ project.m_Title ].second.push_back( MenuItem () );
-							MenuItem& menuItem ( m_MenuItems[ m_Projects.back().m_Title ].second.back() );
+							MenuItem menuItem;
 
 							menuItem.m_Name = shortcut.m_Name;
 							Project::ProcessValue( menuItem.m_Name, copyEnvVars );
@@ -306,11 +304,11 @@ void TrayIcon::Refresh( bool reload )
 							Project::ProcessValue( menuItem.m_Description, copyEnvVars );
 
 							// SettingsFile Path
-							tstring project = m_Projects.back().m_File;
+							tstring projectFile = m_Projects.back().m_File;
 
 							// Build the Command  
 							menuItem.m_Command = wxT("\"") + m_Application->m_EShellPath + wxT("\"");
-							menuItem.m_Command += wxT(" -settingsFile \"") + project + wxT("\"");
+							menuItem.m_Command += wxT(" -settingsFile \"") + projectFile + wxT("\"");
 							menuItem.m_Command += wxT(" -config ") + itr->second.m_Name;
 
 							if ( !shortcut.m_Args.empty() )
@@ -338,7 +336,7 @@ void TrayIcon::Refresh( bool reload )
 										menuItem.m_Command += wxT(" \\\"") + target + wxT("\\\"\"");
 									}
 								}
-								else
+								else if ( !shortcut.m_Installer.empty() )
 								{
 									tstring installer = shortcut.m_Installer;
 									Project::ProcessValue( installer, copyEnvVars );
@@ -354,12 +352,18 @@ void TrayIcon::Refresh( bool reload )
 										menuItem.m_Command.clear();
 									}
 								}
+								else
+								{
+									continue;
+								}
 							}
 
 							Project::ProcessValue( menuItem.m_Command, copyEnvVars );
 
 							// Create the FavoriteName
 							menuItem.m_FavoriteName = m_Projects.back().m_Title + " - " + shortcut.m_Name;
+
+							m_MenuItems[ project.m_Title ].second.push_back( menuItem );
 						}
 					}
 				}

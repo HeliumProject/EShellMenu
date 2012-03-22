@@ -42,6 +42,12 @@ namespace EShellMenu
 	class Shortcut
 	{
 	public:
+		Shortcut()
+			: m_Optional( false )
+		{
+
+		}
+
 		tstring m_Name;             // Display name: "prompt", etc...
 		tstring m_Folder;			// Folder to put it in (under the project menu)
 		tstring m_Description;      // Mouse over description
@@ -50,6 +56,7 @@ namespace EShellMenu
 		tstring m_Target;			// If no Args specified, use -run <blah> to this file
 		tstring m_WorkingDirectory;	// The working directory to launch the target in
 		tstring m_Installer;		// If target is defined, but doesn't exist, kick into this installer
+		bool	m_Optional;
 	};
 
 	class Config
