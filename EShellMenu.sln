@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EShell", "EShell", "{31C964
 		submodule\EShell\eshell.pl = submodule\EShell\eshell.pl
 		submodule\EShell\eshell.xml = submodule\EShell\eshell.xml
 		submodule\EShell\LICENSE = submodule\EShell\LICENSE
-		submodule\EShell\README = submodule\EShell\README
 	EndProjectSection
 EndProject
 Global
