@@ -185,8 +185,11 @@ void Project::ParseEnvVar( wxXmlNode* elem, M_EnvVar& envVars, bool includeFile 
 			}
 			else
 			{
+				tstring processed = ifStatement;
+				Project::ProcessValue( processed, envVars );
+
 				tstring existing;
-				if ( !EShellMenu::GetEnvVar( static_cast< const tchar_t* >( value.c_str() ), existing ) )
+				if ( !EShellMenu::GetEnvVar( ifStatement, existing ) && !FileExists( processed ) )
 				{
 					return;
 				}
