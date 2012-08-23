@@ -6,15 +6,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		build_installer.pl = build_installer.pl
 		build_wx.bat = build_wx.bat
+		changelist.txt = changelist.txt
 		EShellMenuSetup.iss = EShellMenuSetup.iss
+		install_dir.txt = install_dir.txt
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EShell", "EShell", "{31C96422-95B3-4B4D-8517-89C315CB842C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eshell", "eshell", "{31C96422-95B3-4B4D-8517-89C315CB842C}"
 	ProjectSection(SolutionItems) = preProject
 		submodule\EShell\eshell.pl = submodule\EShell\eshell.pl
 		submodule\EShell\eshell.xml = submodule\EShell\eshell.xml
 		submodule\EShell\LICENSE = submodule\EShell\LICENSE
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "distro", "distro", "{4A6E3D00-FC54-4F10-81CD-58048E7A9DDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,5 +37,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{31C96422-95B3-4B4D-8517-89C315CB842C} = {A0A3F32A-84BD-4397-B118-0AB7A42F8BE1}
+		{4A6E3D00-FC54-4F10-81CD-58048E7A9DDF} = {A0A3F32A-84BD-4397-B118-0AB7A42F8BE1}
 	EndGlobalSection
 EndGlobal

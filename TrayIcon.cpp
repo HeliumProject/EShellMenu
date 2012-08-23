@@ -325,16 +325,12 @@ void TrayIcon::Refresh( bool reload )
 
 									tstring workingDirectory = shortcut.m_WorkingDirectory;
 									Project::ProcessValue( workingDirectory, copyEnvVars );
-									if ( workingDirectory.empty() )
+									if ( !workingDirectory.empty() )
 									{
-										menuItem.m_Command += wxT(" -run \"") + shortcut.m_Target + wxT("\"");
+										menuItem.m_Command += wxT(" -workingDir \"") + workingDirectory + wxT("\"");
 									}
-									else
-									{
-										menuItem.m_Command += wxT(" -run \"start \\\"") + shortcut.m_Name + wxT("\\\"");
-										menuItem.m_Command += wxT(" /d\\\"") + workingDirectory + wxT("\\\"");
-										menuItem.m_Command += wxT(" \\\"") + target + wxT("\\\"\"");
-									}
+
+									menuItem.m_Command += wxT(" -run \"") + shortcut.m_Target + wxT("\"");
 								}
 								else if ( !shortcut.m_Installer.empty() )
 								{
