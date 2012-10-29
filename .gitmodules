@@ -1,6 +1,6 @@
 [submodule "submodule/wxWidgets"]
 	path = submodule/wxWidgets
-	url = git://github.com/HeliumProject/wxWidgets.git
+	url = git://github.com/wxWidgets/wxWidgets.git
 [submodule "submodule/EShell"]
 	path = submodule/EShell
 	url = git://github.com/HeliumProject/EShell.git
