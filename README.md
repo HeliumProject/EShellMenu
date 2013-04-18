@@ -16,7 +16,7 @@ or EShellMenu to work.
 To get setup:
 * clone the repository
 * run 'git submodule update --init' to pull down submodules
-* run 'build_wx.bat' to build wxWidgets
+* run 'build_wx.bat' to build wxWidgets (run in a vs2010 x64 prompt)
 * build EShellMenu.sln
 * create install_dir.txt in the repo root (it should contain the UNC
   path to where EShellMenu should look for updates)
