@@ -1,3 +1,6 @@
+3.9.1
+* Check if the installer path exists before getting the version number
+
 3.0.0
 * Generalized for public consuption: removed installs, branching support (asset and code)
 * Update menu generation code to be a bit less confusing

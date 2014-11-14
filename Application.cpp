@@ -302,10 +302,10 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 		{
 			m_TrayIcon->BeginBusy();
 
-			EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
+			bool success = EShellMenu::GetFileVersion( m_InstallPath, m_NetworkVersion );
 
 			// only refresh if the network version has changed
-			if ( IsUpdateAvailable() )
+			if ( success && IsUpdateAvailable() )
 			{
 				tstring newVersion = EShellMenu::GetFileVersionString( m_NetworkVersion );
 				wxString text = "New Update Available";
