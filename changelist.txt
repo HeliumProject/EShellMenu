@@ -1,3 +1,6 @@
+3.9.2
+* Resolve environment variables that contain environment variables
+
 3.9.1
 * Check if the installer path exists before getting the version number
 
