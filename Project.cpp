@@ -45,22 +45,25 @@ void Project::GetEnvVarAliasValue( const tstring& envVarName, const M_EnvVar& en
 
 void Project::ProcessValue( tstring& value, const M_EnvVar& envVars )
 {
-	const tregex grepTokens( wxT("%(.*?)%"), std::regex::icase  );
+	const tregex grepTokens( wxT("%(.*?)%"), std::regex::icase );
 
-	tstring tempValue = value;
-	for ( tsregex_iterator itr( tempValue.begin(), tempValue.end(), grepTokens ), end; itr != end; ++itr )
+	while ( std::regex_search( value, grepTokens ) )
 	{
-		const std::match_results<tstring::const_iterator>& resultTokens = *itr;
-
-		tstring varName ( resultTokens[1].first, resultTokens[1].second );
-		if ( !varName.empty() )
+		tstring tempValue = value;
+		for ( tsregex_iterator itr( tempValue.begin(), tempValue.end(), grepTokens ), end; itr != end; ++itr )
 		{
-			M_EnvVar::const_iterator foundVar = envVars.find( varName );
-			if ( foundVar != envVars.end() )
+			const std::match_results<tstring::const_iterator>& resultTokens = *itr;
+
+			tstring varName ( resultTokens[1].first, resultTokens[1].second );
+			if ( !varName.empty() )
 			{
-				tstring replaceTokenStr = wxT("%") + varName + wxT("%");
-				tregex replaceToken( replaceTokenStr, std::regex::icase );
-				value = std::regex_replace( value, replaceToken, ProcessEnvVar( foundVar->second, envVars ) );
+				M_EnvVar::const_iterator foundVar = envVars.find( varName );
+				if ( foundVar != envVars.end() )
+				{
+					tstring replaceTokenStr = wxT("%") + varName + wxT("%");
+					tregex replaceToken( replaceTokenStr, std::regex::icase );
+					value = std::regex_replace( value, replaceToken, ProcessEnvVar( foundVar->second, envVars ) );
+				}
 			}
 		}
 	}
@@ -77,7 +80,7 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 	// we are now processing this EnvVar
 	tstring processedValue = envVar.m_Value;
 
-	const tregex grepTokens( wxT("%([A-Z_\\-]*)%"), std::regex::icase  );
+	const tregex grepTokens( wxT("%([A-Z_\\-]*)%"), std::regex::icase );
 	for ( tsregex_iterator itr( envVar.m_Value.begin(), envVar.m_Value.end(), grepTokens ), end; itr != end; ++itr )
 	{
 		const std::match_results<tstring::const_iterator>& resultTokens = *itr;

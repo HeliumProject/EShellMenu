@@ -125,6 +125,12 @@ bool EShellMenu::GetFileVersion( const tstring& path, uint64_t& version )
 {
     bool succeeded = false;
     DWORD dwHandle = 0;
+
+    if ( !FileExists( path ) )
+    {
+        return false;
+    }
+
     DWORD size = GetFileVersionInfoSize( ( LPTSTR )path.c_str(), &dwHandle );
 
     if ( size > 0 )
