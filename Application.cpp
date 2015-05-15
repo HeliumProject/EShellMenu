@@ -31,8 +31,7 @@ Application::Application()
 	uint32_t versionLo = ( VERSION_PATCH << 16 ) | 0;
 	m_CurrentVersion = ( ( uint64_t )versionHi << 32 ) | versionLo;
 
-	wxStandardPaths sp;
-	wxFileName installDirTxt ( sp.GetExecutablePath() );
+	wxFileName installDirTxt ( wxStandardPaths::Get().GetExecutablePath() );
 	installDirTxt.SetName( "install_dir" );
 	installDirTxt.SetExt( "txt" );
 	
@@ -150,8 +149,7 @@ bool Application::OnCmdLineParsed( wxCmdLineParser& parser )
 	}
 	else
 	{
-		wxStandardPaths sp;
-		wxFileName name ( sp.GetExecutablePath() );
+		wxFileName name ( wxStandardPaths::Get().GetExecutablePath() );
 		name.SetName( wxT("eshell") );
 		name.SetExt( wxT("bat") );
 		while ( name.GetDirCount() )
