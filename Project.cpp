@@ -47,7 +47,8 @@ void Project::ProcessValue( tstring& value, const M_EnvVar& envVars )
 {
 	const tregex grepTokens( wxT("%(.*?)%"), std::regex::icase );
 
-	while ( std::regex_search( value, grepTokens ) )
+	bool failed = false;
+	while ( !failed && std::regex_search( value, grepTokens ) )
 	{
 		tstring tempValue = value;
 		for ( tsregex_iterator itr( tempValue.begin(), tempValue.end(), grepTokens ), end; itr != end; ++itr )
@@ -63,6 +64,10 @@ void Project::ProcessValue( tstring& value, const M_EnvVar& envVars )
 					tstring replaceTokenStr = wxT("%") + varName + wxT("%");
 					tregex replaceToken( replaceTokenStr, std::regex::icase );
 					value = std::regex_replace( value, replaceToken, ProcessEnvVar( foundVar->second, envVars ) );
+				}
+				else
+				{
+					failed = true;
 				}
 			}
 		}
