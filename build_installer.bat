@@ -1,0 +1,1 @@
+@"%~dp0submodule\StrawberryPerl\perl\bin\perl.exe" build_installer.pl %*
