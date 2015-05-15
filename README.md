@@ -20,7 +20,7 @@ To get setup:
 * build EShellMenu.sln
 * create install_dir.txt in the repo root (it should contain the UNC
   path to where EShellMenu should look for updates)
-* run 'build_installer.pl' to build the installer (add -publish to have
+* run 'build_installer.bat' to build the installer (add -publish to have
   it copied to the update location)
 
 -Geoff (AKA gorlak)

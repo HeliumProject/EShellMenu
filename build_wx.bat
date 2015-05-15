@@ -9,3 +9,9 @@ cmd.exe /c "call "%VCINSTALLDIR%"\vcvarsall.bat x86_amd64 && nmake.exe /f makefi
 
 endlocal
 popd
+
+(
+echo build/*
+echo lib/vc_*/*
+echo include/wx/msw/setup.h
+)>".git\modules\submodule\wxWidgets\info\exclude"
