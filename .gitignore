@@ -1,6 +1,7 @@
 *.aps
 *.sdf
 *.opensdf
+*.opendb
 *.suo
 *.ncb
 *.user

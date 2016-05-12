@@ -379,7 +379,7 @@ void TrayIcon::Refresh( bool reload )
 
 			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Add, wxString("Add..."), wxEmptyString, wxITEM_NORMAL ) );
 			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Help, wxString("Help"), wxEmptyString, wxITEM_NORMAL ) );
-			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Exit, wxString( wxT("Exit EShell Menu v"VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
+			m_Menu->Append( new wxMenuItem( m_Menu, EventIDs::Exit, wxString( wxT("Exit EShell Menu v" VERSION_STRING) ) , wxEmptyString, wxITEM_NORMAL ) );
 		}
 		else
 		{
@@ -483,7 +483,7 @@ void TrayIcon::CreateProjectsMenu( wxMenu* parentMenu )
 			{
 				wxString name( "INVALID: " );
 				name += menuItem.m_Name.c_str();
-				actualMenuItem->SetText( name );
+				actualMenuItem->SetItemLabel( name );
 				actualMenuItem->Enable( false );
 			}
 
