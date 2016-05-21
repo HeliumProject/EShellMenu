@@ -1,12 +1,12 @@
 [submodule "submodule/wxWidgets"]
 	path = submodule/wxWidgets
-	url = git://github.com/wxWidgets/wxWidgets.git
+	url = https://github.com/wxWidgets/wxWidgets.git
 [submodule "submodule/EShell"]
 	path = submodule/EShell
-	url = git://github.com/HeliumProject/EShell.git
+	url = https://github.com/HeliumProject/EShell.git
 [submodule "submodule/InnoSetup"]
 	path = submodule/InnoSetup
-	url = git://github.com/HeliumProject/InnoSetup.git
+	url = https://github.com/HeliumProject/InnoSetup.git
 [submodule "submodule/StrawberryPerl"]
 	path = submodule/StrawberryPerl
-	url = git://github.com/HeliumProject/StrawberryPerl.git
+	url = https://github.com/HeliumProject/StrawberryPerl.git
