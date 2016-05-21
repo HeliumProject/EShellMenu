@@ -254,9 +254,9 @@ void TrayIcon::Refresh( bool reload )
 
 			m_Application->LoadState();
 
-			for ( std::set< tstring >::const_iterator itr = m_Application->m_Projects.begin(), end = m_Application->m_Projects.end(); itr != end; ++itr )
+			for ( std::set< tstring >::const_iterator projectItr = m_Application->m_Projects.begin(), projectEnd = m_Application->m_Projects.end(); projectItr != projectEnd; ++projectItr )
 			{
-				if ( !FileExists( *itr ) )
+				if ( !FileExists( *projectItr ) )
 				{
 					continue;
 				}
@@ -265,13 +265,13 @@ void TrayIcon::Refresh( bool reload )
 
 				Project& project ( m_Projects.back() );
 				
-				if ( !project.LoadFile( *itr ) )
+				if ( !project.LoadFile( *projectItr ) )
 				{
 					m_Projects.resize( m_Projects.size() - 1 );
 				}
 				else
 				{
-					m_MenuItems[ project.m_Title ] = std::make_pair( static_cast<uint32_t>( m_Projects.size() - 1 ), std::vector< MenuItem > () );
+					m_MenuItems[ *projectItr ] = std::make_pair( static_cast<uint32_t>( m_Projects.size() - 1 ), std::vector< MenuItem > () );
 
 					for ( std::map< tstring, Config >::const_iterator itr = m_Projects.back().m_Configs.begin(), end = m_Projects.back().m_Configs.end(); itr != end; ++itr )
 					{
@@ -359,7 +359,7 @@ void TrayIcon::Refresh( bool reload )
 							// Create the FavoriteName
 							menuItem.m_FavoriteName = m_Projects.back().m_Title + " - " + shortcut.m_Name;
 
-							m_MenuItems[ project.m_Title ].second.push_back( menuItem );
+							m_MenuItems[ *projectItr ].second.push_back( menuItem );
 						}
 					}
 				}

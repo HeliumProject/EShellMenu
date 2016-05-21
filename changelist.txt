@@ -1,3 +1,8 @@
+3.10
+* Upgrade to vs2015
+* Support for multiple project instances (path to settings file in the menu instead of ESHELL_TITLE)
+* Support for ESHELL_SETTINGS_DIR for setting vars as relpath from settings file
+
 3.9.2
 * Fix infinite loop when resolving variable values that use undefined variables
 

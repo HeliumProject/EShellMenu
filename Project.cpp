@@ -391,12 +391,25 @@ bool Project::LoadFile( const tstring& file, bool includeFile )
 		m_File = file;
 	}
 
-	//open the config file
+	// open the config file
 	wxXmlDocument doc;
 	if ( !doc.Load( file.c_str() ) )
 	{
 		return false;
 	}
+
+	wxFileName name( file );
+	EnvVar settingsFile;
+	settingsFile.m_IsPath = true;
+	settingsFile.m_Name = wxT( "ESHELL_SETTINGS_FILE" );
+	settingsFile.m_Value = name.GetFullName().c_str();
+	m_EnvVar[wxT( "ESHELL_SETTINGS_FILE" )] = settingsFile;
+
+	EnvVar settingsDir;
+	settingsDir.m_IsPath = true;
+	settingsDir.m_Name = wxT( "ESHELL_SETTINGS_DIR" );
+	settingsDir.m_Value = name.GetPath().c_str();
+	m_EnvVar[wxT( "ESHELL_SETTINGS_DIR" )] = settingsDir;
 
 	// <Project>
 	wxXmlNode* projectSettings = doc.GetRoot();

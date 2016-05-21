@@ -12,9 +12,9 @@ using namespace EShellMenu;
 static const tstring g_DefaultInstallDir  = wxT("\\\\eshell\\installs\\");
 
 #ifdef _DEBUG
-static const int g_UpdateIntervalInSeconds = 60 * 1;
+static int g_UpdateIntervalMS = 1000 * 60;
 #else
-static const int g_UpdateIntervalInSeconds = 60 * 5;
+static int g_UpdateIntervalMS = 1000 * 60 * 5;
 #endif
 
 Application::Application()
@@ -235,7 +235,7 @@ bool Application::OnInit()
 	}
 	else
 	{
-		m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+		m_UpdateTimer.Start( g_UpdateIntervalMS, wxTIMER_ONE_SHOT );
 	}
 
 	return true;
@@ -322,7 +322,7 @@ void Application::OnUpdateTimer( wxTimerEvent& evt )
 
 			m_TrayIcon->EndBusy();
 
-			m_UpdateTimer.Start( g_UpdateIntervalInSeconds * 1000, wxTIMER_ONE_SHOT );
+			m_UpdateTimer.Start( g_UpdateIntervalMS, wxTIMER_ONE_SHOT );
 		}
 	}
 }
