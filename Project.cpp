@@ -105,7 +105,7 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 		{
 			M_EnvVar::const_iterator foundVar = envVars.find( varName );
 			if ( foundVar != envVars.end() )
-			{          
+			{
 				varValue = ProcessEnvVar( foundVar->second, envVars );
 			}
 			else if ( !EShellMenu::GetEnvVar( varName, varValue ) )
@@ -120,6 +120,37 @@ tstring Project::ProcessEnvVar( const EnvVar& envVar, const M_EnvVar& envVars, s
 	}
 
 	currentlyProcessing.erase( envVar.m_Name );
+
+	if ( envVar.m_IsPath )
+	{
+		wxFileName name( processedValue );
+
+		// handle relpathing
+		name.Normalize();
+
+		// wx doesn't handle trailing relpaths
+		if ( name.GetFullName() == wxT( ".." ) )
+		{
+			// strip the ".." off and be explicit that it's a folder path, not a file path
+			name = wxFileName( name.GetPath() + wxT( "\\" ) );
+
+			// remove the folder specified by the ".." stripped above
+			name.RemoveLastDir();
+		}
+
+		bool trailingSlash = *processedValue.rbegin() == '\\';
+
+		processedValue = name.GetFullPath().c_str();
+
+		if ( trailingSlash && *processedValue.rbegin() != '\\' )
+		{
+			processedValue += '\\';
+		}
+		else if ( !trailingSlash && *processedValue.rbegin() == '\\' )
+		{
+			processedValue.resize( processedValue.size() - 1 );
+		}
+	}
 
 	return processedValue;
 }
@@ -402,7 +433,7 @@ bool Project::LoadFile( const tstring& file, bool includeFile )
 	EnvVar settingsFile;
 	settingsFile.m_IsPath = true;
 	settingsFile.m_Name = wxT( "ESHELL_SETTINGS_FILE" );
-	settingsFile.m_Value = name.GetFullName().c_str();
+	settingsFile.m_Value = name.GetFullPath().c_str();
 	m_EnvVar[wxT( "ESHELL_SETTINGS_FILE" )] = settingsFile;
 
 	EnvVar settingsDir;
