@@ -323,7 +323,7 @@ void TrayIcon::Refresh( bool reload )
 								{
 									menuItem.m_Icon = target;
 
-									tstring workingDirectory = shortcut.m_WorkingDirectory;
+									tstring workingDirectory = shortcut.m_TargetWorkingDir;
 									Project::ProcessValue( workingDirectory, copyEnvVars );
 									if ( !workingDirectory.empty() )
 									{
@@ -332,9 +332,9 @@ void TrayIcon::Refresh( bool reload )
 
 									menuItem.m_Command += wxT(" -run \"") + shortcut.m_Target + wxT("\"");
 								}
-								else if ( !shortcut.m_Installer.empty() )
+								else if ( !shortcut.m_TargetInstaller.empty() )
 								{
-									tstring installer = shortcut.m_Installer;
+									tstring installer = shortcut.m_TargetInstaller;
 									Project::ProcessValue( installer, copyEnvVars );
 									if ( FileExists( installer ) )
 									{

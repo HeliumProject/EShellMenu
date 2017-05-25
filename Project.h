@@ -54,8 +54,8 @@ namespace EShellMenu
 		tstring m_IconPath;         // Path to the .png file
 		tstring m_Args;             // Args to pass to eshell, overrides
 		tstring m_Target;			// If no Args specified, use -run <blah> to this file
-		tstring m_WorkingDirectory;	// The working directory to launch the target in
-		tstring m_Installer;		// If target is defined, but doesn't exist, kick into this installer
+		tstring m_TargetWorkingDir;	// The working directory to launch the target in
+		tstring m_TargetInstaller;	// If target is defined, but doesn't exist, kick into this installer
 		bool	m_Optional;
 	};
 
