@@ -88,7 +88,7 @@ if ( -e $g_OutputFilePath )
 
 mkpath( $g_OutputDir );
 
-system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /q /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\" /d\"_InstallDir=$g_InstallDir\"" );
+system( "\"$g_ISCCFilePath\" \"$g_ISSFilePath\" /o\"$g_OutputDir\" /f\"$g_OutputBaseFilename\" /d\"_AppVersionMajor=$g_MajorVersion\" /d\"_AppVersionMinor=$g_MinorVersion\" /d\"_AppVersionPatch=$g_PatchVersion\" /d\"_InstallDir=$g_InstallDir\"" );
 
 
 #

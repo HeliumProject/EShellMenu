@@ -11,6 +11,7 @@
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
+.vs/*
 build/*
 install/*
 ipch/*

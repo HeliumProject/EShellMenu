@@ -1,3 +1,12 @@
+3.12
+* Upgrade to vs2019
+* Change to static CRT (avoid vc_redist)
+* Perl 5.30
+* InnoSetup 6.02
+
+3.11
+* Move installer and workingDir as attributes of Target
+
 3.10
 * Upgrade to vs2015
 * Support for multiple project instances (path to settings file in the menu instead of ESHELL_TITLE)

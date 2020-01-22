@@ -30,6 +30,7 @@
 #define _VersionInfoVersion     _AppVersion
 
 [Setup]
+WizardStyle=modern
 AllowNoIcons=yes
 AlwaysShowDirOnReadyPage=yes
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -47,7 +48,7 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 Compression=lzma
 CreateUninstallRegKey=yes
-DefaultDirName={pf64}\{#_AppName}
+DefaultDirName={commonpf}\{#_AppName}
 DisableDirPage=no
 DefaultGroupName={#_AppName}
 OutputDir=.\
@@ -74,7 +75,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "windowsstartupicon"; Description: "Start EShell Menu on Windows Startup (Recommended)"; GroupDescription: "Startup:"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -91,7 +91,6 @@ Name: "{commonstartup}\{#_AppName}"; Filename: "{app}\EShellMenu.exe"; Comment: 
 Name: "{group}\{#_AppName}"; Filename: "{app}\EShellMenu.exe"; Comment: {#_VersionInfoComments}
 Name: "{group}\{cm:UninstallProgram,{#_AppName}}"; Filename: "{uninstallexe}"; Comment: {#_VersionInfoComments}
 Name: "{commondesktop}\{#_AppName}"; Filename: "{app}\EShellMenu.exe"; Comment: {#_VersionInfoComments}; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#_AppName}"; Filename: "{app}\EShellMenu.exe"; Comment: {#_VersionInfoComments}; Tasks: quicklaunchicon
 
 [Run]
 Filename: "{app}\EShellMenu.exe"; Description: "Run {#_AppName}"; Flags: nowait postinstall
